@@ -16,10 +16,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // generate records traditionally and factory seeders
-        // User::factory(10)->create();
+        User::factory(10)->create();
 
         $this->call([
-            // UserVerificationSeeder::class, 
+            UserVerificationSeeder::class, 
             // UserBuildSeeder::class,
 
             // UserBuildSeeder::class,
