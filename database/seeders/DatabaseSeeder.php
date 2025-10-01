@@ -20,11 +20,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             UserVerificationSeeder::class, 
-            // UserBuildSeeder::class,
+            UserBuildSeeder::class,
 
             // UserBuildSeeder::class,
             // OrderedBuildSeeder::class,
-            // SupplierSeeder::class,
+            SupplierSeeder::class,
             ShoppingCartSeeder::class,
             CartItemSeeder::class,
             CheckoutSeeder::class,

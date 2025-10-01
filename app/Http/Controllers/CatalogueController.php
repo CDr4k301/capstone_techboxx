@@ -206,8 +206,9 @@ class CatalogueController extends Controller
         }
 
         // Brand
-        if ($request->filled('brand')) {
-            $filtered = $filtered->filter(fn ($i) => $i['brand'] === $request->brand);
+        if ($request->filled('brands')) {
+            $selectedBrands = (array) $request->brands;
+            $filtered = $filtered->filter(fn ($i) => in_array($i['brand'], $selectedBrands));
         }
 
         // Price range
@@ -244,7 +245,19 @@ class CatalogueController extends Controller
 
         // 4) Sidebar data (from ALL data so filters don't hide options)
         $categories = $all->pluck('category')->unique()->values();
-        $brands     = $all->pluck('brand')->filter()->unique()->sort()->values();
+        if ($request->filled('category')) {
+            // only brands that exist in this category
+            $brands = $all->where('category', $request->category)
+                        ->pluck('brand')
+                        ->filter()
+                        ->unique()
+                        ->sort()
+                        ->values();
+        } else {
+            // all brands
+            $brands = $all->pluck('brand')->filter()->unique()->sort()->values();
+        }
+
 
         // 5) Pagination (manual, because we used Collections)
         $perPage = 12; // feel free to adjust
