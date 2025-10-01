@@ -21,7 +21,7 @@
 
     <!-- Fixed landing header -->
     <x-landingheader :name="Auth::user()?->first_name" />
-    
+
     <main class="main-content">
         <!-- Top Nav Tabs (optional filter shortcuts) -->
         <div class="w-full border-b bg-white shadow-sm">
@@ -94,10 +94,10 @@
         <div class="min-h-screen bg-gray-100 flex">
 
             <!-- Sidebar -->
-            <aside class="w-full sm:w-1/4 p-6 border-r bg-white shadow overflow-y-auto">
+            <aside class="w-full sm:w-1/4 p-6 border-r bg-white shadow overflow-y-auto flex flex-col">
                 <!-- CATEGORY -->
                 <h2 class="font-bold mb-3">CATEGORY</h2>
-                <form id="sidebar-filter-form" method="GET" action="{{ route('catalogue') }}">
+                <form id="sidebar-filter-form" method="GET" action="{{ route('catalogue') }}" class="flex-1">
                     <!-- Preserve all query params except category, brands, min/max price, page -->
                     @foreach(request()->except(['category','brands','min_price','max_price','page']) as $key => $val)
                         <input type="hidden" name="{{ $key }}" value="{{ $val }}">
@@ -161,17 +161,10 @@
                 </form>
 
                 <!-- Clear All Filters -->
-                <div class="mt-6">
+                <div class="mt-auto pt-6">
                     <a href="{{ route('catalogue') }}"
-                    class="block text-center px-3 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600">
+                    class="block text-center px-3 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 ">
                         Clear All Filters
-                    </a>
-                </div>
-
-                <!-- Add Product -->
-                <div class="mt-6">
-                    <a href="#" class="block text-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        + Add Product
                     </a>
                 </div>
 
@@ -202,7 +195,7 @@
             </script>
 
             <!-- Product Grid -->
-            <main class="w-full sm:w-3/4 p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            <main class="w-full sm:w-3/4 p-6 grid grid-rows-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                 x-data="{ openModal: false, specs: {}, name: '', image: '' }"
                 x-on:open-specs.window="openModal = true; specs = $event.detail.specs; name = $event.detail.name; image = $event.detail.image;">
 
