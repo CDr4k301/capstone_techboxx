@@ -80,7 +80,7 @@
                 @endif
 
                 <select name="sort" onchange="this.form.submit()"
-                    class="ml-2 px-4 py-2 border border-gray-200 rounded-full bg-white text-gray-700 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
+                    class="ml-2 pl-4 py-2 border border-gray-200 rounded-full bg-white text-gray-700 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
                     <option value="">Sort: Default</option>
                     <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Sort: New</option>
                     <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
@@ -195,7 +195,7 @@
             </script>
 
             <!-- Product Grid -->
-            <main class="w-full sm:w-3/4 p-6 grid grid-rows-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            <main class="w-full sm:w-3/4 p-6 grid  grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                 x-data="{ openModal: false, specs: {}, name: '', image: '' }"
                 x-on:open-specs.window="openModal = true; specs = $event.detail.specs; name = $event.detail.name; image = $event.detail.image;">
 
