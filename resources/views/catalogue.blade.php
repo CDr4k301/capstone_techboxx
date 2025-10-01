@@ -149,7 +149,7 @@
                     <div class="relative border rounded-lg p-4 text-center bg-blue-50 shadow hover:shadow-lg transition flex flex-col justify-between h-[360px] group">
                         
                         <!-- Menu -->
-                        <button @click="$dispatch('open-specs', { 
+                        {{-- <button @click="$dispatch('open-specs', { 
                             specs: {{ json_encode($product['specs']) }}, 
                             name: '{{ $product['name'] }}', 
                             image: {{ json_encode($product['image']) }} })"
@@ -160,7 +160,7 @@
                                 class="w-5 h-5 text-gray-700">
                                 <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
                             </svg>
-                        </button>
+                        </button> --}}
 
                         <!-- Image + Name as Link -->
                         <a href="{{ route('catalogue.show', ['table' => $product['table'], 'id' => $product['id']]) }}">
@@ -207,9 +207,9 @@
                 @endforelse
 
 
-                <!-- 🔥 Global Modal -->
+                {{-- <!-- 🔥 Global Modal -->
                 <template x-if="openModal">
-                    <div class="fixed inset-0 flex items-center justify-center z-50">
+                    <div class="fixed inset-0 flex items-center justify-center !z-[99999]">
                         <!-- Overlay -->
                         <div class="absolute inset-0 bg-black bg-opacity-50" @click="openModal = false"></div>
 
@@ -253,7 +253,7 @@
                             </div>
                         </div>
                     </div>
-                </template>
+                </template> --}}
             </main>
         </div>
 

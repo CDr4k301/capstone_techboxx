@@ -296,6 +296,7 @@ class CartController extends Controller
         // Create Checkout record
         $checkout = OrderedBuild::create([
             'user_build_id' => $request->user_build_id,
+            'status' => "Pending",
             'payment_method' => $paymentMethod,
             'payment_status' => $paymentStatus,
         ]);

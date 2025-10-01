@@ -19,7 +19,7 @@ class CatalogueController extends Controller
             'rams'         => 'ram',
             'storages'     => 'storage',
             'psus'         => 'psu',
-            'pc_cases'        => 'case',     // ok even if table doesn't exist; we skip it below
+            'pc_cases'     => 'case',     // ok even if table doesn't exist; we skip it below
             'coolers'      => 'cooler',
         ];
 
@@ -65,7 +65,7 @@ class CatalogueController extends Controller
                         'tdp'                 => $rowArr['tdp'] ?? '',
                         'has integrated graphics' => isset($rowArr['integrated_graphics']) ? ($rowArr['integrated_graphics'] ? 'Yes' : 'No') : 'N/A',
                         'generation'          => $rowArr['generation'] ?? '',
-                        'price' => '₱' . number_format($rowArr['price'] ?? 0, 2),
+                        'price'               => '₱' . number_format($rowArr['price'] ?? 0, 2),
                         'stock'               => $rowArr['stock'] ?? '',
                     ];
                     break;
@@ -74,13 +74,13 @@ class CatalogueController extends Controller
                     $specs = [
                         'brand'       => $rowArr['brand'] ?? '',
                         'model'       => $rowArr['model'] ?? '',
-                        'vram_gb'      => $rowArr['vram_gb'] ?? '',
-                        'power_draw_watts'  => $rowArr['power_draw_watts'] ?? '',
-                        'recommended_psu_watt' => $rowArr['recommended_psu_watt'] ?? '',
-                        'length_mm'         => $rowArr['length_mm'] ?? '',
+                        'vram_gb' => ($rowArr['vram_gb'] ?? '') . ' GB',
+                        'power draw watts'  => ($rowArr['power_draw_watts'] ?? '') . ' W',
+                        'recommended psu watt' => ($rowArr['recommended_psu_watt'] ?? '') . ' W',
+                        'length_mm'         => ($rowArr['length_mm'] ?? '') . ' mm',
                         'pcie_interface'  => $rowArr['pcie_interface'] ?? '',
                         'connectors_required'       => $rowArr['connectors_required'] ?? '',
-                        'price'               => $rowArr['price'] ?? '',
+                        'price'               => '₱' . number_format($rowArr['price'] ?? 0, 2),
                         'stock'       => $rowArr['stock'] ?? '',
                     ];
                     break;
@@ -92,9 +92,15 @@ class CatalogueController extends Controller
                         'socket_type'  => $rowArr['socket_type'] ?? '',
                         'form_factor'  => $rowArr['form_factor'] ?? '',
                         'chipset'      => $rowArr['chipset'] ?? '',
-                        'memory_slots' => $rowArr['memory_slots'] ?? '',
-                        'max_memory'   => $rowArr['max_memory'] ?? '',
-                        'price'        => $rowArr['price'] ?? '',
+                        'ram_type' => $rowArr['ram_type'] ?? '',
+                        'max_ram'   => ($rowArr['max_ram'] ?? '') . ' GB',
+                        'max_ram speed'   => ($rowArr['max_ram_speed'] ?? '') . ' MHz',
+                        'pcie_slots'   => $rowArr['pcie_slots'] ?? '',
+                        'm2_slots'   => $rowArr['m2_slots'] ?? '',
+                        'sata_ports'   => $rowArr['sata_ports'] ?? '',
+                        'usb_ports'   => $rowArr['usb_ports'] ?? '',
+                        'has wifi onboard'   => isset($rowArr['wifi_onboard']) ? ($rowArr['wifi_onboard'] ? 'Yes' : 'No') : 'N/A',
+                        'price'               => '₱' . number_format($rowArr['price'] ?? 0, 2),
                         'stock'        => $rowArr['stock'] ?? '',
                     ];
                     break;
@@ -103,10 +109,13 @@ class CatalogueController extends Controller
                     $specs = [
                         'brand'    => $rowArr['brand'] ?? '',
                         'model'    => $rowArr['model'] ?? '',
-                        'capacity' => $rowArr['capacity'] ?? '',
-                        'speed'    => $rowArr['speed'] ?? '',
-                        'type'     => $rowArr['type'] ?? '',
-                        'modules'  => $rowArr['modules'] ?? '',
+                        'ram_type' => $rowArr['ram_type'] ?? '',
+                        'speed_mhz'    => ($rowArr['speed_mhz'] ?? '') . ' MHz',
+                        'size_per_module_gb'     => ($rowArr['size_per_module_gb'] ?? '') . ' GB',
+                        'total_capacity_gb'  => ($rowArr['total_capacity_gb'] ?? '') . ' GB',
+                        'module_count'  => $rowArr['module_count'] ?? '',
+                        'is_ecc'  => $rowArr['is_ecc'] ?? '',
+                        'is_rgb'  => $rowArr['is_rgb'] ?? '',
                         'price'    => $rowArr['price'] ?? '',
                         'stock'    => $rowArr['stock'] ?? '',
                     ];
