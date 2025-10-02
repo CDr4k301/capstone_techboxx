@@ -28,7 +28,7 @@
                 </div>
             @endif
 
-            @if(!$cart->isEmpty())
+            @if(is_object($cart) && !$cart->isEmpty())
                 <div class="mb-4">
                     <a href="{{ route('catalogue') }}" class="text-gray-700 hover:text-blue-900 font-medium">
                         ← Continue Shopping

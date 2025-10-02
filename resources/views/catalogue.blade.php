@@ -125,14 +125,41 @@
                     <!-- PRICE -->
                     <h2 class="font-bold mt-6 mb-2">PRICE</h2>
                     <div class="flex gap-2 mb-2">
+                    <!-- PRICE -->
+                    <h2 class="font-bold mt-6 mb-2">PRICE</h2>
+                    <div class="flex gap-2 mb-2">
                         <input type="number" name="min_price" placeholder="Min ₱"
+                            value="{{ request('min_price') }}" min="0" step="1"
                             value="{{ request('min_price') }}" min="0" step="1"
                             class="border p-1 w-24 rounded">
                         <input type="number" name="max_price" placeholder="Max ₱"
                             value="{{ request('max_price') }}" min="0" step="1"
+                            value="{{ request('max_price') }}" min="0" step="1"
                             class="border p-1 w-24 rounded">
                     </div>
 
+                    <!-- BRANDS -->
+                    <h2 class="font-bold mt-6 mb-2">BRAND</h2>
+                    <ul class="text-sm space-y-1">
+                        @forelse($brands as $brand)
+                            <li class="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    name="brands[]"
+                                    value="{{ $brand }}"
+                                    id="brand-{{ $loop->index }}"
+                                    class="mr-2 brand-checkbox"
+                                    {{ in_array($brand, request('brands', [])) ? 'checked' : '' }}
+                                >
+                                <label for="brand-{{ $loop->index }}"
+                                    class="hover:underline cursor-pointer {{ in_array($brand, request('brands', [])) ? 'text-blue-600 font-semibold' : '' }}">
+                                    {{ $brand }}
+                                </label>
+                            </li>
+                        @empty
+                            <li class="text-gray-400">No brands</li>
+                        @endforelse
+                    </ul>
                     <!-- BRANDS -->
                     <h2 class="font-bold mt-6 mb-2">BRAND</h2>
                     <ul class="text-sm space-y-1">
@@ -223,14 +250,14 @@
                                 class="mx-auto mb-3 h-32 object-contain">
                         </a>
 
-                        <h3 class="font-bold text-sm truncate">
+                        <h3 class="font-bold text-sm truncate hover:underline">
                             <a href="{{ route('catalogue.show', ['table' => $product['table'], 'id' => $product['id']]) }}">
                                 {{ $product['name'] }}
                             </a>
                         </h3>
 
                         <p class="text-xs text-gray-600">{{ $product['brand'] }}</p>
-                        <p class="text-[11px] text-gray-500 mt-0.5">{{ $product['category'] }}</p>
+                        <p class="text-[11px] text-gray-500 mt-0.5">{{ strtoupper($product['category']) }}</p>
 
                         <!-- ⭐ Rating -->
                         <p class="text-yellow-500 text-sm mb-1">
@@ -318,5 +345,27 @@
     </main>
     
     <script src="//unpkg.com/alpinejs" defer></script>
+    <script>
+        // Auto-submit when a brand checkbox changes
+        document.querySelectorAll('.brand-checkbox').forEach(function(checkbox){
+            checkbox.addEventListener('change', function(){
+                document.getElementById('sidebar-filter-form').submit();
+            });
+        });
+
+        // Auto-submit when a category radio changes
+        document.querySelectorAll('.category-radio').forEach(function(radio){
+            radio.addEventListener('change', function(){
+                document.getElementById('sidebar-filter-form').submit();
+            });
+        });
+
+        // Optional: auto-submit on price input change (on blur)
+        document.querySelectorAll('input[name="min_price"], input[name="max_price"]').forEach(function(input){
+            input.addEventListener('blur', function(){
+                document.getElementById('sidebar-filter-form').submit();
+            });
+        });
+    </script>
 </body>
 </html>

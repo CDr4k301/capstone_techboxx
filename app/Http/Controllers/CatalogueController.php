@@ -209,6 +209,9 @@ class CatalogueController extends Controller
         if ($request->filled('brands')) {
             $selectedBrands = (array) $request->brands;
             $filtered = $filtered->filter(fn ($i) => in_array($i['brand'], $selectedBrands));
+        if ($request->filled('brands')) {
+            $selectedBrands = (array) $request->brands;
+            $filtered = $filtered->filter(fn ($i) => in_array($i['brand'], $selectedBrands));
         }
 
         // Price range
@@ -285,16 +288,22 @@ class CatalogueController extends Controller
             abort(404, 'Table not found');
         }
 
+        $columns = Schema::getColumnListing($table);
         $row = DB::table($table)->find($id);
 
         if (!$row) {
             abort(404, 'Product not found');
         }
 
-        // Define table-to-category mapping
+        // Define table-specific common columns
+        $commonColumns = $this->getCommonColumnsForTable($table);
+
+        // Fetch related data for specific tables
+        $relatedData = $this->getRelatedData($table, $id);
+
         $maps = [
             'cpus'         => 'cpu',
-            'gpus'         => 'gpu',
+            'gpus'         => 'gpu', 
             'motherboards' => 'motherboard',
             'rams'         => 'ram',
             'storages'     => 'storage',
@@ -303,10 +312,7 @@ class CatalogueController extends Controller
             'coolers'      => 'cooler',
         ];
 
-        // Determine category
-        $category = $maps[$table] ?? rtrim($table, 's'); // fallback if missing in map
-
-        // Normalize product (minimal for detail page)
+        $category = $maps[$table] ?? rtrim($table, 's');
         $rowArr = (array) $row;
 
         $product = [
@@ -317,8 +323,89 @@ class CatalogueController extends Controller
             'price'    => (float) ($rowArr['price'] ?? 0),
             'stock'    => (int) ($rowArr['stock'] ?? 0),
             'image'    => $rowArr['image'] ?? 'images/placeholder.png',
+            'description' => $rowArr['description'] ?? 'No description available.',
         ];
 
-        return view('product.show', compact('product'));
+        return view('product.show', compact('product', 'row', 'columns', 'table', 'commonColumns', 'relatedData'));
+    }
+
+    private function getCommonColumnsForTable($table)
+    {
+        $columnGroups = [
+            'common' => ['brand', 'model', 'price', 'stock'],
+            
+            'cpus' => [
+                'socket_type', 'cores', 'threads', 'base_clock', 'boost_clock', 
+                'tdp', 'integrated_graphics', 'generation'
+            ],
+            
+            'gpus' => [
+                'vram_gb', 'power_draw_watts', 'recommended_psu_watt', 'length_mm', 'pcie_interface',
+                'pcie_interface'
+            ],
+            
+            'motherboards' => [
+                'socket_type','chipset', 'form_factor', 'ram_type', 'max_ram',
+                'ram_slots', 'max_ram_speed', 'pcie_slots', 'm2_slots', 'sata_ports', 'usb_ports', 'wifi_onboard'
+            ],
+            
+            'rams' => [
+                'ram_type', 'speed_mhz', 'size_per_module_gb', 'total_capacity_gb', 'module_count', 'is_ecc',
+                'is_rgb', 
+            ],
+            
+            'storages' => [
+                'storage_type', 'interface', 'capacity_gb', 'form_factor', 'read_speed_mbps', 'write_speed_mbps'
+            ],
+            
+            'psus' => [
+                'wattage', 'efficiency_rating', 'modular', 'pcie_connectors', 'sata_connectors'
+            ],
+            
+            'pc_cases' => [
+                'form_factor_support', 'max_gpu_length_mm', 'max_cooler_height_mm', 'fan_mounts',
+            ],
+            
+            'coolers' => [
+                'cooler_type', 'socket_compatibility', 'max_tdp', 'radiator_size_mm', 'fan_count',
+                'height_mm'
+            ]
+        ];
+
+        return array_merge(
+            $columnGroups['common'],
+            $columnGroups[$table] ?? []
+        );
+    }
+
+    private function getRelatedData($table, $id)
+    {
+        $relatedData = [];
+        
+        switch($table) {
+            case 'pc_cases':
+                // Check if related tables exist before querying
+                if (Schema::hasTable('pc_case_drive_bays')) {
+                    $relatedData['drive_bays'] = DB::table('pc_case_drive_bays')
+                        ->where('pc_case_id', $id)
+                        ->first();
+                }
+                
+                if (Schema::hasTable('pc_case_front_usb_ports')) {
+                    $relatedData['front_ports'] = DB::table('pc_case_front_usb_ports')
+                        ->where('pc_case_id', $id)
+                        ->first();
+                }
+                
+                if (Schema::hasTable('pc_case_radiator_supports')) {
+                    $relatedData['radiator_support'] = DB::table('pc_case_radiator_supports')
+                        ->where('pc_case_id', $id)
+                        ->get();
+                }
+                break;
+            
+        }
+        
+        return $relatedData;
     }
 }

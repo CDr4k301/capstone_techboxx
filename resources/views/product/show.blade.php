@@ -138,10 +138,102 @@
 
         <!-- Full Description -->
         <div id="full-description" class="mt-12 bg-white shadow rounded-lg p-6">
-            <h2 class="text-xl font-bold mb-3">Full Description</h2>
-            <p class="text-gray-700 leading-relaxed">
-                {{ $product['description'] ?? 'No description available.' }}
-            </p>
+            <h2 class="text-xl font-bold mb-3">Product Specifications</h2>
+            
+            <!-- Combined Specifications -->
+            <div class="grid grid-cols-1 gap-4 mb-6">
+                <!-- Common Specifications from Main Table -->
+                @foreach($commonColumns as $column)
+                    @if(in_array($column, $columns) && !empty($row->$column))
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium capitalize">{{ str_replace('_', ' ', $column) }}:</span>
+                            <span class="text-gray-700">
+                                @if($column === 'price')
+                                    ${{ number_format($row->$column, 2) }}
+                                @else
+                                    {{ $row->$column }}
+                                @endif
+                            </span>
+                        </div>
+                    @endif
+                @endforeach
+
+                <!-- Drive Bays from Related Table -->
+                @if(isset($relatedData['drive_bays']) && $relatedData['drive_bays'])
+                    @if(isset($relatedData['drive_bays']->{'3_5_bays'}) && $relatedData['drive_bays']->{'3_5_bays'})
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium capitalize">3.5" Drive Bays:</span>
+                            <span class="text-gray-700">{{ $relatedData['drive_bays']->{'3_5_bays'} }}</span>
+                        </div>
+                    @endif
+                    
+                    @if(isset($relatedData['drive_bays']->{'2_5_bays'}) && $relatedData['drive_bays']->{'2_5_bays'} !== null)
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium capitalize">2.5" Drive Bays:</span>
+                            <span class="text-gray-700">{{ $relatedData['drive_bays']->{'2_5_bays'} }}</span>
+                        </div>
+                    @endif
+
+                    @if(isset($relatedData['front_ports']->{'usb_3_0_type_A'}) && $relatedData['front_ports']->{'usb_3_0_type_A'} !== null)
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium capitalize">USB 3.0 Type-A:</span>
+                            <span class="text-gray-700">{{ $relatedData['front_ports']->{'usb_3_0_type_A'} }}</span>
+                        </div>
+                    @endif
+
+                    @if(isset($relatedData['front_ports']->{'usb_2_0'}) && $relatedData['front_ports']->{'usb_2_0'} !== null)
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium capitalize">USB 2.0:</span>
+                            <span class="text-gray-700">{{ $relatedData['front_ports']->{'usb_2_0'} }}</span>
+                        </div>
+                    @endif
+
+                    @if(isset($relatedData['front_ports']->{'audio_jacks'}) && $relatedData['front_ports']->{'audio_jacks'} !== null)
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="font-medium capitalize">Audio Jacks:</span>
+                            <span class="text-gray-700">{{ $relatedData['front_ports']->{'audio_jacks'} }}</span>
+                        </div>
+                    @endif
+
+                    @if(isset($relatedData['radiator_support']) && $relatedData['radiator_support']->isNotEmpty())
+                        @php
+                            // Group by location and collect all sizes
+                            $radiatorGroups = [];
+                            foreach($relatedData['radiator_support'] as $radiator) {
+                                $location = $radiator->location ?? 'Unknown';
+                                $size = $radiator->size_mm ?? '';
+                                if ($size) {
+                                    if (!isset($radiatorGroups[$location])) {
+                                        $radiatorGroups[$location] = [];
+                                    }
+                                    $radiatorGroups[$location][] = $size;
+                                }
+                            }
+                            
+                            // Build the display array with concatenated sizes
+                            $radiatorSupport = [];
+                            foreach($radiatorGroups as $location => $sizes) {
+                                // Remove duplicates and sort sizes
+                                $uniqueSizes = array_unique($sizes);
+                                sort($uniqueSizes);
+                                
+                                // Concatenate sizes with slashes
+                                $sizeString = implode(' / ', $uniqueSizes);
+                                $radiatorSupport[] = $location . ': ' . $sizeString . 'mm';
+                            }
+                        @endphp
+                        
+                        <div class="flex flex-col sm:flex-row sm:justify-between border-b pb-2">
+                            <span class="font-medium capitalize sm:mb-0 mb-1">Radiator Support:</span>
+                            <span class="text-gray-700 text-right">
+                                @foreach($radiatorSupport as $support)
+                                    {{ $support }}@if(!$loop->last)<br>@endif
+                                @endforeach
+                            </span>
+                        </div>
+                    @endif
+                @endif
+            </div>
         </div>
 
         <!-- Customer Comments -->
