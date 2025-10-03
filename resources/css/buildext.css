@@ -180,6 +180,7 @@ canvas {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: visible;
 }
 
 .component-button img {
@@ -190,6 +191,8 @@ canvas {
     height: 70%;
     object-fit: contain;
     display: none; /* hidden until selected */
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    transform-origin: center center;
 }
 
 .component-button p {
@@ -206,6 +209,11 @@ canvas {
         #34C8E8 30%,
         #4E4AF2 60%
     ) !important;
+}
+
+.component-active img {
+    transform: skewX(15deg) translateY(-10%) scale(1.5);
+    opacity: 1;
 }
 
 .catalog-section {

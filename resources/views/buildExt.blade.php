@@ -63,15 +63,15 @@
             {{-- STEPS --}}
             <section class="steps-section">
                 <div>
-                    <h4>VIRTUAL PC BUILD GUIDE</h4>
-                    <p>1. Install the PSU (Power Supply Unit)</p>
-                    <p>2. Install the Motherboard</p>
-                    <p>3. Install the CPU</p>
-                    <p>4. Install the RAM</p>
-                    <p>5. Install the SSD</p>
-                    <p>6. Install the HDD</p>
+                    <h3>VIRTUAL PC BUILD GUIDE</h3>
+                    <p>1. Install the Motherboard</p>
+                    <p>2. Install the CPU</p>
+                    <p>3. Install the RAM</p>
+                    <p>4. Install the SSD</p>
+                    <p>5. Install the HDD</p>
+                    <p>6. Install the CPU Cooler</p>
                     <p>7. Install the GPU</p>
-                    <p>8. Close the Case</p>
+                    <p>8. Install the PSU</p>
                     <p>9. Power On</p>
                 </div>
             </section>
@@ -92,15 +92,14 @@
                 <div class="slide-container">
                     <div class="component-section">
                         <x-icons.arrow class="component-arrow" />
-                        <x-component data-type="case">Case</x-component>
+                        <x-component data-type="motherboard">Motherboard</x-component>
                         <x-component data-type="cpu">CPU</x-component>
                         <x-component data-type="ram">RAM</x-component>
                         <x-component data-type="ssd">SSD</x-component>
-                        <x-component data-type="motherboard">Motherboard</x-component>
-                        <x-component data-type="gpu">GPU</x-component>
                         <x-component data-type="hdd">HDD</x-component>
-                        <x-component data-type="psu">PSU</x-component>
                         <x-component data-type="cooler">Cooler</x-component>
+                        <x-component data-type="gpu">GPU</x-component>
+                        <x-component data-type="psu">PSU</x-component>
                     </div>
 
                     <div class="catalog-section" id="catalogSection">

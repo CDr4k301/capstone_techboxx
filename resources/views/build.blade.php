@@ -244,14 +244,14 @@ class="flex">
             <div id="sidebar">
                 <h3 class="mb-3 text-center">BUILD COMPONENTS</h3>
                 <div id="components">
-                    <div id="gpu" class="draggable"><p>GPU</p></div>
                     <div id="motherboard" class="draggable"><p>Motherboard</p></div>
                     <div id="cpu" class="draggable"><p>CPU</p></div>
-                    <div id="hdd" class="draggable"><p>HDD</p></div>
-                    <div id="ssd" class="draggable"><p>SDD</p></div>
-                    <div id="psu" class="draggable"><p>PSU</p></div>    
                     <div id="ram" class="draggable"><p>RAM</p></div>    
+                    <div id="ssd" class="draggable"><p>SDD</p></div>
+                    <div id="hdd" class="draggable"><p>HDD</p></div>
                     <div id="cooler" class="draggable"><p>Cooler</p></div>
+                    <div id="gpu" class="draggable"><p>GPU</p></div>
+                    <div id="psu" class="draggable"><p>PSU</p></div>    
                 </div>
             </div>
             <div id="canvas-container"></div>
@@ -291,15 +291,15 @@ class="flex">
             {{-- THIS SECTION WILL SHOW WHEN GENERATE BUILD IS CLICKED --}}
             <div class="generate-build hidden" id="buildSection">
                 <button data-type="chipset"><p>Chipset <span class="selected-name" id="chipsetName">None</span></p></button>
-                <button data-type="case"><p>Case <span class="selected-name">None</span></p></button>
-                <button data-type="gpu"><p>GPU <span class="selected-name">None</span></p></button>
-                <button data-type="motherboard"><p>Motherboard <span class="selected-name">None</span></p></button>
                 <button data-type="cpu"><p>CPU <span class="selected-name">None</span></p></button>
+                <button data-type="case"><p>Case <span class="selected-name">None</span></p></button>
+                <button data-type="motherboard"><p>Motherboard <span class="selected-name">None</span></p></button>
+                <button data-type="ram"><p>RAM <span class="selected-name">None</span></p></button>
+                <button data-type="gpu"><p>GPU <span class="selected-name">None</span></p></button>
                 <button data-type="hdd"><p>HDD <span class="selected-name">None</span></p></button>
                 <button data-type="ssd"><p>SSD <span class="selected-name">None</span></p></button>
-                <button data-type="psu"><p>PSU <span class="selected-name">None</span></p></button>
-                <button data-type="ram"><p>RAM <span class="selected-name">None</span></p></button>
                 <button data-type="cooler"><p>Cooler <span class="selected-name">None</span></p></button>
+                <button data-type="psu"><p>PSU <span class="selected-name">None</span></p></button>
             </div>
         </section>   
         <section class="catalog-section">

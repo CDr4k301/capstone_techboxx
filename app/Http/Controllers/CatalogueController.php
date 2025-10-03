@@ -209,9 +209,6 @@ class CatalogueController extends Controller
         if ($request->filled('brands')) {
             $selectedBrands = (array) $request->brands;
             $filtered = $filtered->filter(fn ($i) => in_array($i['brand'], $selectedBrands));
-        if ($request->filled('brands')) {
-            $selectedBrands = (array) $request->brands;
-            $filtered = $filtered->filter(fn ($i) => in_array($i['brand'], $selectedBrands));
         }
 
         // Price range
@@ -260,7 +257,6 @@ class CatalogueController extends Controller
             // all brands
             $brands = $all->pluck('brand')->filter()->unique()->sort()->values();
         }
-
 
         // 5) Pagination (manual, because we used Collections)
         $perPage = 12; // feel free to adjust

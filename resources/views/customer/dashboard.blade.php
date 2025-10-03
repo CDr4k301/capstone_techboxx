@@ -43,7 +43,6 @@
         </button>
     </div>
     
-    <hr>
 
     {{-- Edit Modal --}}
     <div x-show="showEditModal" x-cloak x-transition class="modal">

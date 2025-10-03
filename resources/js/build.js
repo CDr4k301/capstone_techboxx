@@ -348,7 +348,7 @@ buildSectionButtons.forEach(button => {
 
         // UPDATE CATALOG HEADER TITLE
         const catalogTitle = document.getElementById('catalogTitle');
-        catalogTitle.textContent = currentTypeFilter.charAt(0).toUpperCase() + currentTypeFilter.slice(1);
+        catalogTitle.textContent = currentTypeFilter.toUpperCase();
 
         buildSectionButtons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');

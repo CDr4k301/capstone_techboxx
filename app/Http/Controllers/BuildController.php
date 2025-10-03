@@ -113,42 +113,60 @@ class BuildController extends Controller
         $cooler = Cooler::find($request->cooler_id);
         $storage = Storage::find($request->storage_id);
 
-        $issues = [];
 
-        if ($cpu && $mobo && !$compat->isCpuCompatiblewithMotherboard($cpu, $mobo)) {
-            $issues[] = "CPU and motherboard socket_type is incompatible.";
+
+        $issues = ['errors' => [], 'warnings' => []];
+
+        // if ($cpu && $mobo) {
+        //     $result = $compat->isCpuCompatiblewithMotherboard($cpu, $mobo);
+        //     $issues['errors']   = array_merge($issues['errors'], $result['errors']);
+        //     $issues['warnings'] = array_merge($issues['warnings'], $result['warnings']);
+        // }
+        
+        if ($ram && $mobo) {
+            $result = $compat->isRamCompatiblewithMotherboard($ram, $mobo);
+            $issues['errors']   = array_merge($issues['errors'], $result['errors']);
+            $issues['warnings'] = array_merge($issues['warnings'], $result['warnings']);
         }
 
-        if ($ram && $mobo && !$compat->isRamCompatiblewithMotherboard($ram, $mobo)) {
-            $issues[] = "RAM and motherboard ram type is incompatible.";
+        if ($gpu && $case) {
+            $result = $compat->isGpuCompatiblewithCase($gpu, $case);
+            $issues['errors']   = array_merge($issues['errors'], $result['errors']);
+            $issues['warnings'] = array_merge($issues['warnings'], $result['warnings']);
         }
 
-        if ($gpu && $case && !$compat->isGpuCompatiblewithCase($gpu, $case)) {
-            $issues[] = "GPU and Case GPU length is incompatible.";
+        if ($cooler && $mobo && $case) {
+            $result = $compat->isCoolerCompatible($cooler, $mobo, $case);
+            $issues['errors']   = array_merge($issues['errors'], $result['errors']);
+            $issues['warnings'] = array_merge($issues['warnings'], $result['warnings']);
         }
 
-        if ($cooler && $cpu && $case && !$compat->isCoolerCompatible($cooler, $cpu, $case )) {
-            $issues[] = "Cooler, CPU, and Case socket type and height is incompatible.";
+        if ($psu && $cpu && $gpu) {
+            $result = $compat->isPsuEnough($psu, $cpu, $gpu);
+            $issues['errors']   = array_merge($issues['errors'], $result['errors']);
+            $issues['warnings'] = array_merge($issues['warnings'], $result['warnings']);
         }
 
-        if ($psu && $cpu && $gpu && !$compat->isPsuEnough($psu, $cpu, $gpu )) {
-            $issues[] = "PSU, CPU and GPU power is incompatible.";
+        if ($case && $mobo) {
+            $result = $compat->isMotherboardCompatiblewithCase($mobo, $case);
+            $issues['errors']   = array_merge($issues['errors'], $result['errors']);
+            $issues['warnings'] = array_merge($issues['warnings'], $result['warnings']);
         }
 
-        if ($case && $mobo && !$compat->isMotherboardCompatiblewithCase($mobo, $case)) {
-            $issues[] = "Case and motherboard form factor is incompatible.";
+        if ($mobo && $storage) {
+            $result = $compat->isStorageCompatiblewithMotherboard($mobo, $storage);
+            $issues['errors']   = array_merge($issues['errors'], $result['errors']);
+            $issues['warnings'] = array_merge($issues['warnings'], $result['warnings']);
         }
 
-        if ($mobo && $storage && !$compat->isStorageCompatiblewithMotherboard($mobo, $storage)) {
-            $issues[] = "Motherboard and Storage interface is incompatible.";
-        }
-
-        if (count($issues) > 0) {
+        if (!empty($issues['errors']) || !empty($issues['warnings'])) {
             return response()->json([
-                'success' => false,
-                'errors' => $issues
+                'success'  => empty($issues['errors']), // true if no errors
+                'errors'   => $issues['errors'],
+                'warnings' => $issues['warnings']
             ]);
         }
+
 
         return response()->json(['success' => true]);
     }
@@ -210,11 +228,11 @@ class BuildController extends Controller
                 'status' => 'Saved',
             ]);
 
-            return redirect()->route('home')->with('success', 'Build saved successfully!');
+            return redirect()->route('home')->with('✅Success', '✅Build saved successfully!');
 
         } catch (\Exception $e) {
             // Log::error('Order build failed: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to create order. Please try again.');
+            return redirect()->back()->with('⚠️Error', '⚠️Failed to create order. Please try again.');
         }
     }
 
