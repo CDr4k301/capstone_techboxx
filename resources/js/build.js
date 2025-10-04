@@ -100,6 +100,14 @@ function filterByBuildCategory(category) {
     })
 }
 
+//Components & Summary active tab
+document.querySelectorAll('.catalog-button button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelector('.catalog-button .active')?.classList.remove('active');
+    btn.classList.add('active');
+  });
+});
+
 customBuildBtn.addEventListener('click', function() {
     currentBudget = null;
 

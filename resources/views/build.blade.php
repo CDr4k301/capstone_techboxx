@@ -225,7 +225,7 @@ class="flex">
         </div>
     </div>
 
-    <main class="main-content flex justify-evenly h-[91vh] gap-1">
+    <main class="main-content flex justify-evenly h-[91vh] ">
         <section class="preview-section header">
             <div class="build-icons">
                 <form action="{{ route('home') }}">
@@ -286,25 +286,25 @@ class="flex">
             <div class="generate-button">
                 <button id="generateBtn"><p>Generate Build</p></button>
             </div>
-            
 
             {{-- THIS SECTION WILL SHOW WHEN GENERATE BUILD IS CLICKED --}}
             <div class="generate-build hidden" id="buildSection">
-                <button data-type="chipset"><p>Chipset <span class="selected-name" id="chipsetName">None</span></p></button>
-                <button data-type="cpu"><p>CPU <span class="selected-name">None</span></p></button>
                 <button data-type="case"><p>Case <span class="selected-name">None</span></p></button>
                 <button data-type="motherboard"><p>Motherboard <span class="selected-name">None</span></p></button>
+                <button data-type="cpu"><p>CPU <span class="selected-name">None</span></p></button>
                 <button data-type="ram"><p>RAM <span class="selected-name">None</span></p></button>
-                <button data-type="gpu"><p>GPU <span class="selected-name">None</span></p></button>
-                <button data-type="hdd"><p>HDD <span class="selected-name">None</span></p></button>
                 <button data-type="ssd"><p>SSD <span class="selected-name">None</span></p></button>
+                <button data-type="hdd"><p>HDD <span class="selected-name">None</span></p></button>
                 <button data-type="cooler"><p>Cooler <span class="selected-name">None</span></p></button>
+                <button data-type="gpu"><p>GPU <span class="selected-name">None</span></p></button>
                 <button data-type="psu"><p>PSU <span class="selected-name">None</span></p></button>
             </div>
+
+            
         </section>   
         <section class="catalog-section">
             <div class="catalog-button">
-                <button id="componentsTab">Components</button>
+                <button id="componentsTab"  class="active">Components</button>
                 <button id="summaryTab">Summary</button>
             </div>
 
@@ -316,7 +316,7 @@ class="flex">
                         <x-icons.info title="This is information about the processor"/>
                     </div> 
                     {{-- FILTER --}}
-                    <div>
+                    <div class="search-area">
                         <form action=" {{ route('techboxx.search') }}" method="GET"
                             class="component-search">
                             <input 

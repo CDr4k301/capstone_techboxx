@@ -109,24 +109,41 @@ canvas {
 }
 
 
+
 /* BUTTONS */
+
 .buttons-section {
+    background-color: aliceblue;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
     width: 25%;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding: 10px;
+    overflow: hidden;
+}
+.buttons-section::onclick{
+    justify-content: space-evenly;
 }
 
+.buttons-section div{
+    border-radius: 5px;
+}
 .buttons-section div:not(.generate-build) {
+    background-color: white;
     width: 100%;
     height: 50px;
     display: flex;
-    justify-content: space-evenly;
     border: 1px solid black;
+    justify-content: space-evenly;
+    box-shadow: 
+        -2px 0 5px rgba(0, 0, 0, 0.3), /* left shadow */
+        2px 0 5px rgba(0, 0, 0, 0.3); /* right shadow */ /* right shadow */
 }
 
 .generate-button {
-    background-color: var(--blue);
+    background-color: var(--blue)!important;
     font-weight: 500;
     color: white;
     border: 1px solid black;
@@ -141,13 +158,16 @@ canvas {
 
 .buttons-section div input {
     font-size: 0.75rem;
+    border-radius: 5px;
+    border: none;
+    border-left: 1px solid black;
 }
+
 
 .buttons-section div button:not(:disabled):hover {
     background-color: var(--blue);
-    border: 1px solid black;
-    color: white;
     font-weight: 500;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
 .order-modal {
@@ -193,24 +213,20 @@ canvas {
 
 .active {
     background-color: var(--blue);
-    border: 1px solid black;
     color: white;
     font-weight: 500;
 }
 
-.buttons-section div:not(:last-child) button:hover {
-    transform: scale(1.02);
-}
-
 .generate-build {
-    position: absolute;
-    top: 43.6%;
-    width: 23.7%;
-    height: 51%;
+    width:100%;
+    height: 70%;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    border: 2px solid black;
+    border-radius: 5px;
+    gap: 2px;
+    padding: 2px;
     overflow-y: scroll;
+    box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.3); 
 }
 
 .hidden {
@@ -218,10 +234,11 @@ canvas {
 }
 
 .generate-build button {
-    border: 1px solid black;
+    border-radius: 2px;
     text-align: left;
     width: 100%;
-    padding: 8px;
+    padding: 8px 10px;
+    box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.3);    
 }
 
 
@@ -235,9 +252,7 @@ canvas {
     font-size: 0.65rem;
 }
 
-.generate-build button:hover {
-    opacity: 0.5;
-}
+
 
 #loadingSpinner {
     position: absolute;
@@ -277,27 +292,33 @@ canvas {
 }
 
 .catalog-button button.active {
-    border-bottom: 1px solid white;
+    border-radius: 5px 5px 0 0;
+    filter: brightness(1.01);
+    border-bottom: 2px solid white;
+    box-shadow: 
+        1px 0px 2px rgba(0, 0, 0, 0.3),
+        -1px 0px 2px rgba(0, 0, 0, 0.3);    
 }
-
 .catalog-button {
     display: flex;
-    gap: 1rem;
     border-bottom: 1px solid black;
 }
 
 .catalog-button button {
-    margin: 0 4px;
+    width: 30%;
     padding: 8px;
+    font-weight: 500;
     font-size: 0.75rem;
     color: white;
     border: 1px solid transparent;
 }
 
+
 .catalog-header {
     display: flex;
     justify-content: space-between;
-    padding: 4px 8px;
+    font-weight: 500;
+    padding: 8px;
 }
 
 .catalog-title {
@@ -307,11 +328,20 @@ canvas {
     color: white;
 }
 
-.component-search {
+.search-area {
+    background-color: rgb(69, 133, 245);
+    padding: 0px 5px 5px 10px;
+    border-radius: 20px;
     display: flex;
-    color: white;
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.5);
 }
 
+.component-search{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-top: 5px;
+}
 .component-search input {
     width: 140px;
     height: 16px;
@@ -320,6 +350,7 @@ canvas {
     background-color: transparent;
     font-size: 0.75rem;
     padding: 0 4px;
+    color: white;
 }
 
 .component-search input:focus {
@@ -380,9 +411,6 @@ canvas {
     width: 60%;
 }
 
-.summary-section {
-}
-
 .summary-date {
     text-align: center;
     align-content: center;
@@ -405,6 +433,7 @@ canvas {
     padding: 0 0.5rem;
     border-radius: 8px;
     overflow-y: auto;
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.5);
 }
 
 .summary-table table {
