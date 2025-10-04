@@ -19,11 +19,28 @@ canvas {
 }
 
 /* LAYOUT */
+body{
+    background: linear-gradient(
+        to bottom,
+        #0F0F3D 20%,
+        #1D6494 45%,
+        #4F9CF9 100%
+        /* #6BDFFF 100% */
+    );
+    color: white;
+    width: 100%;
+    padding: 30px 30px 0 30px;
+    overflow:hidden;
+    height: 100%;
+}
+
 .ext-icons {
     /* background-color: aliceblue; */
     position: absolute;
     display: flex;
-    gap: 8px;
+    justify-content: space-between;
+    width: 10%;
+    height: auto;
 }
 
 .ext-arrow {
@@ -65,24 +82,17 @@ canvas {
 }
 
 .layout-container {
-    display: grid;
-    grid-template-areas: 
-        "steps compatibility"
-        "component component";
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 20px;
-    height: 80vh;
+    padding-top: 1dvh;
+    height: 71dvh;
+    display: flex;
+    justify-content: space-between;
 }
 
-.steps-section,
-.compatibility-section {
-    height: 370px;
+.compatibility-section{
+    height: 20dvh;
 }
-
-.steps-section {
-    grid-area: steps;
-    width: 40%;
+.steps-section,.compatibility-section{
+    width: 25%;
 }
 
 .steps-section div,
@@ -93,53 +103,38 @@ canvas {
     gap: 8px;
 }
 
-.steps-section div h4,
-.compatibility-section div h4 {
+.compatibility-section div h4{
     text-align: center;
-}
-
-.compatibility-section {
-    grid-area: compatibility;
-    width: 40%;
-    position: relative;
-    left: 60%;
 }
 
 /* SLIDE UPWARD WHEN OPEN */
 .catalog-wrapper {
-    grid-area: component;
-    min-height: 470px;
+    max-height: 50dvh;
     transition: transform 0.5s ease;
-    top: 70%;
-    overflow: hidden;
+    border-radius: 30 30 0 0;
+    
 }
 
 /* When "open", move the whole wrapper up */
 .catalog-wrapper.open {
-    transform: translateY(-72%); /* or -50%, or whatever works */
-    border-radius: 8px 8px 0 0;
+    transform: translateY(-100%); /* or -50%, or whatever works */
     background: linear-gradient(
         to bottom,
         rgba(53, 63, 84, 0.6) 0%,   /* #353F54 with 60% opacity */
         rgba(34, 40, 52, 0.6) 100%  /* #222834 with 60% opacity */
     );
+    border-radius: 30px 30px 0 0;
 }
 
-/* MOVING EVERYTHING UP */
-.slide-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
 
 /* INITIAL POSITIONS */
 .component-arrow {
     position: absolute;
+    height: 5dvh;
+    bottom: 70%;
     transform: rotate(-180deg);
-    transition: transform 0.3s ease; /* smooth animation */
-    width: 100%;
-    text-align: center;
-}
+    transition: transform 0.5s ease; /* smooth animation */
+    }
 
 .component-arrow.rotated {
     transform: rotate(0deg); /* or 180deg depending on desired effect */
@@ -147,26 +142,27 @@ canvas {
 
 .component-arrow:hover {
     opacity: .5;
+    cursor: pointer;
 }
 
 .component-section {
-    flex: 0;
     background: linear-gradient(
         to bottom,
         rgba(53, 63, 84, 0.6) 0%,   /* #353F54 with 60% opacity */
         rgba(34, 40, 52, 0.6) 100%  /* #222834 with 60% opacity */
     );
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    justify-content: space-between;
+    transition: transform 0.5s ease; /* smooth animation */
+    display: flex;
+    justify-content: space-evenly;
     padding: 2%;
     gap: 10px;
     position: relative;
-    border-radius: 8px 8px 0 0; 
+    border-radius: 30px 30px 0 0; 
     box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.3);
     z-index: 999;
 }
 
+/*componentbutton*/
 .component-button {
     background: linear-gradient(
         to bottom,
@@ -175,35 +171,37 @@ canvas {
     );
     height: 70px;
     border-radius: 12px;
-    transition: transform 0.3s ease;
+    transition: transform 0.5s ease;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: visible;
 }
-
-.component-button img {
-    position: absolute;
-    top: 10px;
-    left: 20px;
-    width: 70%;
-    height: 70%;
-    object-fit: contain;
-    display: none; /* hidden until selected */
-    transition: transform 0.4s ease, opacity 0.4s ease;
-    transform-origin: center center;
+.component-button:hover{
+    scale: 1.1;
+    transition: 0.3s ease;
 }
-
 .component-button p {
     text-align: center;
     position: relative;
     top: 70%;
 }
+.component-button img {
+    position: absolute;
+    transform: scale(1.5);
+    left: 20px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: none; /* hidden until selected */
+    transition: transform 0.5s ease, opacity 0.4s ease;
+    transform-origin: center center;
+}
 
+/* component active */
 .component-active {
     transform: skewX(-15deg) translateY(-10px);
-    transition: transform 0.3s ease;
+    transition: transform 0.5s ease;
     background: linear-gradient(
         to bottom,
         #34C8E8 30%,
@@ -212,23 +210,22 @@ canvas {
 }
 
 .component-active img {
-    transform: skewX(15deg) translateY(-10%) scale(1.5);
+    transform: skewX(15deg) translateX(5%) translateY(-40%) scale(2);
     opacity: 1;
 }
 
 .catalog-section {
-    flex: 1;
     width: 100%;
-    overflow-y: scroll;
     background-color: rgba(242, 242, 242, 0.9);
     display: grid;
     grid-template-columns: repeat(6, 1fr); 
-    border: none;
-    margin-top: 2px;
+    max-height: 50dvh;
+    overflow-y: scroll;
 }
 
 .build-catalog {
     border: 1px solid white;
+    border-radius: 4px;
     background-color: white;
     height: 300px;
     box-sizing: border-box;
@@ -242,7 +239,7 @@ canvas {
 }
 
 .build-catalog:hover {
-    scale: 1.1;
+    scale: 1.05;
 }
 
 .build-catalog img {

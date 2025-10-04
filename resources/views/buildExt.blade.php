@@ -8,7 +8,6 @@
 
     @vite([
         'resources\css\app.css',
-        'resources\css\landingpage\header.css',
         'resources\css\build.css',
         'resources\css\buildext.css',
         'resources\js\app.js',
@@ -17,7 +16,7 @@
         ])
     
 </head>
-<body class="flex"
+<body class="flex flex-col"
       x-data="{ showViewModal: false, selectedComponent:{} }">
     @if (session('message'))
         <x-message :type="session('type')">
@@ -32,7 +31,7 @@
         </div>
     </header> --}}
 
-    <main class="main-content header overflow-hidden !h-[100vh] !mt-0">
+    <main class="main-content header !m-0">
         <div class="ext-icons">
             <form action="{{ route('home') }}">
                 @csrf
@@ -48,6 +47,9 @@
             </form>
             <button>
                 <x-icons.cart class="ext-cart"/>
+            </button>
+            <button id="reloadButton">
+                <x-icons.reload />
             </button>
         </div>
         
@@ -81,37 +83,32 @@
                 <div>
                     <h4>COMPATIBILITY CHECK</h4>
                     <button id="validateBuild">Validate Build</button>
-                    <button id="reloadButton">
-                        <x-icons.reload />
-                    </button>
-                </div>
-            </section>
-
-            {{-- COMPONENTS --}}
-            <section class="catalog-wrapper">
-                <div class="slide-container">
-                    <div class="component-section">
-                        <x-icons.arrow class="component-arrow" />
-                        <x-component data-type="motherboard">Motherboard</x-component>
-                        <x-component data-type="cpu">CPU</x-component>
-                        <x-component data-type="ram">RAM</x-component>
-                        <x-component data-type="ssd">SSD</x-component>
-                        <x-component data-type="hdd">HDD</x-component>
-                        <x-component data-type="cooler">Cooler</x-component>
-                        <x-component data-type="gpu">GPU</x-component>
-                        <x-component data-type="psu">PSU</x-component>
-                    </div>
-
-                    <div class="catalog-section" id="catalogSection">
-                        @foreach ($components as $component)
-                            <x-buildcatalog :component="$component"/>
-                        @endforeach
-                    </div>
+                    
                 </div>
             </section>
         </div>
     </main>
-
+    {{-- COMPONENTS --}}
+    <section class="catalog-wrapper">
+        <div class="slide-container">
+            <div class="component-section">
+                    <x-component data-type="motherboard">Motherboard</x-component>
+                    <x-component data-type="cpu">CPU</x-component>
+                    <x-component data-type="ram">RAM</x-component>
+                    <x-component data-type="ssd">SSD</x-component>
+                    <x-icons.arrow class="component-arrow" />
+                    <x-component data-type="hdd">HDD</x-component>
+                    <x-component data-type="cooler">Cooler</x-component>
+                    <x-component data-type="gpu">GPU</x-component>
+                    <x-component data-type="psu">PSU</x-component>
+                </div>
+                <div class="catalog-section" id="catalogSection">
+                    @foreach ($components as $component)
+                        <x-buildcatalog :component="$component"/>
+                    @endforeach
+                </div>
+            </div>
+    </section>
     <div x-show="showViewModal" x-cloak x-transition class="modal view-specs modal-scroll">
         <div class="view-component" @click.away="showViewModal = false">
             <div x-show="selectedComponent.component_type === 'motherboard'">

@@ -95,12 +95,12 @@ canvas {
 }
 
 .expand-icon:hover,
-.reload-icon:hover {
+.reload:hover {
     opacity: .5;
     cursor: pointer;
 }
 
-.reload-icon {
+.reload {
     color: white;
     position: absolute;
     right: 40px;

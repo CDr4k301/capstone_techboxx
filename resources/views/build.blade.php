@@ -261,7 +261,7 @@ class="flex">
                 </button>
             </form>
             <button id="reloadButton">
-                <x-icons.reload />
+                <x-icons.reload class="reload" />
             </button>
 
         </section>
