@@ -24,7 +24,7 @@
         <div>
             <table class="table">
                 <thead>
-                    <tr>
+                    <tr class="text-sm">
                         <th>Date</th>
                         <th>Component</th>
                         <th>Category</th>

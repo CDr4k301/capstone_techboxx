@@ -58,9 +58,9 @@
         <div class="table-body">
             <table class="table mb-[3%]">
                 <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
+                    <tr class="text-base">
+                        <th class="text-left pl-2">Name</th>
+                        <th class="text-left pl-2">Email</th>
                         <th>ID Uploaded</th>
                         <th>Action</th>
                     </tr>

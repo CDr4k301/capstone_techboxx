@@ -123,9 +123,9 @@
         x-data="{ viewModal: false, editModal: false, selectedSoftware:{} }"> 
             <table class="table mb-3">
                 <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Category</th>
+                    <tr class="text-sm">
+                        <th class="text-left pl-2">Name</th>
+                        <th class="text-left pl-2">Category</th>
                         <th>Action</th>
                     </tr>
                 </thead>

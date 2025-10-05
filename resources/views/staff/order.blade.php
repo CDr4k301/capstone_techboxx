@@ -19,7 +19,7 @@
             class="h-[55vh]">
             <table class="table mb-3">
                 <thead>
-                    <tr>
+                    <tr class="text-sm">
                         <th>Order ID</th>
                         <th>Build Details</th>
                         <th>Order Date</th>

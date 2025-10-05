@@ -126,7 +126,7 @@
              class="h-[55vh]">
             <table class="table mb-3">
                 <thead>
-                    <tr>
+                    <tr class="text-sm">
                         <th>Component</th>
                         <th>Category</th>
                         <th>Stock</th>
@@ -137,10 +137,10 @@
                 <tbody>
                     @foreach ($components as $component)
                     <tr>
-                        <td>{{ $component->brand}} {{ $component->model }}</td>
-                        <td>{{ ucfirst($component->component_type) }}</td>
-                        <td>{{ $component->stock }}</td>
-                        <td><span class="{{ $component->status === 'Low' ? 'text-red-500' : 'text-green-600' }}">
+                        <td class="text-center">{{ $component->brand}} {{ $component->model }}</td>
+                        <td class="text-center">{{ ucfirst($component->component_type) }}</td>
+                        <td class="text-center">{{ $component->stock }}</td>
+                        <td class="text-center"><span class="{{ $component->status === 'Low' ? 'text-red-500' : 'text-green-600' }}">
                             {{ $component->status}}        
                         </span></td>
                         <td class="align-middle text-center">

@@ -10,7 +10,7 @@ use App\Models\Hardware\PcCase;
 use App\Models\Hardware\Psu;
 use App\Models\Hardware\Ram;
 use App\Models\Hardware\Storage;
-use App\Services\CpuSupportFetcher;
+use App\Models\Hardware\SupportedCpu;
 
 class CompatibilityService
 {
@@ -21,23 +21,18 @@ class CompatibilityService
         'E-ATX' => ['E-ATX', 'ATX', 'Micro-ATX', 'Mini-ITX'],
     ];
 
-    protected $fetcher;
 
     // CPU - MOTHERBOARD
-    public function isCpuCompatiblewithMotherboard(Cpu $cpu, Motherboard $motherboard)
+    public function isCpuCompatiblewithMotherboard(Cpu $cpu, Motherboard $motherboard,SupportedCpu $supported_cpu)
     {
         $results = ['errors' => [], 'warnings' => []];
-        // First check socket
         if ($cpu->socket_type !== $motherboard->socket_type) {
             $results['errors'][]= "❌CPU and motherboard socket_type is incompatible.";
         }
-
-        // Fetch CPU support list based on brand
-        $cpuList = $this->fetcher->fetch($motherboard->brand, $motherboard->model_name);
-                
-        // If we couldn’t fetch a list, fallback to socket
-        if (!empty($cpuList)) {
+        //motherboard supports cpu fallback
+        if (!empty($supported_cpu->cpuID)) {
             // Compare names
+            $cpuArray = array_map('trim', explode(',', $cpuList));
             foreach ($cpuList as $supportedCpu) {
                 if (stripos($supportedCpu['Name'], $cpu->model_name) == false) {
                     return $results;
