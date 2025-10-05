@@ -19,7 +19,6 @@ class CpuSupportFetcher
             'timeout' => 10,
             'verify' => true,
         ]);
-
         $this->logger = $logger;
     }
 

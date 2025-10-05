@@ -92,6 +92,7 @@
     <section class="catalog-wrapper">
         <div class="slide-container">
             <div class="component-section">
+                    <x-component data-type="case">Case</x-component>
                     <x-component data-type="motherboard">Motherboard</x-component>
                     <x-component data-type="cpu">CPU</x-component>
                     <x-component data-type="ram">RAM</x-component>

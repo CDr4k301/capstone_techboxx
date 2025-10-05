@@ -64,9 +64,16 @@ function init() {
   camera = new THREE.PerspectiveCamera(30, width/height, 0.1, 1000);
   camera.position.set(20, 0, 0);
 
-  renderer = new THREE.WebGLRenderer({alpha: true});
+  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(width, height);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   container.appendChild(renderer.domElement);
+
 
   controls = new OrbitControls(camera, renderer.domElement);
 
