@@ -87,6 +87,37 @@
                 <input required name="max_ram_speed" id="max_ram_speed" type="number" placeholder="000 MHz" x-model="selectedComponent.max_ram_speed" onkeydown="return !['e','E','+','-'].includes(event.key)">
             </div>
             
+            <div class="flex flex-col"
+                x-data="{ slots:[{}] }">
+                    <template x-for="(slot, index) in selectedComponent.supported_cpu" 
+                            :key="index">
+                        <div>
+                            <label for="">Supported CPU <span x-text="index + 1"></span></label>
+                            <select required :name="'supported_cpu[]'" id="supported_cpu" x-model="selectedComponent.supported_cpu[index]">
+                                <option disabled selected hidden value="">Select Compatible CPU</option>
+                                @foreach ($moboSpecs['supported_CPUs'] as $supported_cpu)
+                                    <option value="{{ $supported_cpu }}">{{ $supported_cpu }}</option>
+                                @endforeach
+                            </select>
+                            
+                            <template x-if="index > 0">
+                                <button type="button"
+                                    class="remove-add"
+                                    @click="selectedComponent.supported_cpu.splice(index, 1)">
+                                    x
+                                </button>    
+                            </template>
+                        </div>
+                    </template>
+                    
+                    {{-- ADD SOCKET BUTTON --}}
+                    <button type="button"
+                            @click="selectedComponent.supported_cpu.push([])"
+                            class="add-pcie">
+                        + Add CPU
+                    </button>
+                    
+            </div>
         </div>
 
         {{-- INVENTORY --}}

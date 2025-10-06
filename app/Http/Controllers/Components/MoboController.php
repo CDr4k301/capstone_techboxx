@@ -17,22 +17,26 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use App\Models\Supplier;
 use App\Models\Brand;
+use App\Models\Hardware\Cpu;
 
 class MoboController extends Controller
 {
     // FETCHING DATA FOR DROPDOWNS
     public function getMotherboardSpecs()
     {
+
         return [
-            'buildCategories' => BuildCategory::select('id', 'name')->get(),
-            'suppliers' => Supplier::select('id', 'name')->where('is_active', true)->get(),
-            'brands' => Brand::select('id', 'name', 'supplier_id')->get(),
-            'socket_types' => ['LGA 1700', 'AM4', ],
-            'chipsets' => ['Intel H610', 'AMD B550', 'AMD B450', 'Intel Z790'],
-            'form_factors' => ['Micro-ATX', 'ATX', 'Mini-ITX', ],
-            'ram_types' => ['DDR4', 'DDR5', ],
-            'wifi_onboards' => ['Yes', 'No', ],
+            'buildCategories'   => BuildCategory::select('id', 'name')->get(),
+            'suppliers'         => Supplier::select('id', 'name')->where('is_active', true)->get(),
+            'brands'            => Brand::select('id', 'name', 'supplier_id')->get(),
+            'socket_types'      => Cpu::query()->distinct()->pluck('socket_type'),
+            'chipsets'          => ['Intel H610', 'AMD B550', 'AMD B450', 'Intel Z790'],
+            'form_factors'      => ['E-ATX', 'ATX','Micro-ATX', 'Mini-ITX', ],
+            'ram_types'         => ['DDR4', 'DDR5', ],
+            'wifi_onboards'     => ['Yes', 'No', ],
+            'supported_CPUs'    => Cpu::query()->distinct()->pluck('model'),
         ];
+        
     }
 
     public function getFormattedMobos()
@@ -51,7 +55,10 @@ class MoboController extends Controller
             } else {
                 $mobo->wifi_display = 'No';
             }
-            
+            $mobo->cpu_display = implode('<br>', $mobo->supported_cpu ??[]);
+
+            // Format supported_cpu as an array (for editing)
+            $mobo->supported_cpu_array=$mobo->supported_cpu??[];
             $mobo->price_display = '₱' . number_format($mobo->price, 2);
             $mobo->label = "{$mobo->brand} {$mobo->model}";
             $mobo->component_type = 'motherboard';
@@ -109,6 +116,7 @@ class MoboController extends Controller
             'model_3d' => 'nullable|file|mimes:glb|max:150000',
             'build_category_id' => 'required|exists:build_categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
+            'supported_cpu' => 'nullable|string|max:255'
         ]);
 
         // Handle image upload
@@ -179,10 +187,11 @@ class MoboController extends Controller
             'pcie_slots'             => $request->pcie_slots,
             'm2_slots'               => $request->m2_slots,
             'sata_ports'             => $request->sata_ports,
-            'usb_ports'             => $request->usb_ports,
+            'usb_ports'              => $request->usb_ports,
             'wifi_onboard'           => $request->wifi_onboard,
             'price'                  => $request->price,
             'stock'                  => $request->stock,
+            'supported_cpu'          => $request->supported_cpu,
         ];
 
         // Only update image if a new image is uploaded

@@ -34,7 +34,7 @@ class Cpu extends Model
         'model_3d',
         'supplier_id',
     ];
-
+ 
     // FETCHING IMAGE FROM DRIVE
 // protected $casts = [
     //     'image' => 'array',
@@ -51,5 +51,9 @@ class Cpu extends Model
 
     public function supplier() {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function supportedCpu(){
+        return $this->hasMany(Motherboard::class);
     }
 }

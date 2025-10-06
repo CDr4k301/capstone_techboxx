@@ -62,7 +62,7 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-center">
                     @foreach ($components as $component)
                     <tr @click="showViewModal = true; selectedComponent = {{ $component->toJson() }};"
                     class="{{ $component->deleted_at ? 'bg-gray-300 opacity-50 cursor-not-allowed' : '' }} hover:opacity-50" >
@@ -231,10 +231,10 @@
         <div x-data="{ showViewModal: false, currentSupplier: null, showEditModal: false }" class="h-[75vh]">
             <table class="table">
                 <thead>
-                    <tr>
-                        <th>Supplier Name</th>
-                        <th>Contact Person</th>
-                        <th>Email</th>
+                    <tr class="text-sm">
+                        <th class="text-left p-2">Supplier Name</th>
+                        <th class="text-left p-2">Contact Person</th>
+                        <th class="text-left p-2">Email</th>
                         <th>Phone</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -246,8 +246,8 @@
                             <td>{{$supplier->name}}</td>
                             <td>{{$supplier->contact_person}}</td>
                             <td>{{$supplier->email}}</td>
-                            <td>{{$supplier->phone}}</td>
-                            <td>{{$supplier->is_active ? 'Active' : 'Inactive' }}</td>
+                            <td class="text-center">{{$supplier->phone}}</td>
+                            <td class="text-center">{{$supplier->is_active ? 'Active' : 'Inactive' }}</td>
                             <td>
                                 <div class="flex justify-center gap-2">
                                     @if (!$supplier->is_active)

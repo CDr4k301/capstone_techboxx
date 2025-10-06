@@ -10,7 +10,6 @@ use App\Models\Hardware\PcCase;
 use App\Models\Hardware\Psu;
 use App\Models\Hardware\Ram;
 use App\Models\Hardware\Storage;
-use App\Models\Hardware\SupportedCpu;
 
 class CompatibilityService
 {
@@ -23,23 +22,29 @@ class CompatibilityService
 
 
     // CPU - MOTHERBOARD
-    public function isCpuCompatiblewithMotherboard(Cpu $cpu, Motherboard $motherboard,SupportedCpu $supported_cpu)
+    public function isCpuCompatiblewithMotherboard(Cpu $cpu, Motherboard $motherboard,)
     {
         $results = ['errors' => [], 'warnings' => []];
         if ($cpu->socket_type !== $motherboard->socket_type) {
             $results['errors'][]= "❌CPU and motherboard socket_type is incompatible.";
         }
         //motherboard supports cpu fallback
-        if (!empty($supported_cpu->cpuID)) {
-            // Compare names
-            $cpuArray = array_map('trim', explode(',', $cpuList));
+        if (!empty($motherboard->supported_cpu)) {
+            $cpuList = array_map('trim', explode(',', $motherboard->supported_cpu));
+            $supported = false;
+
             foreach ($cpuList as $supportedCpu) {
-                if (stripos($supportedCpu['Name'], $cpu->model_name) == false) {
-                    return $results;
+                if (stripos($cpu->model_name, $supportedCpu) !== false) {
+                    $supported = true;
+                    break;
                 }
             }
-           $results['errors'][]= "❌Motherboard Doesn't Support CPU";
+
+            if (!$supported) {
+                $results['errors'][] = "❌ Motherboard doesn't support this CPU model.";
+            }
         }
+
         return $results;
     }
 
@@ -48,7 +53,6 @@ class CompatibilityService
     public function isRamCompatiblewithMotherboard(Ram $ram, Motherboard $motherboard)
     {
         $results = ['errors' => [], 'warnings' => []];
-
         //Check's the MOBO and RAM's RAM type if the same
         if($ram->ram_type !== $motherboard->ram_type){
              $results['errors'][] = "❌RAM and motherboard ram type is incompatible.";
@@ -69,22 +73,22 @@ class CompatibilityService
     public function isGpuCompatiblewithCase(Gpu $gpu, PcCase $case)
     {
         $results = ['errors' => [], 'warnings' => []];
-
         // GPU length vs case clearance
-        if ($gpu->length_mm >= $case->max_gpu_length_mm) {
+        if ($gpu->length_mm > $case->max_gpu_length_mm) {
             $results['errors'][] = "❌GPU and Case GPU length is incompatible.";
         }
         return $results;
     }
 
 
-    // COOLER - CPU AND CASE
+    // COOLER - Motherboard AND CASE
     public function isCoolerCompatible(Cooler $cooler, Motherboard $motherboard, PcCase $case)
     {
         $results = ['errors' => [], 'warnings' => []];
 
         // Check socket support
-        if (!in_array($motherboard->socket_type, $cooler->supported_sockets)) {
+        $supportedSockets = array_map('trim', explode(',', $cooler->supported_sockets));
+        if (!in_array($motherboard->socket_type, $supportedSockets)) {
             $results['errors'][] = "❌ Cooler does not support CPU socket type ({$motherboard->socket_type}).";
         }
         // Check cooler height vs case clearance
@@ -96,11 +100,14 @@ class CompatibilityService
 
 
     // PSU - CPU + GPU
-    public function isPsuEnough(Psu $psu, Cpu $cpu, Gpu $gpu)
+    public function isPsuEnough(Psu $psu, Cpu $cpu, Gpu $gpu, Cooler $cooler)
     {
         $results = ['errors' => [], 'warnings' => []];
-
-        $estimatedPower = $cpu->tdp + $gpu->power_draw_watts + 150; // // 150W for motherboard, RAM, storage
+        
+        if($gpu->recommended_psu_watt > $psu->wattage){
+            $results['warnings'][] = "⚠️ PSU wattage is lesser than recommended PSU wattage";
+        }
+        $estimatedPower = $cpu->tdp + $gpu->power_draw_watts + $cooler->max_tdp + 150; // // 150W for motherboard, RAM, storage
         if ($psu->wattage < $estimatedPower) {
             $results['warnings'][] = "⚠️ PSU wattage ({$psu->wattage}W) is close to estimated system draw ({$estimatedPower}W). Consider a higher wattage PSU.";
         }

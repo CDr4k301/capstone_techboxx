@@ -5,6 +5,7 @@ namespace App\Models\Hardware;
 use App\Models\BuildCategory;
 use App\Models\Supplier;
 use App\Models\UserBuild;
+use App\Models\Hardware\Cpu;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -36,13 +37,18 @@ class Motherboard extends Model
         'image',
         'model_3d',
         'supplier_id',
+        'supported_cpu',
     ];
 
     // FETCHING IMAGE FROM DRIVE
 // protected $casts = [
     //     'image' => 'array',
     // ];
+    protected $casts = [
+        // 'image' => 'array',
+        'supported_cpu' => 'array',
 
+    ];
     // DEFINE RELATIONSHIP
     public function buildCategory() {
         return $this->belongsTo(BuildCategory::class);
@@ -54,5 +60,9 @@ class Motherboard extends Model
 
     public function supplier() {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function supportedCpu(){
+        return $this->belongsTo(Cpu::class);
     }
 }

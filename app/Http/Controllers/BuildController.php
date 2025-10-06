@@ -25,7 +25,7 @@ class BuildController extends Controller
         $storages = Storage::get()->map(function ($storage) {
                 return (object)[
                     'id' => $storage->id,
-                    'component_type' => strtolower($storage->storage_type), // 'hdd' or 'sdd'
+                    'component_type' => strtolower($storage->storage_type), // 'hdd' or 'ssd'
                     'brand'          => $storage->brand,
                     'model'          => $storage->model,
                     'label'          => "{$storage->brand} {$storage->model}",
@@ -117,11 +117,11 @@ class BuildController extends Controller
 
         $issues = ['errors' => [], 'warnings' => []];
 
-        // if ($cpu && $mobo) {
-        //     $result = $compat->isCpuCompatiblewithMotherboard($cpu, $mobo);
-        //     $issues['errors']   = array_merge($issues['errors'], $result['errors']);
-        //     $issues['warnings'] = array_merge($issues['warnings'], $result['warnings']);
-        // }
+        if ($cpu && $mobo) {
+            $result = $compat->isCpuCompatiblewithMotherboard($cpu, $mobo);
+            $issues['errors']   = array_merge($issues['errors'], $result['errors']);
+            $issues['warnings'] = array_merge($issues['warnings'], $result['warnings']);
+        }
         
         if ($ram && $mobo) {
             $result = $compat->isRamCompatiblewithMotherboard($ram, $mobo);
@@ -141,8 +141,8 @@ class BuildController extends Controller
             $issues['warnings'] = array_merge($issues['warnings'], $result['warnings']);
         }
 
-        if ($psu && $cpu && $gpu) {
-            $result = $compat->isPsuEnough($psu, $cpu, $gpu);
+        if($psu && $cpu && $gpu && $cooler){
+            $result = $compat->isPsuEnough($psu, $cpu, $gpu,$cooler);
             $issues['errors']   = array_merge($issues['errors'], $result['errors']);
             $issues['warnings'] = array_merge($issues['warnings'], $result['warnings']);
         }
