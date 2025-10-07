@@ -328,38 +328,58 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // VALIDATION
-    document.getElementById('validateBuild').addEventListener('click', () => {
-        const selections = {};
-        console.log(selections);
-        
-        document.querySelectorAll('.component-button').forEach(button=> {
-            const type = button.getAttribute('data-type');
-            const selectedId = button.getAttribute('data-selected-id');
-            if (selectedId) {
-                selections[type + "_id"] = selectedId;
-            }
-        });
-
-        // SEND TO BACKEND
-        fetch('/techboxx/build/validate', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify(selections)
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success) {
-                alert('Compatibility issues:\n' + data.errors.join("\n"));
-            }
-            else {
-                alert("Build is valid!");
-            }
-        })
+document.getElementById('validateBuild').addEventListener('click', () => {
+    const selections = {};
+    document.querySelectorAll('.component-button').forEach(button => {
+        const type = button.getAttribute('data-type');
+        const selectedId = button.getAttribute('data-selected-id');
+        if (selectedId) {
+            selections[type + "_id"] = selectedId;
+        }
     });
 
+    // ✅ Condition 1: No components selected
+    if (Object.keys(selections).length === 0) {
+        alert("⚠️ No components selected.\nPlease choose at least one component before validating.");
+        return;
+    }
+
+    // SEND TO BACKEND
+    fetch('/techboxx/build/validate', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json', 
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(selections)
+    })
+    .then(res => res.json())
+    .then(data => {
+        let message = '';
+
+        if (data.errors && data.errors.length > 0) {
+            message += '❌ Compatibility Errors:\n' + data.errors.join("\n") + '\n\n';
+        }
+
+        if (data.warnings && data.warnings.length > 0) {
+            message += '⚠️ Warnings:\n' + data.warnings.join("\n") + '\n\n';
+        }
+
+        // ✅ Condition 2: No errors, no warnings, but components were selected
+        if (
+            (!data.errors || data.errors.length === 0) &&
+            (!data.warnings || data.warnings.length === 0)
+        ) {
+            message = "✅ No issues found. However, make sure all components are added for a complete compatibility check.";
+        }
+
+        alert(message);
+    })
+    .catch(err => {
+        console.error('Validation failed:', err);
+        alert('❌ An error occurred while validating the build.');
+    });
+});
     document.getElementById('reloadButton').addEventListener('click', function() {
         reloadScene();
     });

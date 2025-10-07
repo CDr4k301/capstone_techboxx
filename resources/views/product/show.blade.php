@@ -10,6 +10,7 @@
         'resources/css/app.css',
         'resources/css/landingpage/header.css',
         'resources/js/app.js',
+        'resources/js/rating.js',
     ])
 
     <!-- Font Awesome for user icon -->
@@ -50,7 +51,7 @@
                     <div class="flex-1 flex items-center justify-center">
                         <div x-data='{ main: @json($mainImage), thumbs: @json($thumbs) }' class="w-full">
                             <div class="flex justify-center items-center border rounded-md bg-gray-50 p-6">
-                                <img :src="main" alt="{{ $product['name'] ?? 'Product' }}" class="max-h-[420px] object-contain">
+                                <img :src="main" alt="{{ $product['name'] ?? 'Product' }}" class="max-h-[420px] size-auto aspect-square object-contain">
                             </div>
 
                             <!-- Mobile thumbs -->
@@ -332,18 +333,16 @@
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product['id'] }}">
                     <input type="hidden" name="product_type" value="{{ $product['category'] }}s">
-                    
 
                     <!-- Rating -->
                     <label class="block text-sm font-medium mb-2">Rating:</label>
-                    <div class="flex items-center mb-4 space-x-1">
+                    <div id="star-rating" class="flex items-center mb-4 space-x-1 cursor-pointer text-3xl text-gray-300">
                         @for($i = 1; $i <= 5; $i++)
-                            <label>
-                                <input type="radio" name="rating" value="{{ $i }}" class="hidden peer" required>
-                                <span class="text-3xl cursor-pointer text-gray-300 peer-checked:text-yellow-400">★</span>
-                            </label>
+                            <span class="star" data-value="{{ $i }}">★</span>
                         @endfor
                     </div>
+                    <input type="hidden" name="rating" id="rating-value" required>
+
 
                     <!-- Title -->
                     <label class="block text-sm font-medium mb-1">Review Title</label>

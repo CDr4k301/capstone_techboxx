@@ -38,17 +38,17 @@
             </div>
 
             {{-- Recent Orders --}}
-            <div class="lg:col-span-2 bg-white rounded-2xl shadow p-6">
-                <h2 class="font mb-4">Recent Orders</h2>
+            <div class="lg:col-span-2 bg-white rounded-2xl shadow p-6 overflow-hidden">
+                <h2 class="font-semibold text-gray-700">Recent Orders</h2>
                 <div>
-                    <table class="w-full text-sm text-gray-600 border-separate border-spacing-y-2">
+                    <table class="w-full text-sm text-gray-600 border-separate border-spacing-y-2 overflow-hidden">
                         <thead>
                             <tr class="text-gray-500 text-xs uppercase">
-                                <th class="py-3 px-4 text-left">Order ID</th>
-                                <th class="py-3 px-4 text-left">Customer</th>
-                                <th class="py-3 px-4 text-left">Date</th>
-                                <th class="py-3 px-4 text-left">Amount</th>
-                                <th class="py-3 px-4 text-left">Status</th>
+                                <th class="py-3 px-4 text-left text-xs">Order ID</th>
+                                <th class="py-3 px-4 text-left text-xs">Customer</th>
+                                <th class="py-3 px-4 text-left text-xs">Date</th>
+                                <th class="py-3 px-4 text-left text-xs">Amount</th>
+                                <th class="py-3 px-4 text-left text-xs">Status</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -24,9 +24,9 @@ class DatabaseSeeder extends Seeder
             // OrderedBuildSeeder::class,
             // SupplierSeeder::class,
             // ShoppingCartSeeder::class,
-            CartItemSeeder::class,
-            CheckoutSeeder::class,
-            // ReviewSeeder::class,
+            // CartItemSeeder::class,
+            // CheckoutSeeder::class,
+            ReviewSeeder::class,
         ]);
     }
 }
