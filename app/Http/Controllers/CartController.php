@@ -242,6 +242,8 @@ class CartController extends Controller
         $paymentMethod = $request->input('payment_method');
         $paymentStatus = $paymentMethod === 'Cash on Pickup' ? 'Pending' : 'Paid';
 
+        $displayPaymentMethod = $paymentMethod === 'Cash on Pickup' ? 'Cash' : $paymentMethod;
+
         try {
             // Create UserBuild record
             $userBuild = UserBuild::create([
@@ -262,8 +264,9 @@ class CartController extends Controller
             // Create Checkout record
             $checkout = OrderedBuild::create([
                 'user_build_id' => $userBuild->id,
-                'payment_method' => $paymentMethod,
+                'payment_method' => $displayPaymentMethod,
                 'payment_status' => $paymentStatus,
+                'status' => 'Pending',
             ]);
 
             // dd($request->all());
@@ -279,7 +282,10 @@ class CartController extends Controller
                 ]);
             }
 
-            return redirect()->route('home')->with('success', 'Build ordered successfully!');
+            return back()->with([
+                'message' => 'Build ordered successfully!',
+                'type' => 'success',
+            ]);
 
         } catch (\Exception $e) {
             // Log::error('Order build failed: ' . $e->getMessage());
@@ -293,11 +299,14 @@ class CartController extends Controller
         $paymentMethod = $request->input('payment_method');
         $paymentStatus = $paymentMethod === 'Cash on Pickup' ? 'Pending' : 'Paid';
 
+        $displayPaymentMethod = $paymentMethod === 'Cash on Pickup' ? 'Cash' : $paymentMethod;
+
+
         // Create Checkout record
         $checkout = OrderedBuild::create([
             'user_build_id' => $request->user_build_id,
             'status' => "Pending",
-            'payment_method' => $paymentMethod,
+            'payment_method' => $displayPaymentMethod,
             'payment_status' => $paymentStatus,
         ]);
 
@@ -315,7 +324,9 @@ class CartController extends Controller
             ]);
         }
 
-        return redirect()->route('home')->with('success', 'Build ordered successfully!');
-
+        return back()->with([
+            'message' => 'Build ordered successfully!',
+            'type' => 'success',
+        ]);
     }
 }

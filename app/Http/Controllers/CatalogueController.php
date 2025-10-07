@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -37,6 +38,12 @@ class CatalogueController extends Controller
             $normalized = $rows->map(function ($row) use ($category, $table) {
             $rowArr = (array) $row;
 
+            $reviewStats = DB::table('reviews')
+                ->where('product_id', $rowArr['id'])
+                ->where('product_type', $table)
+                ->selectRaw('COALESCE(AVG(rating), 0) as average_rating, COUNT(*) as reviews_count')
+                ->first();
+
             // Common fields
             $common = [
                 'id'             => (int) ($rowArr['id'] ?? 0),
@@ -49,6 +56,8 @@ class CatalogueController extends Controller
                 'stock'          => (int) ($rowArr['stock'] ?? 0),
                 'image'          => $rowArr['image'] ?? 'images/placeholder.png',
                 'created_at'     => $rowArr['created_at'] ?? now(),
+                'rating'         => (int) ($reviewStats->average_rating ?? 0),
+                'reviews_count'  => (int) ($reviewStats->reviews_count ?? 0),
             ];
 
             // ✅ Specs mapping per category
@@ -322,7 +331,13 @@ class CatalogueController extends Controller
             'description' => $rowArr['description'] ?? 'No description available.',
         ];
 
-        return view('product.show', compact('product', 'row', 'columns', 'table', 'commonColumns', 'relatedData'));
+        // ✅ Get reviews linked to this product
+        $reviews = Review::where('product_id', $product['id'])
+                    ->where('product_type', $table)
+                    ->latest()
+                    ->get();
+
+        return view('product.show', compact('product', 'row', 'columns', 'table', 'commonColumns', 'relatedData', 'reviews'));
     }
 
     private function getCommonColumnsForTable($table)
@@ -404,4 +419,5 @@ class CatalogueController extends Controller
         
         return $relatedData;
     }
+
 }

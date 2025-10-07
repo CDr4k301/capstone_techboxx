@@ -5,7 +5,17 @@
     </div>
     <div class="header-nav">
         <div class="header-link">
-            <a href="{{ route('customer.dashboard')}}">Your Builds</a>
+           @auth
+                @if(auth()->user()->role === 'Admin')
+                    <a href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
+                @elseif(auth()->user()->role === 'Staff')
+                    <a href="{{ route('staff.dashboard') }}">Staff Dashboard</a>
+                @else
+                    <a href="{{ route('customer.dashboard') }}">Your Builds</a>
+                @endif
+            @else
+                <a href="{{ route('login') }}">Your Builds</a>
+            @endauth
             <a href="/cart">Cart</a>
             <a href="{{ route('catalogue') }}">Products</a>
         </div>
@@ -14,14 +24,12 @@
                 @if (auth()->user()->role === 'Customer')
                     {{-- show custom content for logged-in customer --}}
                     <form action="{{ route('customer.dashboard') }}">
-                        @csrf
                         <button>{{ $name }}</button>
                     </form>
                 @endif
             @else
                 {{-- show sign in button if not authenticated --}}
                 <form action="{{ route('login') }}">
-                    @csrf
                     <button>Sign In</button>
                 </form>
             @endauth

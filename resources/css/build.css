@@ -7,7 +7,6 @@
 
 
 .build-icons {
-    /* background-color: aliceblue; */
     position: absolute;
     display: flex;
     gap: 8px;
@@ -72,7 +71,7 @@
     max-width: 50%;
     height: auto;
     aspect-ratio: 1/1;
-    object-fit: contain;   
+    object-fit: contain;  
 }
 
 #canvas-container {
@@ -122,8 +121,13 @@ canvas {
     padding: 10px;
     overflow: hidden;
 }
+
 .buttons-section::onclick{
     justify-content: space-evenly;
+}
+
+.buttons-section div{
+    border-radius: 5px;
 }
 
 .buttons-section div{
@@ -220,11 +224,11 @@ canvas {
     width:100%;
     height: 70%;
     display: grid;
+    overflow-y: scroll;
     border: 2px solid black;
     border-radius: 5px;
     gap: 2px;
     padding: 2px;
-    overflow-y: scroll;
     box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.3); 
 }
 
@@ -237,7 +241,7 @@ canvas {
     text-align: left;
     width: 100%;
     padding: 8px 10px;
-    box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.3);    
+    box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.3);   
 }
 
 
@@ -250,8 +254,6 @@ canvas {
     font-weight: normal;
     font-size: 0.65rem;
 }
-
-
 
 #loadingSpinner {
     position: absolute;
@@ -296,8 +298,9 @@ canvas {
     border-bottom: 2px solid white;
     box-shadow: 
         1px 0px 2px rgba(0, 0, 0, 0.3),
-        -1px 0px 2px rgba(0, 0, 0, 0.3);    
+        -1px 0px 2px rgba(0, 0, 0, 0.3); 
 }
+
 .catalog-button {
     display: flex;
     border-bottom: 1px solid black;
@@ -394,6 +397,7 @@ canvas {
 
 .catalog-image {
     width: 40%;
+    /* height: 100px; */
     width: 100px;
     /* background-color: antiquewhite; */
 }

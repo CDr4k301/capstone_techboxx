@@ -69,8 +69,6 @@ class CoolerController extends Controller
             'supplier_id' => 'required|exists:suppliers,id',
         ]);
 
-        $validated['socket_compatibility'] = $validated['socket_compatibility'];
-
         // Handle image upload
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image');

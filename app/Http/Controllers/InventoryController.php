@@ -71,6 +71,7 @@ class InventoryController extends Controller
 
     public function stockIn(Request $request) {
         $validated = $request->validate([
+            'label' =>"required|string",
             'type' => "required|string",
             'stockInId' => 'required|integer',
             'stock' => 'required|integer|min:1',
@@ -90,7 +91,7 @@ class InventoryController extends Controller
         $component->save();
 
         StockHistory::create([
-            'component_id' => $component->id,
+            'component_id' => $validated['label'],
             'action' => 'stock-in',
             'quantity_changed' => $validated['stock'],
             'user_id' => Auth::id(),
@@ -104,6 +105,7 @@ class InventoryController extends Controller
 
     public function stockOut(Request $request) {
         $validated = $request->validate([
+            'label' =>"required|string",
             'type' => "required|string",
             'stockOutId' => 'required|integer',
             'stock' => 'required|integer|min:1',
@@ -123,7 +125,7 @@ class InventoryController extends Controller
         $component->save();
 
         StockHistory::create([
-            'component_id' => $component->id,
+            'component_id' => $validated['label'],
             'action' => 'stock-out',
             'quantity_changed' => $validated['stock'],
             'user_id' => Auth::id(),

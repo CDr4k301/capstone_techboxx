@@ -86,19 +86,27 @@ function filterCPUByBrand(brand) {
     })
 }
 
-// FILTER CATEGORY 
-function filterByBuildCategory(category) {
-    catalogItem.forEach(item => {
-        const build = item.getAttribute('data-category').toLowerCase();
+//Components & Summary active tab
+document.querySelectorAll('.catalog-button button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelector('.catalog-button .active')?.classList.remove('active');
+    btn.classList.add('active');
+  });
+});
 
-        if (build === category.toLowerCase()) {
-            item.classList.remove('hidden');
-        }
-        else {
-            item.classList.add('hidden');
-        }
-    })
-}
+// FILTER CATEGORY 
+// function filterByBuildCategory(category) {
+//     catalogItem.forEach(item => {
+//         const build = item.getAttribute('data-category').toLowerCase();
+
+//         if (build === category.toLowerCase()) {
+//             item.classList.remove('hidden');
+//         }
+//         else {
+//             item.classList.add('hidden');
+//         }
+//     })
+// }
 
 //Components & Summary active tab
 document.querySelectorAll('.catalog-button button').forEach(btn => {

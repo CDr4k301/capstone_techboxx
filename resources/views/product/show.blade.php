@@ -11,6 +11,9 @@
         'resources/css/landingpage/header.css',
         'resources/js/app.js',
     ])
+
+    <!-- Font Awesome for user icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 </head>
 <body class="bg-gray-100">
 
@@ -73,16 +76,29 @@
                 </div>
 
                 <!-- Ratings -->
-                <div class="flex items-center gap-3 mt-4 text-yellow-400">
-                    ★★★★☆ <span class="text-sm text-gray-500 ml-2">(No reviews)</span>
+                @php
+                    $totalReviews = $reviews->count();
+                    $averageRating = $totalReviews > 0 ? round($reviews->avg('rating'), 1) : 0;
+                @endphp
+
+                <div class="flex items-center gap-3 mt-4">
+                    <div class="text-yellow-400">
+                        {{ str_repeat('★', floor($averageRating)) }}{{ str_repeat('☆', 5 - floor($averageRating)) }}
+                    </div>
+                    <span class="text-sm text-gray-500">
+                        @if($totalReviews > 0)
+                            ({{ $totalReviews }} reviews)
+                        @else
+                            No reviews yet
+                        @endif
+                    </span>
                 </div>
 
                 <!-- Short description -->
                 <p class="text-gray-700 mt-4 leading-relaxed">
-                    {{ Str::limit($product['description'] ?? 'This is a placeholder description.', 120) }}
                 </p>
                 <a href="#full-description" class="text-blue-600 hover:underline text-sm">
-                    See full description
+                    See product specification
                 </a>
 
                 <!-- Price & Stock -->
@@ -150,6 +166,20 @@
                             <span class="text-gray-700">
                                 @if($column === 'price')
                                     ${{ number_format($row->$column, 2) }}
+                                @elseif(is_array($row->$column) || is_array(json_decode($row->$column, true)))
+                                    {{-- Handle array data --}}
+                                    @php
+                                        $values = is_array($row->$column) ? $row->$column : json_decode($row->$column, true);
+                                    @endphp
+                                    @if(is_array($values) && count($values) > 0)
+                                        <ul class="list-disc list-inside">
+                                            @foreach($values as $value)
+                                                <ul>{{ $value }}</ul>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        N/A
+                                    @endif
                                 @else
                                     {{ $row->$column }}
                                 @endif
@@ -236,19 +266,137 @@
             </div>
         </div>
 
-        <!-- Customer Comments -->
+        <!-- Customer Reviews -->
         <div class="mt-12 bg-white shadow rounded-lg p-6">
-            <h2 class="text-xl font-bold mb-3">Customer Comments</h2>
-            @if(!empty($product['comments']))
-                @foreach($product['comments'] as $comment)
-                    <div class="border-b py-3">
-                        <p class="text-gray-800">{{ $comment['content'] }}</p>
-                        <span class="text-sm text-gray-500">– {{ $comment['user_name'] ?? 'Anonymous' }}</span>
+            <h2 class="text-xl mb-6 text-center">Customer Reviews</h2>
+
+            @php
+                $totalReviews = $reviews->count();
+                $averageRating = $totalReviews > 0 ? round($reviews->avg('rating'), 2) : 0;
+                $ratingCounts = [
+                    5 => $reviews->where('rating', 5)->count(),
+                    4 => $reviews->where('rating', 4)->count(),
+                    3 => $reviews->where('rating', 3)->count(),
+                    2 => $reviews->where('rating', 2)->count(),
+                    1 => $reviews->where('rating', 1)->count(),
+                ];
+            @endphp
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center border-b pb-6">
+                <!-- Left: Average Rating -->
+                <div class="text-center">
+                    <div class="text-yellow-400 text-4xl font-bold">
+                        {{ str_repeat('★', floor($averageRating)) }}{{ str_repeat('☆', 5 - floor($averageRating)) }}
                     </div>
-                @endforeach
-            @else
-                <p class="text-gray-500">No comments yet. Be the first to leave one!</p>
-            @endif
+                <p class="text-blue-600 font-semibold mt-1">{{ number_format($averageRating, 2) }} out of 5</p>
+                    <p class="text-gray-500 text-sm mt-1">Based on {{ $totalReviews }} reviews</p>
+                </div>
+
+                <!-- Middle: Rating Breakdown -->
+                <div class="border-l border-r px-6"> <!-- added px-6 for more spacing -->
+                    @foreach([5,4,3,2,1] as $star)
+                        @php
+                            $count = $ratingCounts[$star];
+                            $percent = $totalReviews > 0 ? ($count / $totalReviews) * 100 : 0;
+                        @endphp
+                        <div class="flex items-center mb-2">
+                            <!-- Fixed-width star labels to align bars -->
+                            <span class="text-yellow-400 text-base font-medium w-24 text-left">
+                                {{ str_repeat('★', $star) }}{{ str_repeat('☆', 5 - $star) }}
+                            </span>
+
+                            <!-- Bar -->
+                            <div class="flex-1 h-3 bg-gray-200 rounded overflow-hidden">
+                                <div class="h-3 bg-blue-600" style="width: {{ $percent }}%"></div>
+                            </div>
+
+                            <!-- Count -->
+                            <span class="ml-3 text-sm text-gray-600 w-6 text-right">{{ $count }}</span>
+                        </div>
+                    @endforeach
+                </div>
+
+
+                <!-- Right: Write Review Button -->
+                <div class="flex justify-center md:justify-start pl-20">
+                    <button onclick="document.getElementById('review-form').classList.remove('hidden')"
+                        class="px-6 py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700">
+                        Write a review
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review Form -->
+            <div id="review-form" class="hidden mt-6 border rounded p-6">
+                <form action="{{ route('reviews.store') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product['id'] }}">
+                    <input type="hidden" name="product_type" value="{{ $product['category'] }}s">
+                    
+
+                    <!-- Rating -->
+                    <label class="block text-sm font-medium mb-2">Rating:</label>
+                    <div class="flex items-center mb-4 space-x-1">
+                        @for($i = 1; $i <= 5; $i++)
+                            <label>
+                                <input type="radio" name="rating" value="{{ $i }}" class="hidden peer" required>
+                                <span class="text-3xl cursor-pointer text-gray-300 peer-checked:text-yellow-400">★</span>
+                            </label>
+                        @endfor
+                    </div>
+
+                    <!-- Title -->
+                    <label class="block text-sm font-medium mb-1">Review Title</label>
+                    <input type="text" name="title" maxlength="100"
+                           class="w-full border rounded px-3 py-2 mb-3">
+
+                    <!-- Content -->
+                    <label class="block text-sm font-medium mb-1">Review</label>
+                    <textarea name="content" rows="4" class="w-full border rounded px-3 py-2 mb-3"></textarea>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-end gap-3">
+                        <button type="button" 
+                                onclick="document.getElementById('review-form').classList.add('hidden')"
+                                class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+                            Cancel review
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Submit Review
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Reviews List -->
+            <div class="divide-y mt-8">
+                @forelse($reviews as $review)
+                    <div class="py-4">
+                        <!-- Stars on top -->
+                        <p class="text-yellow-400 text-3xl font-bold">
+                            {{ str_repeat('★', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}
+                        </p>
+
+                        <div class="flex items-center justify-between mt-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 text-gray-600">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <p class="font-semibold">{{ $review->name ?? 'Anonymous' }}</p>
+                            </div>
+                            <span class="text-sm text-gray-400">
+                                {{ $review->created_at->format('M d, Y') }}
+                            </span>
+                        </div>
+
+                        <p class="text-gray-800 font-semibold mt-2">{{ $review->title }}</p>
+                        <p class="text-gray-700">{{ $review->content }}</p>
+                    </div>
+                @empty
+                    <p class="text-gray-500">No reviews yet. Be the first to leave one!</p>
+                @endforelse
+            </div>
         </div>
     </main>
 

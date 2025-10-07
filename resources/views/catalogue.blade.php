@@ -231,12 +231,12 @@
                         <p class="text-xs text-gray-600">{{ $product['brand'] }}</p>
                         <p class="text-[11px] text-gray-500 mt-0.5">{{ strtoupper($product['category']) }}</p>
 
-                        <!-- ⭐ Rating -->
+                        <!-- ⭐ Rating - Now with actual data -->
                         <p class="text-yellow-500 text-sm mb-1">
-                            @if(!empty($product['rating']))
-                                ⭐ {{ $product['rating'] }} ({{ $product['reviews_count'] ?? 0 }})
+                            @if($product['reviews_count'] > 0)
+                                ★ {{ number_format($product['rating'], 1) }} ({{ $product['reviews_count'] }})
                             @else
-                                ⭐ No reviews yet
+                                ★ No reviews yet
                             @endif
                         </p>
 
@@ -258,55 +258,7 @@
                 @empty
                     <p class="col-span-4 text-center text-gray-500">No products available.</p>
                 @endforelse
-
-
-                {{-- <!-- 🔥 Global Modal -->
-                <template x-if="openModal">
-                    <div class="fixed inset-0 flex items-center justify-center !z-[99999]">
-                        <!-- Overlay -->
-                        <div class="absolute inset-0 bg-black bg-opacity-50" @click="openModal = false"></div>
-
-                        <!-- Modal box -->
-                        <div class="relative bg-white text-black rounded-lg shadow-xl w-[700px] max-h-[85vh] overflow-y-auto p-6 z-60">
-
-                            <!-- Close button -->
-                            <button @click="openModal = false"
-                                    class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl">
-                                ✖
-                            </button>
-
-                            <h2 class="text-xl font-semibold text-center mb-6" x-text="name"></h2>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Left: Product Image -->
-                                <div class="flex items-center justify-center border rounded-md p-3 bg-gray-50">
-                                    <template x-if="image">
-                                        <img :src="`/storage/${image}`"
-                                            :alt="name"
-                                            class="max-h-60 object-contain">
-                                    </template>
-                                    <template x-if="!image">
-                                        <p class="text-gray-500">No image uploaded.</p>
-                                    </template>
-                                </div>
-
-                                <!-- Right: Specs Table -->
-                                <div>
-                                    <table class="w-full text-sm border-collapse">
-                                        <tbody>
-                                            <template x-for="(value, key) in specs" :key="key">
-                                                <tr class="border-b">
-                                                    <td class="font-semibold py-1 pr-3" x-text="key.replace('_',' ').toUpperCase()"></td>
-                                                    <td class="py-1" x-text="value"></td>
-                                                </tr>
-                                            </template>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template> --}}
+               
             </main>
         </div>
 

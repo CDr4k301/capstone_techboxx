@@ -43,6 +43,7 @@
         </button>
     </div>
     
+    {{-- <hr> --}}
 
     {{-- Edit Modal --}}
     <div x-show="showEditModal" x-cloak x-transition class="modal">
@@ -90,13 +91,13 @@
     <div>
         <table class="table">
             <thead>
-                <tr>
-                    <th>Build Name/Name</th>
-                    <th>Details</th>
-                    <th>Date Created</th>
-                    <th>Total Cost</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                <tr class="border-t border-black">
+                    <th class="pt-2">Build Name/Name</th>
+                    <th class="pt-2">Details</th>
+                    <th class="pt-2">Date Created</th>
+                    <th class="pt-2">Total Cost</th>
+                    <th class="pt-2">Status</th>
+                    <th class="pt-2">Actions</th>
                 </tr>
             </thead>
         </table>

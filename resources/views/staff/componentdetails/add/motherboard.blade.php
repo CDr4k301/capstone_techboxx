@@ -115,7 +115,7 @@
                     
                     {{-- ADD SOCKET BUTTON --}}
                     <button type="button"
-                            @clickk="slots.push({})"
+                            @click="slots.push({})"
                             class="add-pcie">
                         + Add CPU
                     </button>

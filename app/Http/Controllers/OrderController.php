@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Checkout;
+use App\Models\Invoice;
 use App\Models\OrderedBuild;
 use App\Models\ShoppingCart;
 use App\Models\UserBuild;
@@ -45,7 +46,7 @@ class OrderController extends Controller
                     ELSE 7
                 END
             ")
-            ->orderBy('created_at', 'asc')  // FIFO within groups (oldest first)
+            ->orderBy('created_at', 'desc')  // FIFO within groups (oldest first)
             ->paginate(5);
 
         $allCheckouts = Checkout::with([
@@ -62,7 +63,7 @@ class OrderController extends Controller
                 ELSE 4
             END
         ")
-        ->orderBy('checkout_date', 'asc')
+        ->orderBy('checkout_date', 'desc')
         ->get();
 
         // Step 1: Group by ShoppingCart ID + Checkout Timestamp
@@ -168,7 +169,7 @@ class OrderController extends Controller
             ]);
         }
 
-        return redirect()->route('staff.order')->with([
+        return back()->with([
             'message' => 'The selected items are now ready for pickup.',
             'type' => 'success',
         ]);
@@ -177,11 +178,19 @@ class OrderController extends Controller
 
 
     public function pickup($id) {
+        $userId = Auth::id();
+
         $order = OrderedBuild::findOrFail($id);
 
         $order->update([
             'pickup_status' => 'Picked up',
             'pickup_date' =>now(),
+            'payment_status' => 'Paid'
+        ]);
+
+        Invoice::create([
+            'build_id' => $id,
+            'staff_id' => $userId,
         ]);
 
         return redirect()->route('staff.order')->with([
@@ -193,6 +202,8 @@ class OrderController extends Controller
     
     public function pickupComponents($cartId, $date)
     {
+        $userId = Auth::id();
+
         // Convert the 'date' to a Carbon instance (including time)
         $checkoutDate = Carbon::parse($date);
 
@@ -210,10 +221,16 @@ class OrderController extends Controller
             $checkout->update([
                 'pickup_status' => 'Picked up',
                 'pickup_date' => now(),
+                'payment_status' => 'Paid'
             ]);
         }
 
-        return redirect()->route('staff.order')->with([
+        Invoice::create([
+            'order_id' => $checkouts->first()->id,
+            'staff_id' => $userId,
+        ]);
+
+        return back()->with([
             'message' => 'The selected items have been marked as picked up.',
             'type' => 'success',
         ]);

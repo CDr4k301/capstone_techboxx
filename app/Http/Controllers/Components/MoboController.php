@@ -116,7 +116,8 @@ class MoboController extends Controller
             'model_3d' => 'nullable|file|mimes:glb|max:150000',
             'build_category_id' => 'required|exists:build_categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'supported_cpu' => 'nullable|string|max:255'
+            'supported_cpu' => 'nullable|array',
+            'supported_cpu.*' => 'nullable|string|max:255'
         ]);
 
         // Handle image upload

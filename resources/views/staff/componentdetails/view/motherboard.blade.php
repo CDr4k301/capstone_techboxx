@@ -37,6 +37,10 @@
             <p x-text="selectedComponent.form_factor"></p>
         </div>
         <div>
+            <p>Form Factor </p>
+            <p x-html="selectedComponent.cpu_display"></p>
+        </div>
+        <div>
             <p>RAM Type</p>
             <p x-text="selectedComponent.ram_type"></p>
         </div>

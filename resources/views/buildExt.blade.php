@@ -24,33 +24,35 @@
         </x-message>
     @endif
 
-    {{-- <header>
-        <div class="header-logo">
-            <img src="{{ asset('images\Logo.png') }}" alt="Logo" class="logo">
-            <a href="{{ route('home') }}"><h2>Madoxx.qwe</h2></a>  
-        </div>
-    </header> --}}
-
     <main class="main-content header !m-0">
         <div class="ext-icons">
-            <form action="{{ route('home') }}">
-                @csrf
-                <button>
-                    <x-icons.arrow class="build-arrow"/>
-                </button>
-            </form>
-            <form>
-                @csrf
-                <button>
+            @if (auth()->user() && auth()->user()->role === 'Customer')
+                <form action="{{ route('home') }}">
+                    @csrf
+                    <button>
+                        <x-icons.arrow class="ext-arrow"/>
+                    </button>
+                </form>
+                <button @click="openModal('save')">
                     <x-icons.save class="ext-save"/>
                 </button>
-            </form>
-            <button>
-                <x-icons.cart class="ext-cart"/>
-            </button>
-            <button id="reloadButton">
-                <x-icons.reload />
-            </button>
+                <button @click="openModal('order')">
+                    <x-icons.cart class="ext-cart"/>
+                </button>
+                <button id="reloadButton">
+                    <x-icons.reload class="ext-reload" />
+                </button>
+            @else
+                <form action="{{ route('techboxx.build') }}">
+                    @csrf
+                    <button>
+                        <x-icons.arrow class="build-arrow"/>
+                    </button>
+                </form>
+                <button id="reloadButton">
+                    <x-icons.reload class="ext-reload" />
+                </button>
+            @endif
         </div>
         
         <form action="" class="enter-build-name">
@@ -83,32 +85,34 @@
                 <div>
                     <h4>COMPATIBILITY CHECK</h4>
                     <button id="validateBuild">Validate Build</button>
-                    
                 </div>
             </section>
+
+            {{-- COMPONENTS --}}
+            
         </div>
     </main>
-    {{-- COMPONENTS --}}
     <section class="catalog-wrapper">
         <div class="slide-container">
             <div class="component-section">
-                    <x-component data-type="case">Case</x-component>
-                    <x-component data-type="motherboard">Motherboard</x-component>
-                    <x-component data-type="cpu">CPU</x-component>
-                    <x-component data-type="ram">RAM</x-component>
-                    <x-component data-type="ssd">SSD</x-component>
-                    <x-icons.arrow class="component-arrow" />
-                    <x-component data-type="hdd">HDD</x-component>
-                    <x-component data-type="cooler">Cooler</x-component>
-                    <x-component data-type="gpu">GPU</x-component>
-                    <x-component data-type="psu">PSU</x-component>
-                </div>
-                <div class="catalog-section" id="catalogSection">
-                    @foreach ($components as $component)
-                        <x-buildcatalog :component="$component"/>
-                    @endforeach
-                </div>
+                <x-icons.arrow class="component-arrow" />
+                <x-component data-type="case">Case</x-component>
+                <x-component data-type="motherboard">Motherboard</x-component>
+                <x-component data-type="cpu">CPU</x-component>
+                <x-component data-type="ram">RAM</x-component>
+                <x-component data-type="ssd">SSD</x-component>
+                <x-component data-type="hdd">HDD</x-component>
+                <x-component data-type="cooler">Cooler</x-component>
+                <x-component data-type="gpu">GPU</x-component>
+                <x-component data-type="psu">PSU</x-component>
             </div>
+
+            <div class="catalog-section" id="catalogSection">
+                @foreach ($components as $component)
+                    <x-buildcatalog :component="$component"/>
+                @endforeach
+            </div>
+        </div>
     </section>
     <div x-show="showViewModal" x-cloak x-transition class="modal view-specs modal-scroll">
         <div class="view-component" @click.away="showViewModal = false">

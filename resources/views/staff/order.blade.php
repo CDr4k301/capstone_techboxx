@@ -52,27 +52,27 @@
                         <td class="align-middle text-center">
                             <div class="flex justify-center gap-2">
                                 @if ($order->status === 'Pending')
-                                    <form action={{ route('staff.order.approve', $order->id) }}" method="POST">
+                                    <form action={{ route('staff.order.approve', $order->id) }} method="POST">
                                         @csrf
                                         <button type="submit" @click.stop>
                                             <x-icons.check/>
                                         </button>
                                     </form>
-                                    <form action={{ route('staff.order.decline', $order->id) }}" method="POST">
+                                    <form action={{ route('staff.order.decline', $order->id) }} method="POST">
                                         @csrf
                                         <button type="submit" @click.stop>
                                             <x-icons.close/>      
                                         </button>
                                     </form>
                                 @elseif ($order->status === 'Approved' && $order->pickup_status === null)
-                                    <form action={{ route('staff.order.ready', $order->id) }}" method="POST">
+                                    <form action={{ route('staff.order.ready', $order->id) }} method="POST">
                                         @csrf
                                         <button @click.stop type="submit" class="action-button">
                                             Build Completed 
                                         </button>
                                     </form>
                                 @elseif ($order->pickup_status === 'Pending' && $order->status === 'Approved')
-                                    <form action={{ route('staff.order.pickup', $order->id) }}" method="POST">
+                                    <form action={{ route('staff.order.pickup', $order->id) }} method="POST">
                                         @csrf
                                         <button @click.stop type="submit" class="action-button">
                                             Picked up    
@@ -134,7 +134,7 @@
                             <p x-text="selectedBuild.user_build.ram.brand + '' + selectedBuild.user_build.ram.model "></p>
                         </div>
                         <div>
-                            <p>SSD</p>
+                            <p>Storage</p>
                             <p x-text="selectedBuild.user_build.storage.brand + '' + selectedBuild.user_build.storage.model "></p>
                         </div>
                         <div>
@@ -144,10 +144,6 @@
                         <div>
                             <p>GPU</p>
                             <p x-text="selectedBuild.user_build.gpu.brand + '' + selectedBuild.user_build.gpu.model "></p>
-                        </div>
-                        <div>
-                            <p>HDD</p>
-                            <p x-text="selectedBuild.user_build.storage.brand + '' + selectedBuild.user_build.storage.model "></p>
                         </div>
                         <div>
                             <p>PSU</p>

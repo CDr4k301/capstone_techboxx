@@ -29,5 +29,8 @@ class Checkout extends Model
         return $this->belongsTo(CartItem::class, 'cart_item_id');
     }
 
+    public function invoice() {
+        return $this->hasOne(Invoice::class, 'order_id');
+    }
     
 }

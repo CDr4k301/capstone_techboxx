@@ -19,15 +19,14 @@ class DatabaseSeeder extends Seeder
         User::factory(10)->create();
 
         $this->call([
-            UserVerificationSeeder::class, 
-            UserBuildSeeder::class,
-
+            // UserVerificationSeeder::class, 
             // UserBuildSeeder::class,
             // OrderedBuildSeeder::class,
-            SupplierSeeder::class,
-            ShoppingCartSeeder::class,
+            // SupplierSeeder::class,
+            // ShoppingCartSeeder::class,
             CartItemSeeder::class,
             CheckoutSeeder::class,
+            // ReviewSeeder::class,
         ]);
     }
 }

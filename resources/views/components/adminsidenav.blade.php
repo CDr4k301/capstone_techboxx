@@ -25,7 +25,7 @@
                     ]
                 ],
                 ['route' => route('admin.sales'), 'label' => 'Report', 'icon' => 'bargraph'],
-                ['route' => '', 'label' => 'Activity Logs', 'icon' => 'logs'],
+                ['route' => route('admin.activitylogs'), 'label' => 'Activity Logs', 'icon' => 'logs'],
                 ['route' => route('techboxx.build'), 'label' => 'Build', 'icon' => 'build', 'style' => 'last-nav'],
             ],
             'Staff' => [
@@ -44,9 +44,9 @@
             ],
             'Customer' => [
                 ['route' => route('customer.dashboard'), 'label' => 'Profile', 'icon' => 'dashboard'],
-                ['route' => '', 'label' => 'Checkout Details', 'icon' => 'checkout'],
-                ['route' => '', 'label' => 'Order Details', 'icon' => 'order'],
-                ['route' => '', 'label' => 'Purchased History', 'icon' => 'purchase'],
+                ['route' => route('customer.checkoutdetails'), 'label' => 'Checkout Details', 'icon' => 'checkout'],
+                ['route' => route('customer.orderdetails'), 'label' => 'Order Details', 'icon' => 'order'],
+                ['route' => route('customer.purchasedhistory'), 'label' => 'Purchased History', 'icon' => 'purchase'],
             ],
             default => []
         };

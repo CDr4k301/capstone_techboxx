@@ -239,7 +239,7 @@
                         <h2 class="text-center w-[100%]">
                             Edit Software Details
                             <x-icons.close class="close" 
-                            @click="viewModal = false"/>    
+                            @click="editModal = false"/>    
                         </h2>
                     </div>
 

@@ -227,19 +227,22 @@ class="flex">
 
     <main class="main-content flex justify-evenly h-[91vh] ">
         <section class="preview-section header">
-            <div class="build-icons">
-                <form action="{{ route('home') }}">
-                    @csrf
-                    <button>
-                        <x-icons.arrow class="build-arrow"/>
+           <div class="build-icons">
+                @if (auth()->user() && auth()->user()->role === 'Customer')
+                    <form action="{{ route('home') }}">
+                        {{-- @csrf --}}
+                        <button>
+                            <x-icons.arrow class="build-arrow"/>
+                        </button>
+                    </form>
+                    <button @click="openModal('save')">
+                        <x-icons.save class="build-save"/>
                     </button>
-                </form>
-                <button @click="openModal('save')">
-                    <x-icons.save class="build-save"/>
-                </button>
-                <button @click="openModal('order')">
-                    <x-icons.cart class="build-cart"/>
-                </button>
+                    <button @click="openModal('order')">
+                        <x-icons.cart class="build-cart"/>
+                    </button>
+                @else
+                @endif
             </div>
             <div id="sidebar">
                 <h3 class="mb-3 text-center">BUILD COMPONENTS</h3>
@@ -251,7 +254,7 @@ class="flex">
                     <div id="hdd" class="draggable"><p>HDD</p></div>
                     <div id="cooler" class="draggable"><p>Cooler</p></div>
                     <div id="gpu" class="draggable"><p>GPU</p></div>
-                    <div id="psu" class="draggable"><p>PSU</p></div>    
+                    <div id="psu" class="draggable"><p>PSU</p></div>   
                 </div>
             </div>
             <div id="canvas-container"></div>
@@ -261,7 +264,7 @@ class="flex">
                 </button>
             </form>
             <button id="reloadButton">
-                <x-icons.reload class="reload" />
+                <x-icons.reload class="reload"/>
             </button>
 
         </section>
@@ -317,8 +320,9 @@ class="flex">
                     </div> 
                     {{-- FILTER --}}
                     <div class="search-area">
-                        <form action=" {{ route('techboxx.search') }}" method="GET"
+                        <form action=" {{ route('techboxx.search') }}" method="POST"
                             class="component-search">
+                            @csrf
                             <input 
                                 type="text"
                                 name="search"

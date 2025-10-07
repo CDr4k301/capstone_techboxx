@@ -17,7 +17,7 @@
         <div class="header-link">
             @auth
                 @if (auth()->user()->role === 'Customer')
-                    <a href="">Your Builds</a>
+                    <a href="{{ route('customer.dashboard') }}">Your Builds</a>
                     <a href="/cart">Cart</a>
                     <a href="{{ route('catalogue') }}">Products</a>
                 @endif
@@ -44,7 +44,6 @@
                 @endif
             @else
                 <form action="{{ route('login') }}">
-                    @csrf
                     <button>Sign In</button>
                 </form>
             @endauth

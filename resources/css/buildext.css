@@ -38,8 +38,8 @@ body{
     /* background-color: aliceblue; */
     position: absolute;
     display: flex;
+    gap: 1rem;
     justify-content: space-between;
-    width: 10%;
     height: auto;
     z-index: 999;
 }
@@ -52,7 +52,8 @@ body{
 
 .ext-arrow:hover,
 .ext-save:hover,
-.ext-cart:hover {
+.ext-cart:hover,
+.ext-reload:hover {
     opacity: 0.5;
 }
 
@@ -83,7 +84,8 @@ body{
 
 .layout-container {
     padding-top: 1dvh;
-    height: 71dvh;
+    /* height: 71dvh; */
+    height: 67dvh;
     display: flex;
     justify-content: space-between;
 }
@@ -91,6 +93,7 @@ body{
 .compatibility-section{
     height: 20dvh;
 }
+
 .steps-section,.compatibility-section{
     width: 25%;
     z-index: 1;
@@ -132,10 +135,10 @@ body{
 .component-arrow {
     position: absolute;
     height: 5dvh;
-    bottom: 70%;
+    bottom: 80%;
     transform: rotate(-180deg);
     transition: transform 0.5s ease; /* smooth animation */
-    }
+}
 
 .component-arrow.rotated {
     transform: rotate(0deg); /* or 180deg depending on desired effect */
@@ -179,15 +182,18 @@ body{
     align-items: center;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
 }
+
 .component-button:hover{
     scale: 1.1;
     transition: 0.3s ease;
 }
+
 .component-button p {
     text-align: center;
     position: relative;
     top: 70%;
 }
+
 .component-button img {
     position: absolute;
     transform: scale(1.5);
@@ -200,7 +206,11 @@ body{
     transform-origin: center center;
 }
 
-/* component active */
+.component-active img {
+    transform: skewX(15deg) translateX(5%) translateY(-40%) scale(2);
+    opacity: 1;
+}
+
 .component-active {
     transform: skewX(-15deg) translateY(-10px);
     transition: transform 0.5s ease;

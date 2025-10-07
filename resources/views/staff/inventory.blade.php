@@ -3,12 +3,12 @@
 
     <div class="header-container" x-data="{ showStockInModal: false, showStockOutModal: false, componentModal: null }">
         <div>
-            <button class="modal-button" @click="showStockInModal = true">
+            {{-- <button class="modal-button" @click="showStockInModal = true">
                 Stock-In
             </button>
             <button class="modal-button" @click="showStockOutModal = true">
                 Stock-Out
-            </button>        
+            </button>         --}}
         </div>
         
 
@@ -27,97 +27,7 @@
             </form>
         </div>
     
-        {{-- STOCK-IN MODAL --}}
-        <div x-show="showStockInModal" x-cloak x-transition class="modal"
-             x-data="{ components: @js($components),
-                       selectedComponenentId: '',
-                       selectedComponent: {}}">
-            <div class="add-component" @click.away="showStockInModal = false">
-                <div class="relative !m-0">
-                    <h2 class="text-center w-[100%]">
-                        STOCK-IN FORM
-                        <x-icons.close class="close" @click="showStockInModal = false"/>    
-                    </h2>
-                </div>
-                <form class="inventory-form" method="POST" action="{{ route('staff.inventory.stock-in') }}">
-                    @csrf
-                    <input type="hidden" name="type" :value="selectedComponent.component_type">
-                    <div>
-                        <label for="">Component</label>
-                        <select required name="stockInId" id="stockInId"
-                                x-model="selectedComponentId"
-                                x-init="selectedComponentId = ''"
-                                @change="selectedComponent = components.find(c => c.id == selectedComponentId)">
-                            <option disabled selected hidden value="">Select a component</option>
-                            @foreach ($components as $component)
-                                <option value="{{ $component->id }}">
-                                    {{ $component->label }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label for="">Current Stock</label>
-                        <input type="text" placeholder="00" :value="selectedComponent.stock" readonly>
-                    </div>
-                    <div>
-                        <label for="">Quantities to Add</label>
-                        <input required name="stock" id="stock" type="number" placeholder="00" onkeydown="return !['e','E','+','-'].includes(event.key)">
-                    </div>
-
-                    <div>
-                        <button>Confirm Stock-in</button>
-                        <button @click="showStockInModal = false">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        {{-- STOCK-OUT MODAL --}}
-        <div x-show="showStockOutModal" x-cloak x-transition class="modal"
-             x-data="{ components: @js($components),
-                       selectedComponenentId: '',
-                       selectedComponent: {}}">
-            <div class="add-component" @click.away="showStockOutModal = false">
-                <div class="relative !m-0">
-                    <h2 class="text-center w-[100%]">
-                        STOCK-OUT FORM
-                        <x-icons.close class="close" @click="showStockOutModal = false"/>    
-                    </h2>
-                </div>
-                <form class="inventory-form" method="POST" action="{{ route('staff.inventory.stock-out') }}">
-                    @csrf
-                    <input type="hidden" name="type" :value="selectedComponent.component_type">
-                    <div>
-                        <label for="">Component</label>
-                        <select required name="stockOutId" id="stockOutId"
-                                x-model="selectedComponentId"
-                                x-init="selectedComponentId = ''"
-                                @change="selectedComponent = components.find(c => c.id == selectedComponentId)">
-                            <option disabled selected hidden value="">Select a component</option>
-                            @foreach ($components as $component)
-                                <option value="{{ $component->id }}">
-                                    {{ $component->label }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label for="">Current Stock</label>
-                        <input type="text" placeholder="00" :value="selectedComponent.stock" readonly>
-                    </div>
-                    <div>
-                        <label for="">Quantities to Remove</label>
-                        <input required name="stock" id="stock" type="number" placeholder="00" onkeydown="return !['e','E','+','-'].includes(event.key)">
-                    </div>
-
-                    <div>
-                        <button>Confirm Stock-out</button>
-                        <button @click="showStockOutModal = false">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        
     </div>
 
     {{-- TABLE --}}
@@ -173,7 +83,7 @@
                         <input type="hidden" name="type" :value="selectedComponent.component_type">
                         <div>
                             <label for="">Component</label>
-                            <input type="text" x-model="selectedComponent.label" readonly>
+                            <input name="label" type="text" x-model="selectedComponent.label" readonly>
                         </div>
                         <div>
                             <label for="">Current Stock</label>
@@ -204,7 +114,7 @@
                         <input type="hidden" name="type" :value="selectedComponent.component_type">
                         <div>
                             <label for="">Component</label>
-                            <input type="text" x-model="selectedComponent.label" readonly>
+                            <input name="label" type="text" x-model="selectedComponent.label" readonly>
                         </div>
                         <div>
                             <label for="">Current Stock</label>
