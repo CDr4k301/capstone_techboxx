@@ -15,7 +15,6 @@ class Cpu extends Model
     use HasFactory;
     use SoftDeletes;
 
-
     protected $fillable = [
         'build_category_id',
         'brand',
@@ -29,18 +28,14 @@ class Cpu extends Model
         'integrated_graphics',
         'generation',
         'price',
+        'base_price', // <- added this
         'stock',
         'image',
         'model_3d',
         'supplier_id',
     ];
- 
-    // FETCHING IMAGE FROM DRIVE
-// protected $casts = [
-    //     'image' => 'array',
-    // ];
 
-    // DEFINE RELATIONSHIP
+    // DEFINE RELATIONSHIPS
     public function buildCategory() {
         return $this->belongsTo(BuildCategory::class);
     }
@@ -53,7 +48,7 @@ class Cpu extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-    public function supportedCpu(){
+    public function supportedCpu() {
         return $this->hasMany(Motherboard::class);
     }
 }

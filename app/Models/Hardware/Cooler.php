@@ -26,6 +26,7 @@ class Cooler extends Model
         'fan_count',
         'height_mm',
         'price',
+        'base_price', // <- added this
         'stock',
         'image',
         'model_3d',
@@ -34,9 +35,7 @@ class Cooler extends Model
 
     // FETCHING IMAGE FROM DRIVE
     protected $casts = [
-        // 'image' => 'array',
         'socket_compatibility' => 'array',
-
     ];
 
     // DEFINE RELATIONSHIP

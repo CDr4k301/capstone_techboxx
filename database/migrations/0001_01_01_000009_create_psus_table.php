@@ -14,8 +14,12 @@ return new class extends Migration
         Schema::create('psus', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+
+            // Foreign keys
             $table->foreignId('build_category_id')->constrained()->onDelete('cascade');
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+
+            // PSU details
             $table->string('brand');
             $table->string('model');
             $table->integer('wattage');
@@ -23,10 +27,16 @@ return new class extends Migration
             $table->string('modular');
             $table->integer('pcie_connectors');
             $table->integer('sata_connectors');
-            $table->decimal('price',10,2);
+
+            // Pricing
+            $table->decimal('price', 10, 2);
+            $table->decimal('base_price', 10, 2)->nullable()->after('price'); // new column for base/original price
+
+            // Stock and media
             $table->integer('stock');
             $table->string('image')->nullable();
             $table->string('model_3d')->nullable();
+
             $table->softDeletes();
         });
     }

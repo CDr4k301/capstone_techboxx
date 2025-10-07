@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('rams', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+
+            // Foreign keys
             $table->foreignId('build_category_id')->constrained()->onDelete('cascade');
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+
+            // RAM details
             $table->string('brand');
             $table->string('model');
             $table->string('ram_type');
@@ -25,10 +28,17 @@ return new class extends Migration
             $table->integer('module_count');
             $table->string('is_ecc');
             $table->string('is_rgb');
-            $table->decimal('price',10,2);
+
+            // Pricing
+            $table->decimal('price', 10, 2);
+            $table->decimal('base_price', 10, 2)->nullable()->after('price'); // New column for base/original price
+
+            // Stock and media
             $table->integer('stock');
             $table->string('image')->nullable();
             $table->string('model_3d')->nullable();
+
+            $table->timestamps();
             $table->softDeletes();
         });
     }

@@ -27,11 +27,13 @@ class Ram extends Model
         'is_ecc',
         'is_rgb',
         'price',
+        'base_price', // <-- add this if needed
         'stock',
         'image',
         'model_3d',
         'supplier_id',
     ];
+
 
     // FETCHING IMAGE FROM DRIVE
 // protected $casts = [

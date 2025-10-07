@@ -25,11 +25,14 @@ class Psu extends Model
         'pcie_connectors',
         'sata_connectors',
         'price',
+        'base_price', // <- add this
         'stock',
         'image',
         'model_3d',
         'supplier_id',
     ];
+
+
 
     // FETCHING IMAGE FROM DRIVE
 // protected $casts = [

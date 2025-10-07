@@ -1,94 +1,170 @@
 <nav class="nav-bar">
-
-    {{-- fetching the user role in the database --}}
-    {{-- ucfirst -> capitalizes the first character string --}}
-    @if ($role === 'Customer')
+    {{-- Display the site or role heading --}}
+    @if($role === 'Customer')
         <h1>Techboxx</h1>
     @else
         <h1>{{ ucfirst($role) }}</h1>
     @endif
+    <div class="separate">
+    <ul class="nav_container">
+        {{-- ADMIN NAVBAR --}}
+        @if($role === 'Admin')
+            <li class = "tabs">
+                <a href="{{ route('admin.dashboard') }}" class = "parent" id="d">
+                    <x-dynamic-component :component="'x-icons.dashboard'" />
+                    Dashboard
+                </a>
+            </li>
 
-    {{-- grouping links in an array based on roles --}}
-    @php
-        $links = match($role) {
-            'Admin' => [
-                ['route' => route('admin.dashboard'), 'label' => 'Dashboard', 'icon' => 'dashboard'],
-                [
-                    'label' => 'Manage',
-                    'icon' => 'manage',
-                    'children' => [
-                        ['route' => route('admin.useraccount'), 'label' => 'Accounts', 'icon' => 'user'],
-                        ['route' => route('staff.order'), 'label' => 'Order', 'icon' => 'order'],
-                        ['route' => route('staff.componentdetails'), 'label' => 'Component', 'icon' => 'component'],
-                        ['route' => route('staff.inventory'), 'label' => 'Inventory', 'icon' => 'inventory'],
-                        ['route' => route('staff.software-details'), 'label' => 'Software', 'icon' => 'software'],
-                    ]
-                ],
-                ['route' => route('admin.sales'), 'label' => 'Report', 'icon' => 'bargraph'],
-                ['route' => route('admin.activitylogs'), 'label' => 'Activity Logs', 'icon' => 'logs'],
-                ['route' => route('techboxx.build'), 'label' => 'Build', 'icon' => 'build', 'style' => 'last-nav'],
-            ],
-            'Staff' => [
-                ['route' => route('staff.dashboard') , 'label' => 'Dashboard', 'icon' => 'dashboard'],
-                [
-                    'label' => 'Manage',
-                    'icon' => 'manage',
-                    'children' => [
-                        ['route' => route('staff.order'), 'label' => 'Order', 'icon' => 'order'],
-                        ['route' => route('staff.componentdetails'), 'label' => 'Component', 'icon' => 'component'],
-                        ['route' => route('staff.inventory'), 'label' => 'Inventory', 'icon' => 'inventory'],
-                        ['route' => route('staff.software-details'), 'label' => 'Software', 'icon' => 'software'],
-                    ]
-                ],
-                ['route' => route('techboxx.build') , 'label' => 'Build', 'icon' => 'build', 'style' => 'last-nav'],
-            ],
-            'Customer' => [
-                ['route' => route('customer.dashboard'), 'label' => 'Profile', 'icon' => 'dashboard'],
-                ['route' => route('customer.checkoutdetails'), 'label' => 'Checkout Details', 'icon' => 'checkout'],
-                ['route' => route('customer.orderdetails'), 'label' => 'Order Details', 'icon' => 'order'],
-                ['route' => route('customer.purchasedhistory'), 'label' => 'Purchased History', 'icon' => 'purchase'],
-            ],
-            default => []
-        };
-    @endphp
+            <li class = "tabs">
+                <a href="#" class = "parent">
+                    <x-dynamic-component :component="'x-icons.manage'" />
+                    Manage
+                </a>
+                <ul>
+                     <li>
+                        <a href="{{ route('admin.useraccount') }}" class = "child">
+                            <x-dynamic-component :component="'x-icons.user'" />
+                            Accounts
+                        </a>
+                    </li>
 
-    {{-- rendering links base on roles --}}
-    <ul>
-        @foreach ($links as $link)
-            @php
-                $isActive = isset($link['route']) && $link['route'] !== '' && request()->is(ltrim(parse_url($link['route'], PHP_URL_PATH), '/') . '*');
-                // Check if any child link is active
-                $isDropdownActive = isset($link['children']) && collect($link['children'])->contains(fn($child) => request()->is(ltrim(parse_url($child['route'], PHP_URL_PATH), '/') . '*'));
-            @endphp
+                    <li>
+                        <a href="{{ route('staff.order') }}"class = "child">
+                            <x-dynamic-component :component="'x-icons.order'" />
+                            Orders
+                        </a>
+                    </li>
 
-            @if (isset($link['children']))
-                <li class="dropdown-nav {{ $isDropdownActive ? 'active' : '' }}">
-                    <a href="#" onclick="event.preventDefault(); this.nextElementSibling.classList.toggle('show')">
-                        <x-dynamic-component :component="'x-icons.' . $link['icon']" />
-                        {{ $link['label'] }}
-                    </a>
-                    <ul class="submenu {{ $isDropdownActive ? 'show' : '' }}">
-                        @foreach ($link['children'] as $sublink)
-                            @php
-                                $isSubActive = request()->is(ltrim(parse_url($sublink['route'], PHP_URL_PATH), '/') . '*');
-                            @endphp
-                            <li class="{{ $isSubActive ? 'active' : '' }}">
-                                <a href="{{ $sublink['route'] }}">
-                                    <x-dynamic-component :component="'x-icons.' . $sublink['icon']" />
-                                    {{ $sublink['label'] }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </li>
-            @else
-                <li class="{{ (($link['style'] ?? '' ) . ($isActive ? ' active' : '')) }}">
-                    <a href="{{ $link['route'] }}">
-                        <x-dynamic-component :component="'x-icons.' . $link['icon']" />
-                        {{ $link['label'] }}
-                    </a>
-                </li>
-            @endif
-        @endforeach
+                    <li>
+                        <a href="{{ route('staff.componentdetails') }}"class = "child">
+                            <x-dynamic-component :component="'x-icons.component'" />
+                            Components
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('staff.inventory') }}"class = "child">
+                            <x-dynamic-component :component="'x-icons.inventory'" />
+                            Inventory
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('staff.software-details') }}"class = "child">
+                            <x-dynamic-component :component="'x-icons.software'" />
+                            Software
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
+
+            <li class = "tabs">
+                <a href="{{ route('admin.sales') }}" class = "parent">
+                    <x-dynamic-component :component="'x-icons.bargraph'" />
+                    Report
+                </a>
+                <ul>
+                    <li>
+                        <a href="{{ route('admin.activitylogs') }}"class = "child">
+                            <x-dynamic-component :component="'x-icons.logs'" />
+                            Activity Logs
+                        </a>
+                    </li>
+
+                </ul>
+            </li>
+
+            
+
+
+        {{-- STAFF NAVBAR --}}
+        @elseif($role === 'Staff')
+            <li class = "tabs">
+                <a href="{{ route('staff.dashboard') }}" class = "parent" id="d">
+                    <x-dynamic-component :component="'x-icons.dashboard'" />
+                    Dashboard
+                </a>
+            </li>
+
+            <li class = "tabs">
+                <a href="#" class = "parent">
+                    <x-dynamic-component :component="'x-icons.manage'" />
+                    Manage
+                </a>
+                <ul>
+                    <li>
+                        <a href="{{ route('staff.order') }}"class = "child">
+                            <x-dynamic-component :component="'x-icons.order'" />
+                            Orders
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('staff.componentdetails') }}"class = "child">
+                            <x-dynamic-component :component="'x-icons.component'" />
+                            Components
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('staff.inventory') }}"class = "child">
+                            <x-dynamic-component :component="'x-icons.inventory'" />
+                            Inventory
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('staff.software-details') }}"class = "child">
+                            <x-dynamic-component :component="'x-icons.software'" />
+                            Software
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
+
+        {{-- CUSTOMER NAVBAR --}}
+        @elseif($role === 'Customer')
+
+            <li>
+                <a href="{{ route('customer.dashboard') }}"  class = "parent">
+                    <x-dynamic-component :component="'x-icons.dashboard'" />
+                    Profile
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('customer.checkoutdetails') }}" class = "parent">
+                    <x-dynamic-component :component="'x-icons.checkout'" />
+                    Checkout Details
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('customer.orderdetails') }}" class = "parent">
+                    <x-dynamic-component :component="'x-icons.order'" />
+                    Order Details
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('customer.purchasedhistory') }}" class = "parent">
+                    <x-dynamic-component :component="'x-icons.purchase'" />
+                    Purchased History
+                </a>
+            </li>
+
+        @else
+            {{-- No nav items if role is not recognized --}}
+        @endif
     </ul>
+            <a href="{{ route('techboxx.build') }}" class="build">
+                <x-dynamic-component :component="'x-icons.build'" />
+                Build
+            </a>
+    </div>
 </nav>

@@ -94,7 +94,11 @@
                     </select>
             </div>
             <div>
-                <label for="">Price</label>
+                <label for="">Base Price</label>
+                <input required name="base_price" id="base_price" type="number" step="0.01" placeholder="Enter price" x-model="selectedComponent.base_price" onkeydown="return !['e','E','+','-'].includes(event.key)">
+            </div>
+            <div>
+                <label for="">Selling Price</label>
                 <input required name="price" id="price" type="number" step="0.01" placeholder="Enter price" x-model="selectedComponent.price" onkeydown="return !['e','E','+','-'].includes(event.key)">
             </div>
             

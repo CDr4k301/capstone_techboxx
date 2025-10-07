@@ -39,38 +39,27 @@ class RamController extends Controller
             $ram->rgb_display = ($ram->is_rgb === 'false') ? 'No' : 'Yes';
 
             $ram->price_display = '₱' . number_format($ram->price, 2);
+            $ram->base_price = $ram->base_price; // <-- added base_price
             $ram->label = "{$ram->brand} {$ram->model}";
             $ram->component_type = 'ram';
-
-            
             $ram->sold_count = $ramSales[$ram->id] ?? 0;
         });
 
         return $rams;
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        // Validate the request data
         $validated = $request->validate([
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
@@ -89,7 +78,6 @@ class RamController extends Controller
             'supplier_id' => 'required|exists:suppliers,id',
         ]);
 
-        // Handle image upload
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image');
             $filename = time() . '_' . Str::slug(pathinfo($validated['image']->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $validated['image']->getClientOriginalExtension();
@@ -98,7 +86,6 @@ class RamController extends Controller
             $validated['image'] = null;
         }
 
-        // Handle 3D model upload
         if ($request->hasFile('model_3d')) {
             $model3d = $request->file('model_3d');
             $filename = time() . '_' . Str::slug(pathinfo($model3d->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $model3d->getClientOriginalExtension();
@@ -107,7 +94,8 @@ class RamController extends Controller
             $validated['model_3d'] = null;
         }
 
-        // dd($validated); 
+        // Store base_price
+        $validated['base_price'] = $validated['price'];
 
         Ram::create($validated);
 
@@ -117,30 +105,20 @@ class RamController extends Controller
         ]); 
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $ram = Ram::findOrFail($id);
 
-        // Prepare data for update
         $data = [
             'build_category_id'    => $request->build_category_id,
             'supplier_id'          => $request->supplier_id,
@@ -154,22 +132,20 @@ class RamController extends Controller
             'is_ecc'               => $request->is_ecc,
             'is_rgb'               => $request->is_rgb,
             'price'                => $request->price,
+            'base_price'           => $request->price, // <-- added base_price
             'stock'                => $request->stock,
         ];
 
-        // Only update image if a new image is uploaded
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('ram', 'public');
             $data['image'] = $imagePath;
         }
 
-        // Only update model_3d if a new 3D model is uploaded
         if ($request->hasFile('model_3d')) {
             $modelPath = $request->file('model_3d')->store('ram', 'public');
             $data['model_3d'] = $modelPath;
         }
 
-        // Update the RAM with the prepared data
         $ram->update($data);
 
         return redirect()->route('staff.componentdetails')->with([
@@ -178,12 +154,8 @@ class RamController extends Controller
         ]);
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        // 
+        //
     }
 }

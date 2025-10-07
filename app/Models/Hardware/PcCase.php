@@ -27,11 +27,13 @@ class PcCase extends Model
         'max_cooler_height_mm',
         'fan_mounts',
         'price',
+        'base_price', // <- added this
         'stock',
         'image',
         'model_3d',
         'supplier_id',
-    ];  
+    ];
+
 
     // FETCHING IMAGE FROM DRIVE
 // protected $casts = [

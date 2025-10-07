@@ -82,8 +82,12 @@
                 <input required name="sata_connectors" id="sata_connectors" type="number" placeholder="00 W" onkeydown="return !['e','E','+','-'].includes(event.key)">
             </div>
             <div>
-                <label for="">Price</label>
-                <input required name="price" id="price" type="number" step="0.01" placeholder="Enter price" onkeydown="return !['e','E','+','-'].includes(event.key)">
+                <label for="">Base Price</label>
+                <input required name="base_price" id="base_price" type="number" step="0.01" placeholder="Enter Price" onkeydown="return !['e','E','+','-'].includes(event.key)">
+            </div>
+            <div>
+                <label for="">Selling Price</label>
+                <input required name="price" id="price" type="number" step="0.01" placeholder="Enter Price" onkeydown="return !['e','E','+','-'].includes(event.key)">
             </div>
             <div>
                 <label for="">Stock</label>

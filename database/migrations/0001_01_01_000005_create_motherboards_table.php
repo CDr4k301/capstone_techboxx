@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('motherboards', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+
+            // Foreign keys
             $table->foreignId('build_category_id')->constrained()->onDelete('cascade');
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+
+            // Motherboard details
             $table->string('brand');
             $table->string('model');
             $table->string('socket_type');
@@ -30,14 +33,20 @@ return new class extends Migration
             $table->integer('sata_ports');
             $table->integer('usb_ports');
             $table->string('wifi_onboard');
-            $table->decimal('price',10,2);
+
+            // Pricing
+            $table->decimal('price', 10, 2);
+            $table->decimal('base_price', 10, 2)->nullable()->after('price'); // New column for base/original price
+
+            // Stock and media
             $table->integer('stock');
             $table->string('image')->nullable();
             $table->string('model_3d')->nullable();
             $table->string('supported_cpu')->nullable();
+
+            $table->timestamps();
             $table->softDeletes();
         });
-
     }
 
     /**

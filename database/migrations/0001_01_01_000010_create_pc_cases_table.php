@@ -14,21 +14,28 @@ return new class extends Migration
         Schema::create('pc_cases', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+
+            // Foreign keys
             $table->foreignId('build_category_id')->constrained()->onDelete('cascade');
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+
+            // Case details
             $table->string('brand');
             $table->string('model');
             $table->string('form_factor_support');
             $table->integer('max_gpu_length_mm');
             $table->integer('max_cooler_height_mm');
-            // $table->string('radiator_support');
-            // $table->string('drive_bays');
             $table->integer('fan_mounts'); 
-            // $table->integer('front_usb_ports');
-            $table->decimal('price',10,2);
+
+            // Pricing
+            $table->decimal('price', 10, 2);
+            $table->decimal('base_price', 10, 2)->nullable()->after('price'); // new column for base/original price
+
+            // Stock and media
             $table->integer('stock');
             $table->string('image')->nullable();
             $table->string('model_3d')->nullable();
+
             $table->softDeletes();
         });
     }

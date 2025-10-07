@@ -15,8 +15,12 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->softDeletes();
+
+            // Foreign keys
             $table->foreignId('build_category_id')->constrained()->onDelete('cascade');
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+
+            // Cooler details
             $table->string('brand');
             $table->string('model');
             $table->string('cooler_type');
@@ -25,7 +29,12 @@ return new class extends Migration
             $table->integer('radiator_size_mm')->nullable();
             $table->integer('fan_count');
             $table->integer('height_mm');
-            $table->decimal('price',10,2);
+
+            // Pricing
+            $table->decimal('price', 10, 2);
+            $table->decimal('base_price', 10, 2)->nullable()->after('price'); // new column for base/original price
+
+            // Stock and media
             $table->integer('stock');
             $table->string('image')->nullable();
             $table->string('model_3d')->nullable();

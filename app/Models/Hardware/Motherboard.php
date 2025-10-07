@@ -33,6 +33,7 @@ class Motherboard extends Model
         'usb_ports',
         'wifi_onboard',
         'price',
+        'base_price', // <- added this
         'stock',
         'image',
         'model_3d',
@@ -40,16 +41,11 @@ class Motherboard extends Model
         'supported_cpu',
     ];
 
-    // FETCHING IMAGE FROM DRIVE
-// protected $casts = [
-    //     'image' => 'array',
-    // ];
     protected $casts = [
-        // 'image' => 'array',
         'supported_cpu' => 'array',
-
     ];
-    // DEFINE RELATIONSHIP
+
+    // DEFINE RELATIONSHIPS
     public function buildCategory() {
         return $this->belongsTo(BuildCategory::class);
     }

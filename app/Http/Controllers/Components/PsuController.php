@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Components;
 
-use App\Http\Controllers\ComponentDetailsController;
 use App\Http\Controllers\Controller;
 use App\Models\BuildCategory;
 use App\Models\Hardware\Psu;
@@ -16,7 +15,7 @@ use App\Models\Brand;
 
 class PsuController extends Controller
 {
-    // FETCHING DATA FRO DROPDOWNS
+    // FETCHING DATA FOR DROPDOWNS
     public function getPsuSpecs()
     {
         return [
@@ -25,7 +24,6 @@ class PsuController extends Controller
             'efficiency_ratings' => ['80 PLUS Bronze', '80 PLUS Gold', '80 PLUS Titanium', ],
             'modulars' => ['Non-Modular', 'Semi-Modular', 'Fully Modular', ],
             'buildCategories' => BuildCategory::select('id', 'name')->get(),
-
         ];
     }
 
@@ -38,13 +36,12 @@ class PsuController extends Controller
                 ->groupBy('psu_id')
                 ->pluck('sold_count', 'psu_id');
 
-        // FORMATTING THE DATAS
+        // FORMATTING THE DATA
         $psus->each(function ($psu) use ($psuSales) {
             $psu->price_display = '₱' . number_format($psu->price, 2);
+            $psu->base_price = $psu->base_price; // <-- added base_price
             $psu->label = "{$psu->brand} {$psu->model}";
             $psu->component_type = 'psu';
-
-            
             $psu->sold_count = $psuSales[$psu->id] ?? 0;
         });
 
@@ -107,16 +104,15 @@ class PsuController extends Controller
             $validated['model_3d'] = null;
         }
 
-        // dd($request->all()); 
-        
+        // Store base_price
+        $validated['base_price'] = $validated['price'];
 
         Psu::create($validated);
 
         return redirect()->route('staff.componentdetails')->with([
             'message' => 'PSU added',
             'type' => 'success',
-        ]); 
-
+        ]);
     }
 
     /**
@@ -132,9 +128,8 @@ class PsuController extends Controller
      */
     public function edit(string $id)
     {
-
+        //
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -154,6 +149,7 @@ class PsuController extends Controller
             'pcie_connectors'       => $request->pcie_connectors,
             'sata_connectors'       => $request->sata_connectors,
             'price'                 => $request->price,
+            'base_price'            => $request->price, // <-- added base_price
             'stock'                 => $request->stock,
             'build_category_id'     => $request->build_category_id,
         ];
@@ -179,9 +175,6 @@ class PsuController extends Controller
         ]);
     }
 
-
-
-
     /**
      * Remove the specified resource from storage.
      */
@@ -189,7 +182,4 @@ class PsuController extends Controller
     {
         //
     }
-
-   
-
 }

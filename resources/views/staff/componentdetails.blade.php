@@ -84,7 +84,7 @@
                                     </form>
                                 @else
                                     {{-- Edit Button for Active Components --}}
-                                    <button @click="showEditModal = true; selectedComponent = {{ $component->toJson() }};">
+                                    <button @click.stop @click="showEditModal = true; selectedComponent = {{ $component->toJson() }};">
                                         <x-icons.edit />
                                     </button>
 
@@ -92,7 +92,7 @@
                                     <form action="{{ route('staff.componentdetails.delete', ['type' => $component->component_type, 'id' => $component->id]) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit">
+                                        <button @click.stop type="submit">
                                             <x-icons.delete />
                                         </button>
                                     </form>

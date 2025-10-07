@@ -26,17 +26,14 @@ class Gpu extends Model
         'pcie_interface',
         'connectors_required',
         'price',
+        'base_price', // <- added this
         'stock',
         'image',
         'model_3d',
         'supplier_id',
     ];
 
-    // FETCHING IMAGE FROM DRIVE
-// protected $casts = [
-    //     'image' => 'array',
-    // ];
-
+    // DEFINE RELATIONSHIPS
     public function buildCategory() {
         return $this->belongsTo(BuildCategory::class);
     }

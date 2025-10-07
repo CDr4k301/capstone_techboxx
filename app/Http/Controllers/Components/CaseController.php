@@ -73,6 +73,7 @@ class CaseController extends Controller
             })->implode('<br>');
 
             $case->price_display = '₱' . number_format($case->price, 2);
+            $case->base_price = $case->base_price; // <-- added base_price variable
             $case->label = "{$case->brand} {$case->model}";
             $case->component_type = 'case';
 
@@ -139,6 +140,9 @@ class CaseController extends Controller
             $validated['model_3d'] = null;
         }
         // dd($request->all());
+
+        // Store base_price
+        $validated['base_price'] = $validated['price'];
 
         $case = PcCase::create($validated);
 
@@ -221,6 +225,7 @@ class CaseController extends Controller
             'max_cooler_height_mm' => $request->max_cooler_height_mm,
             'fan_mounts' => $request->fan_mounts,
             'price' => $request->price,
+            'base_price' => $request->price, // <-- added base_price on update
             'stock' => $request->stock,
         ];
 

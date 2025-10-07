@@ -26,11 +26,13 @@ class Storage extends Model
         'read_speed_mbps',
         'write_speed_mbps',
         'price',
+        'base_price', // optional field for original/reference price
         'stock',
         'image',
         'model_3d',
         'supplier_id',
     ];
+
 
     // FETCHING IMAGE FROM DRIVE
 // protected $casts = [

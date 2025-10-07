@@ -92,8 +92,12 @@
                 <input required name="write_speed_mbps" id="write_speed_mbps" type="number" x-model="selectedComponent.write_speed_mbps" placeholder="000 MB/s" onkeydown="return !['e','E','+','-'].includes(event.key)">
             </div>
             <div>
-                <label for="">Price</label>
-                <input required name="price" id="price" type="number" step="0.01" x-model="selectedComponent.price" placeholder="Enter price" onkeydown="return !['e','E','+','-'].includes(event.key)">
+                <label for="">Base Price</label>
+                <input required name="base_price" id="base_price" type="number" step="0.01" placeholder="Enter price" x-model="selectedComponent.base_price" onkeydown="return !['e','E','+','-'].includes(event.key)">
+            </div>
+            <div>
+                <label for="">Selling Price</label>
+                <input required name="price" id="price" type="number" step="0.01" placeholder="Enter price" x-model="selectedComponent.price" onkeydown="return !['e','E','+','-'].includes(event.key)">
             </div>
             
             
