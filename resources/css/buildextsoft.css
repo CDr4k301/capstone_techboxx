@@ -1,0 +1,213 @@
+/* 3D */
+.model-section {
+    width: 50%;
+}
+
+#canvas-container {
+    width: 50%;
+    position: absolute;
+    right: 50%;
+    transform: translateX(50%);
+}
+
+canvas {
+    display: block;
+    width: 50% !important;
+    height: 80% !important;
+}
+ 
+/* LAYOUT */
+body{
+    background: linear-gradient(
+        to bottom,
+        #0F0F3D 20%,
+        #1D6494 45%,
+        #4F9CF9 100%
+        /* #6BDFFF 100% */
+    );
+    color: white;
+    width: 100%;
+    overflow:hidden;
+    height: 100%;
+}
+
+.ext-icons {
+    /* background-color: aliceblue; */
+    position: absolute;
+    display: flex;
+    padding-left: 30px;
+    padding-top: 30px;
+    gap: 1rem;
+    justify-content: space-between;
+    height: auto;
+    z-index: 999;
+}
+
+.ext-arrow {
+    rotate: 90deg;
+    height: 24px;
+    width: 24px;
+}
+
+.ext-arrow:hover,
+.ext-save:hover,
+.ext-cart:hover,
+.ext-reload:hover {
+    opacity: 0.5;
+}
+
+.enter-build-name {
+    padding-top: 30px;
+    background-color: transparent; 
+    font-size: 1.5rem;
+    width: 100%;
+    text-align: center;
+    outline: none;
+}
+
+.enter-build-name input{
+    border: none !important;
+    outline: none !important;
+    background-color: transparent;
+    text-align: center;
+    font-size: 1.5rem;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100%;
+}
+
+.enter-build-name input:focus{
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;  /* Remove any box-shadow on focus */
+}
+
+.layout-container {
+    padding-top: 1dvh;
+    height: 90vh;
+    display: flex;
+    justify-content: space-between;
+}
+
+.compatibility-section div h4{
+    text-align: center;
+}
+
+/* SLIDE UPWARD WHEN OPEN */
+.catalog-wrapper {
+    max-height: 50dvh;
+    transition: transform 0.5s ease;
+    border-radius: 30 30 0 0;
+    z-index: 2;
+}
+
+/* When "open", move the whole wrapper up */
+.catalog-wrapper.open {
+    transform: translateY(-100%); /* or -50%, or whatever works */
+    background: linear-gradient(
+        to bottom,
+        rgba(53, 63, 84, 0.6) 0%,   /* #353F54 with 60% opacity */
+        rgba(34, 40, 52, 0.6) 100%  /* #222834 with 60% opacity */
+    );
+    border-radius: 30px 30px 0 0;
+}
+
+.component-arrow:hover {
+    opacity: .5;
+    cursor: pointer;
+}
+.component-section{
+    display: flex;
+    width: 16%;
+    height: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    justify-content: space-between;
+    padding-right: 30px;
+}
+.component-section-right{
+    transition: transform 0.5s ease; /* smooth animation */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    padding: 2%;
+    height: 100%;
+    gap: 10px;
+    position: relative;
+    border-radius: 30px 30px 0 0; 
+}
+.component-section-left {
+    transition: transform 0.5s ease; /* smooth animation */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    padding: 2%;
+    height: 80%;
+    gap: 10px;
+    position: relative;
+    border-radius: 30px 30px 0 0; 
+}
+.software-section {
+    text-align: center;
+    transition: transform 0.5s ease; /* smooth animation */
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.2); border-radius: 2.5rem;
+    width: 25%;
+}
+.category{
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+.category label{
+    text-align: left;
+    font-size: small;
+    padding: 2%;
+    background-color: rgba(0, 0, 0, 0.6); border-radius: 0.5rem;
+    width: 50%;
+    text-align: center;
+}
+.soft{
+    text-align: center;
+    font-size: larger;
+    margin: 30px 0px;
+}
+/*componentbutton*/
+.component-button {
+    background: linear-gradient(
+        to bottom,
+        #353F54 0%,
+        #222834 100%
+    );
+    height: 20%;
+    border-radius: 12px;
+    transition: transform 0.5s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+    transform: skewY(-15deg) translateX(-10px);
+    transition: transform 0.5s ease;
+    text-align: left;
+}
+
+
+.component-button p {
+    text-align: left;
+    position: relative;
+    top: 20%;
+    transform: skewY(15deg);
+}
+
+.component-button img {
+    position: absolute;
+    left: 20px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: none; /* hidden until selected */
+    transition: transform 0.5s ease, opacity 0.4s ease;
+    transform-origin: center center;
+    transform: skewX(15deg) translateX(5%) translateY(-40%) scale(2);
+}
