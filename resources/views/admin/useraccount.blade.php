@@ -52,8 +52,7 @@
     </section>
 
     {{-- unverified users --}}
-    <section class="section-style mt-[3%] !h-[100vh]">
-        <h2 class="section-header">Unverified Customers</h2>
+    z        <h2 class="section-header">Unverified Customers</h2>
         
         <div class="table-body">
             <table class="table mb-[3%]">
@@ -118,9 +117,9 @@
         <div class="table-body" x-data="{ showEditModal: false, selectedUser: {}, showViewModal: false, selectedUser: {} }">
             <table class="table mb-[3%]">
                 <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
+                    <tr class="text-base">
+                        <th class="text-left pl-2">Name</th>
+                        <th class="text-left pl-2">Email</th>
                         <th>Role</th>
                         <th>Status</th>
                         <th>Action</th>

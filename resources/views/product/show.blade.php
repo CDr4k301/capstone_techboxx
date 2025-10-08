@@ -94,7 +94,6 @@
                         @endif
                     </span>
                 </div>
-
                 <!-- Short description -->
                 <p class="text-gray-700 mt-4 leading-relaxed">
                 </p>
@@ -152,7 +151,102 @@
                 </div>
             </div>
         </div>
+        
+        <div class="mba_container bg-white rounded-lg shadow p-6 mt-12">
+            <!-- Header -->
+            <div class="text-xl font-bold mb-3">
+                Frequently Bought Together / Suggested Add-Ons:
+            </div>
 
+            <!-- Products and Total -->
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 p-4">
+                <!-- Product images -->
+                <div class="flex gap-4 flex-wrap">
+                    <!-- Example product 1 -->
+                    <div class="flex justify-center items-center border rounded-md bg-gray-50 p-6 shadow">
+                        <img src="https://via.placeholder.com/80" alt="Product 1" class="object-contain h-16">
+                        <span class="text-sm mt-2 text-center">Ryzen 5 5600G</span>
+                    </div>
+                    <!-- Example product 2 -->
+                    <div class="flex justify-center items-center border rounded-md bg-gray-50 p-6 shadow">
+                        <img src="https://via.placeholder.com/80" alt="Product 2" class="object-contain h-16">
+                        <span class="text-sm mt-2 text-center">Kingston Fury 8GB</span>
+                    </div>
+                    <!-- Example product 3 -->
+                    <div class="flex justify-center items-center border rounded-md bg-gray-50 p-6 shadow">
+                        <img src="https://via.placeholder.com/80" alt="Product 3" class="object-contain h-16">
+                        <span class="text-sm mt-2 text-center">Kingston Fury 8GB</span>
+                    </div>
+                </div>
+
+                <!-- Total price and Add to Cart -->
+                <div class="border border-gray-200 rounded-lg p-4 flex flex-col justify-between w-full md:w-64">
+                    <div class="text-lg font-bold mb-4 text-right">
+                        Total: ₱<span id="totalPrice">0.00</span>
+                    </div>
+                    <form id="cartForm">
+                        <!-- Hidden inputs for example purposes -->
+                        <button type="submit"
+                            class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                            Add to Cart
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Individual item list with checkboxes -->
+            <div class="border-t border-gray-200 pt-2 space-y-1" id="itemList">
+                <div class="flex justify-between items-center">
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" class="item-checkbox" data-price="6795" checked>
+                        <span>This item: AMD Ryzen 5 5600G Processor</span>
+                    </label>
+                    <span>₱6,795.00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" class="item-checkbox" data-price="2250" checked>
+                        <span>Kingston Fury Beast 8GB DDR4 3200MHZ Memory (KF432C16BB/8)</span>
+                    </label>
+                    <span>₱2,250.00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" class="item-checkbox" data-price="2250" checked>
+                        <span>Kingston Fury Beast 8GB DDR4 3200MHZ Memory (KF432C16BB/8)</span>
+                    </label>
+                    <span>₱2,250.00</span>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Function to calculate total based on checked items
+            function updateTotal() {
+                const checkboxes = document.querySelectorAll('.item-checkbox');
+                let total = 0;
+                checkboxes.forEach(cb => {
+                    if (cb.checked) {
+                        total += parseFloat(cb.dataset.price);
+                    }
+                });
+                document.getElementById('totalPrice').textContent = total.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            }
+
+            // Initial calculation
+            updateTotal();
+
+            // Update total whenever a checkbox changes
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', updateTotal);
+            });
+        </script>
+
+
+        
+        
+        
         <!-- Full Description -->
         <div id="full-description" class="mt-12 bg-white shadow rounded-lg p-6">
             <h2 class="text-xl font-bold mb-3">Product Specifications</h2>
