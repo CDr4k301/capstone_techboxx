@@ -124,17 +124,17 @@
             <table class="table mb-3">
                 <thead>
                     <tr class="text-sm">
-                        <th class="text-left pl-2">Name</th>
-                        <th class="text-left pl-2">Category</th>
-                        <th>Action</th>
+                        <th class="text-center">Name</th>
+                        <th class="text-center">Category</th>
+                        <th class="text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($softwares as $software)
                         <tr class="hover:opacity-50 {{ $software->deleted_at ? 'bg-gray-300 opacity-50 cursor-not-allowed' : '' }}" 
                         @click="{{ $software->deleted_at ? '' : "viewModal = true; selectedSoftware = " . $software->toJson() }}">
-                            <td>{{ $software->name }}</td>
-                            <td>{{ $software->buildCategory->name }}</td>
+                            <td class="text-center">{{ $software->name }}</td>
+                            <td class="text-center">{{ $software->buildCategory->name }}</td>
                             <td>
                                 @if($software->deleted_at)
                                 <form action="{{ route('staff.software-details.restore', ['id' => $software->id]) }}" method="POST">
@@ -165,10 +165,10 @@
             
             {{-- VIEW MODAL --}}
             <div x-show="viewModal" x-cloak x-transition class="modal overflow-y-scroll p-5">
-                <div class="add-software" 
+                <div class="add-software !w-1/3 flex flex-col justify-center" 
                 @click.away="viewModal = false">
                     <div class="relative !m-0">
-                        <h2 class="text-center w-[100%]">
+                        <h2 class="text-center w-[100%] font-medium">
                             Software Details
                             <x-icons.close class="close" 
                             @click="viewModal = false"/>    
@@ -185,7 +185,7 @@
                         </div>
                     </div>
                     <div class="software-specs">
-                        <h4>Minimum System Requirements</h4>
+                        <h4 class="font-medium">Minimum System Requirements</h4>
 
                         <div>
                             <p>Operating System</p>
@@ -208,7 +208,7 @@
                             <p x-text="selectedSoftware.storage_min ? selectedSoftware.storage_min : '-'"></p>
                         </div>
 
-                        <h4>Recommended System Requirements</h4>
+                        <h4 class="font-medium">Recommended System Requirements</h4>
 
                         <div>
                             <p>CPU</p>

@@ -1,11 +1,11 @@
-<nav class="nav-bar">
+<nav class="nav-bar  shadow-[inset_-2px_0_1px_rgba(0,0,0,0.3)]">
     {{-- Display the site or role heading --}}
     @if($role === 'Customer')
         <h1>Techboxx</h1>
     @else
         <h1>{{ ucfirst($role) }}</h1>
     @endif
-    <div class="separate">
+    <div class="separate ">
         <ul class="nav_container">
             {{-- ADMIN NAVBAR --}}
             @if($role === 'Admin')

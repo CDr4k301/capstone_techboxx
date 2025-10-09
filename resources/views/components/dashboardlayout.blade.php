@@ -44,7 +44,7 @@
     {{-- Display a dynamic sidebar heading base on user --}}
     <x-adminsidenav :role="Auth::user()?->role" />
 
-    <main class="main-content shadow-[-2px_0_4px_rgba(0,0,0,0.3)]">
+    <main class="main-content">
         {{ $slot }}
     </main>
 

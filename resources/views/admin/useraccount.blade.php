@@ -48,11 +48,9 @@
             </div>
             <button class="form-button">Add</button>    
         </form>   
-        
     </section>
-
     {{-- unverified users --}}
-    z        <h2 class="section-header">Unverified Customers</h2>
+    <h2 class="section-header">Unverified Customers</h2>
         
         <div class="table-body">
             <table class="table mb-[3%]">
