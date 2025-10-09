@@ -78,7 +78,7 @@
                                     <form action="{{ route('staff.componentdetails.restore', ['type' => $component->component_type, 'id' => $component->id]) }}" method="POST">
                                         @csrf
                                         @method('PATCH') <!-- or any method you use for restoring -->
-                                        <button type="submit">
+                                        <button @click.stop type="submit">
                                             <x-icons.restore />
                                         </button>
                                     </form>
@@ -191,6 +191,21 @@
                 Add Supplier
             </button>
         </div>
+
+        <div>
+            <form action=" {{ route('staff.supplier.search') }}" method="GET">
+                <input 
+                    type="text"
+                    name="search_supplier"
+                    placeholder="Search supplier"
+                    value="{{ request('search_supplier') }}"
+                    class="search-bar"
+                >
+                <button type='submit'>
+                    <x-icons.search class="search-icon"/>
+                </button>
+            </form>
+        </div>
         
         {{-- STOCK-IN MODAL --}}
         <div x-show="showAddModal" x-cloak x-transition class="modal">
@@ -242,7 +257,8 @@
                 </thead>
                 <tbody>
                     @foreach ($suppliers as $supplier)
-                        <tr @if(!$supplier->is_active) class="bg-gray-200 opacity-60" @endif>
+                        <tr @click="showViewModal = true; currentSupplier = {{ $supplier->toJson() }};"
+                            class="{{ $supplier->is_active ? '' : 'bg-gray-300 opacity-50 cursor-not-allowed' }} hover:opacity-50" >
                             <td>{{$supplier->name}}</td>
                             <td>{{$supplier->contact_person}}</td>
                             <td>{{$supplier->email}}</td>
@@ -254,18 +270,12 @@
                                         <form action="{{ route('staff.supplier.restore', $supplier->id) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" title="Activate">
+                                            <button @click.stop type="submit" title="Activate">
                                                 <x-icons.restore />
                                             </button>
                                         </form>
                                     @else
-                                        <button @click="
-                                            currentSupplier = {{ $supplier->toJson() }};
-                                            showViewModal = true
-                                        ">
-                                            <x-icons.view/>    
-                                        </button>
-                                        <button @click="
+                                        <button @click.stop @click="
                                             currentSupplier = {{ $supplier->toJson() }};
                                             showEditModal = true
                                         ">
@@ -274,7 +284,7 @@
                                         <form action="{{ route('staff.supplier.delete', $supplier->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit">
+                                            <button @click.stop type="submit">
                                                 <x-icons.delete/>    
                                             </button>
                                         </form>                                        

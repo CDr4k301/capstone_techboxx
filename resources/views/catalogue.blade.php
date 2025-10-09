@@ -194,42 +194,73 @@
             </script>
 
             <!-- Product Grid -->
-            <main class="w-full sm:w-3/4 p-6 grid  grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            <main class="w-full sm:w-3/4 p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                 x-data="{ openModal: false, specs: {}, name: '', image: '' }"
                 x-on:open-specs.window="openModal = true; specs = $event.detail.specs; name = $event.detail.name; image = $event.detail.image;">
 
                 @forelse($products as $product)
-                    <div class="relative border rounded-lg p-4 text-center bg-blue-50 shadow hover:shadow-lg transition flex flex-col justify-between h-[360px] group">
+                    @php
+                        $isOutOfStock = ($product['stock'] ?? 0) <= 0;
+                    @endphp
+                    
+                    <div class="relative border rounded-lg p-4 text-center bg-blue-50 shadow hover:shadow-lg transition flex flex-col justify-between h-[360px] group 
+                            @if($isOutOfStock) opacity-60 grayscale @endif">
                         
-                        <!-- Menu -->
-                        {{-- <button @click="$dispatch('open-specs', { 
-                            specs: {{ json_encode($product['specs']) }}, 
-                            name: '{{ $product['name'] }}', 
-                            image: {{ json_encode($product['image']) }} })"
-                                class="absolute top-2 right-2 p-2 rounded-full bg-white shadow hover:bg-gray-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" 
-                                fill="currentColor" 
-                                viewBox="0 0 16 16" 
-                                class="w-5 h-5 text-gray-700">
-                                <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
-                            </svg>
-                        </button> --}}
-
+                        <!-- Out of Stock Badge -->
+                        @if($isOutOfStock)
+                            <div class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
+                                SOLD OUT
+                            </div>
+                        @endif
+                        
                         <!-- Image + Name as Link -->
-                        <a href="{{ route('catalogue.show', ['table' => $product['table'], 'id' => $product['id']]) }}">
-                            <img src="{{ asset('storage/' . $product['image']) }}"
-                                alt="{{ $product['name'] }}"
-                                class="mx-auto mb-3 h-32 object-contain">
-                        </a>
-
-                        <h3 class="font-bold text-sm truncate hover:underline">
-                            <a href="{{ route('catalogue.show', ['table' => $product['table'], 'id' => $product['id']]) }}">
-                                {{ $product['name'] }}
+                        @if($isOutOfStock)
+                            <!-- Disabled state - no link, just static image -->
+                            <div class="cursor-not-allowed">
+                                <img src="{{ asset('storage/' . $product['image']) }}"
+                                    alt="{{ $product['name'] }}"
+                                    class="mx-auto mb-3 h-32 object-contain opacity-70">
+                            </div>
+                        @else
+                            <!-- Active state - clickable link -->
+                            <a href="{{ route('catalogue.show', ['table' => $product['table'], 'id' => $product['id']]) }}" 
+                            class="hover:opacity-90 transition-opacity">
+                                <img src="{{ asset('storage/' . $product['image']) }}"
+                                    alt="{{ $product['name'] }}"
+                                    class="mx-auto mb-3 h-32 object-contain">
                             </a>
+                        @endif
+
+                        <h3 class="font-bold text-sm truncate @if(!$isOutOfStock) hover:underline @endif">
+                            @if($isOutOfStock)
+                                <!-- Non-clickable title for out of stock items -->
+                                <span class="text-gray-600 cursor-not-allowed">{{ $product['name'] }}</span>
+                            @else
+                                <!-- Clickable title for in-stock items -->
+                                <a href="{{ route('catalogue.show', ['table' => $product['table'], 'id' => $product['id']]) }}" 
+                                class="text-gray-900 hover:text-blue-600">
+                                    {{ $product['name'] }}
+                                </a>
+                            @endif
                         </h3>
 
                         <p class="text-xs text-gray-600">{{ $product['brand'] }}</p>
                         <p class="text-[11px] text-gray-500 mt-0.5">{{ strtoupper($product['category']) }}</p>
+
+                        <!-- Stock Status -->
+                        <div class="mb-1">
+                            @if($isOutOfStock)
+                                <span class="text-xs text-red-600 font-semibold">Out of Stock</span>
+                            @else
+                                <span class="text-xs text-green-600">
+                                    @if(($product['stock'] ?? 0) <= 5)
+                                        Only {{ $product['stock'] }} left!
+                                    @else
+                                        In Stock
+                                    @endif
+                                </span>
+                            @endif
+                        </div>
 
                         <!-- ⭐ Rating - Now with actual data -->
                         <p class="text-yellow-500 text-sm mb-1">
@@ -250,15 +281,26 @@
                             <input type="hidden" name="name" value="{{ $product['name'] }}">
                             <input type="hidden" name="price" value="{{ $product['price'] }}">
                             <input type="hidden" name="component_type" value="{{ $product['category'] }}">
-                            <button type="submit" class="w-full py-2 bg-white border rounded-md font-semibold text-gray-700 shadow hover:bg-gray-100">
-                                Add to Cart
-                            </button>
+                            
+                            @if($isOutOfStock)
+                                <!-- Disabled button for out of stock -->
+                                <button type="button" 
+                                        disabled
+                                        class="w-full py-2 bg-gray-200 border border-gray-300 rounded-md font-semibold text-gray-500 cursor-not-allowed">
+                                    Out of Stock
+                                </button>
+                            @else
+                                <!-- Active button for in stock -->
+                                <button type="submit" 
+                                        class="w-full py-2 bg-white border border-gray-300 rounded-md font-semibold text-gray-700 shadow hover:bg-gray-100 hover:border-gray-400 transition-colors">
+                                    Add to Cart
+                                </button>
+                            @endif
                         </form>
                     </div>
                 @empty
                     <p class="col-span-4 text-center text-gray-500">No products available.</p>
                 @endforelse
-               
             </main>
         </div>
 

@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Models\OrderedBuild;
 use App\Models\ShoppingCart;
 use App\Models\UserBuild;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
@@ -110,11 +111,17 @@ class OrderController extends Controller
 
     public function approve($id) {
         $order = OrderedBuild::findOrFail($id);
+        $staffUser = Auth::user();
+
+        $oldStatus = $order->status;
 
         $order->update([
             'status' => 'Approved',
-            'user_id' => Auth::user()->id,
+            'user_id' => $staffUser->id,
         ]);
+
+        // Log the order approval
+        ActivityLogService::orderApproved($order, $staffUser, $oldStatus);
 
         return redirect()->route('staff.order')->with([
             'message' => 'Order approved',
@@ -124,11 +131,17 @@ class OrderController extends Controller
 
     public function decline($id) {
         $order = OrderedBuild::findOrFail($id);
+        $staffUser = Auth::user();
+
+        $oldStatus = $order->status;
 
         $order->update([
             'status' => 'Declined',
-            'user_id' => Auth::user()->id,
+            'user_id' => $staffUser->id,
         ]);
+
+        // Log the order decline
+        ActivityLogService::orderDeclined($order, $staffUser, $oldStatus);
 
         return redirect()->route('staff.order')->with([
             'message' => 'Order declined',
@@ -138,10 +151,14 @@ class OrderController extends Controller
 
     public function ready($id) {
         $order = OrderedBuild::findOrFail($id);
+        $staffUser = Auth::user();
 
         $order->update([
             'pickup_status' => 'Pending',
         ]);
+
+        // Log the order ready for pickup
+        ActivityLogService::orderReadyForPickup($order, $staffUser);
 
         return redirect()->route('staff.order')->with([
             'message' => 'Order ready for pickup',
@@ -151,8 +168,11 @@ class OrderController extends Controller
 
     public function readyComponents($cartId, $date)
     {
+        $staffUser = Auth::user();
+        
         // Convert the 'date' to a Carbon instance (including time)
         $checkoutDate = Carbon::parse($date);
+        
         // Find the specific checkout records grouped by cartId and checkoutDate
         $checkouts = Checkout::with('cartItem')
             ->whereHas('cartItem', function($query) use ($cartId) {
@@ -164,9 +184,14 @@ class OrderController extends Controller
 
         // Update the pickup_status to 'Pending' for each of the checkouts in this group
         foreach ($checkouts as $checkout) {
+            $oldStatus = $checkout->pickup_status;
+            
             $checkout->update([
                 'pickup_status' => 'Pending',
             ]);
+
+            // Log each component ready for pickup
+            ActivityLogService::componentReadyForPickup($checkout, $staffUser, $oldStatus);
         }
 
         return back()->with([
@@ -175,34 +200,44 @@ class OrderController extends Controller
         ]);
     }
 
-
-
     public function pickup($id) {
         $userId = Auth::id();
+        $staffUser = Auth::user();
 
         $order = OrderedBuild::findOrFail($id);
 
+        $oldData = [
+            'pickup_status' => $order->pickup_status,
+            'payment_status' => $order->payment_status,
+        ];
+
         $order->update([
             'pickup_status' => 'Picked up',
-            'pickup_date' =>now(),
+            'pickup_date' => now(),
             'payment_status' => 'Paid'
         ]);
 
-        Invoice::create([
+        $invoice = Invoice::create([
             'build_id' => $id,
             'staff_id' => $userId,
         ]);
+
+        // Log the order pickup
+        ActivityLogService::orderPickedUp($order, $staffUser, $oldData);
+        
+        // Log the invoice creation
+        ActivityLogService::invoiceCreated($invoice, $staffUser);
 
         return redirect()->route('staff.order')->with([
             'message' => 'Order marked as picked up',
             'type' => 'success',
         ]);
     }
-
     
     public function pickupComponents($cartId, $date)
     {
         $userId = Auth::id();
+        $staffUser = Auth::user();
 
         // Convert the 'date' to a Carbon instance (including time)
         $checkoutDate = Carbon::parse($date);
@@ -218,17 +253,28 @@ class OrderController extends Controller
 
         // Loop through each matching checkout and update its related pickup status
         foreach ($checkouts as $checkout) {
+            $oldData = [
+                'pickup_status' => $checkout->pickup_status,
+                'payment_status' => $checkout->payment_status,
+            ];
+
             $checkout->update([
                 'pickup_status' => 'Picked up',
                 'pickup_date' => now(),
                 'payment_status' => 'Paid'
             ]);
+
+            // Log each component pickup
+            ActivityLogService::componentPickedUp($checkout, $staffUser, $oldData);
         }
 
-        Invoice::create([
+        $invoice = Invoice::create([
             'order_id' => $checkouts->first()->id,
             'staff_id' => $userId,
         ]);
+
+        // Log the invoice creation for components
+        ActivityLogService::invoiceCreated($invoice, $staffUser);
 
         return back()->with([
             'message' => 'The selected items have been marked as picked up.',

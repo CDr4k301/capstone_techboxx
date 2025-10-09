@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use App\Models\Supplier;
 use App\Models\Brand;
+use App\Services\ActivityLogService;
+use Illuminate\Support\Facades\Auth;
 
 class GpuController extends Controller
 {
@@ -69,6 +71,8 @@ class GpuController extends Controller
      */
     public function store(Request $request)
     {
+        $staffUser = Auth::user();
+
         // Validate the request data
         $validated = $request->validate([
             'brand' => 'required|string|max:255',
@@ -85,6 +89,7 @@ class GpuController extends Controller
             'model_3d' => 'nullable|file|mimes:glb|max:150000',
             'build_category_id' => 'required|exists:build_categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
+            'base_price' => 'required|numeric',
         ]);
 
         // Handle image upload
@@ -106,11 +111,12 @@ class GpuController extends Controller
         }
 
         // Store base_price
-        $validated['base_price'] = $validated['price'];
 
         // dd($validated); 
 
-        Gpu::create($validated);
+        $gpu = Gpu::create($validated);
+
+        ActivityLogService::componentCreated('gpu', $gpu, $staffUser);
 
         return redirect()->route('staff.componentdetails')->with([
             'message' => 'GPU added',
@@ -139,9 +145,11 @@ class GpuController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // Find the GPU instance
+        $staffUser = Auth::user();
         $gpu = Gpu::findOrFail($id);
 
+        $oldGpuData = $gpu->toArray();
+        
         // Prepare data for update
         $data = [
             'build_category_id'      => $request->build_category_id,
@@ -155,25 +163,36 @@ class GpuController extends Controller
             'pcie_interface'         => $request->pcie_interface,
             'connectors_required'    => $request->connectors_required,
             'price'                  => $request->price,
-            'base_price'             => $request->price, // <-- added base_price
+            'base_price'             => $request->base_price, // <-- added base_price
             'stock'                  => $request->stock,
         ];
+
+        // Track file changes
+        $fileChanges = [];
 
         // Only update image if a new image is uploaded
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('gpu', 'public');
             $data['image'] = $imagePath;
+            $fileChanges[] = 'image updated';
+        
+            ActivityLogService::componentImageUpdated('gpu', $gpu, $staffUser);
         }
 
         // Only update model_3d if a new 3D model is uploaded
         if ($request->hasFile('model_3d')) {
             $modelPath = $request->file('model_3d')->store('gpu', 'public');
             $data['model_3d'] = $modelPath;
+            $fileChanges[] = '3D model updated';
+        
+            ActivityLogService::component3dModelUpdated('gpu', $gpu, $staffUser);
         }
 
         // Update the GPU with the prepared data
         $gpu->update($data);
 
+        ActivityLogService::componentUpdated('gpu', $gpu, $staffUser, $oldGpuData, $gpu->fresh()->toArray());
+        
         return redirect()->route('staff.componentdetails')->with([
             'message' => 'GPU updated',
             'type' => 'success',

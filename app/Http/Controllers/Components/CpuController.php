@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use App\Models\Supplier;
 use App\Models\Brand;
+use App\Services\ActivityLogService;
+use Illuminate\Support\Facades\Auth;
 
 class CpuController extends Controller
 {
@@ -72,6 +74,8 @@ class CpuController extends Controller
      */
     public function store(Request $request)
     {
+        $staffUser = Auth::user();
+
         // Validate the request data
         $validated = $request->validate([
             'brand' => 'required|string|max:255',
@@ -90,6 +94,7 @@ class CpuController extends Controller
             'model_3d' => 'nullable|file|mimes:glb|max:150000',
             'build_category_id' => 'required|exists:build_categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
+            'base_price' => 'required|numeric',
         ]);
 
         // Handle image upload
@@ -111,11 +116,12 @@ class CpuController extends Controller
         }
 
         // Store base_price
-        $validated['base_price'] = $validated['price'];
 
         // dd($validated);
 
-        Cpu::create($validated);
+        $cpu = Cpu::create($validated);
+
+        ActivityLogService::componentCreated('cpu', $cpu, $staffUser);
 
         return redirect()->route('staff.componentdetails')->with([
             'message' => 'CPU added',
@@ -144,8 +150,10 @@ class CpuController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // Find the CPU instance
+        $staffUser = Auth::user();
         $cpu = Cpu::findOrFail($id);
+
+        $oldCpuData = $cpu->toArray();
 
         // Prepare data for update
         $data = [
@@ -162,24 +170,38 @@ class CpuController extends Controller
             'integrated_graphics' => $request->integrated_graphics,
             'generation'          => $request->generation,
             'price'               => $request->price,
-            'base_price'          => $request->price, // <-- added base_price
+            'base_price'          => $request->base_price, // <-- added base_price
             'stock'               => $request->stock,
         ];
+
+        // Track file changes
+        $fileChanges = [];
 
         // Only update image if new image is uploaded
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('cpu', 'public');
             $data['image'] = $imagePath;
+            $fileChanges[] = 'image updated';
+            
+            // Log image update separately
+            ActivityLogService::componentImageUpdated('cpu', $cpu, $staffUser);
         }
 
         // Only update model_3d if new file is uploaded
         if ($request->hasFile('model_3d')) {
             $modelPath = $request->file('model_3d')->store('cpu', 'public');
             $data['model_3d'] = $modelPath;
+            $fileChanges[] = '3D model updated';
+            
+            // Log 3D model update separately
+            ActivityLogService::component3dModelUpdated('cpu', $cpu, $staffUser);
         }
 
         // Update the CPU with the prepared data
         $cpu->update($data);
+        
+        // Log the main case update
+        ActivityLogService::componentUpdated('cpu', $cpu, $staffUser, $oldCpuData, $cpu->fresh()->toArray());
 
         return redirect()->route('staff.componentdetails')->with([
             'message' => 'CPU updated',

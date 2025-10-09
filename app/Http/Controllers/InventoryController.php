@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\StockHistory;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -70,6 +71,8 @@ class InventoryController extends Controller
     }
 
     public function stockIn(Request $request) {
+        $staffUser = Auth::user();
+        
         $validated = $request->validate([
             'label' =>"required|string",
             'type' => "required|string",
@@ -86,16 +89,23 @@ class InventoryController extends Controller
         $model = $modelMap[$validated['type']];
         $component = $model::findOrFail($validated['stockInId']);
 
+        // Store old stock for logging
+        $oldStock = $component->stock;
+
         // UPDATE THE STOCK
         $component->stock += $validated['stock'];
         $component->save();
 
-        StockHistory::create([
+        // Create stock history record
+        $stockHistory = StockHistory::create([
             'component_id' => $validated['label'],
             'action' => 'stock-in',
             'quantity_changed' => $validated['stock'],
-            'user_id' => Auth::id(),
+            'user_id' => $staffUser->id,
         ]);
+
+        // Log the stock in action
+        ActivityLogService::stockIn($component, $staffUser, $oldStock, $component->stock, $validated['stock']);
 
         return back()->with([
             'message' => 'Stock successfully added to ' . ucfirst($validated['type']),
@@ -104,6 +114,8 @@ class InventoryController extends Controller
     }
 
     public function stockOut(Request $request) {
+        $staffUser = Auth::user();
+        
         $validated = $request->validate([
             'label' =>"required|string",
             'type' => "required|string",
@@ -120,19 +132,36 @@ class InventoryController extends Controller
         $model = $modelMap[$validated['type']];
         $component = $model::findOrFail($validated['stockOutId']);
 
+        // Check if sufficient stock is available
+        if ($component->stock < $validated['stock']) {
+            ActivityLogService::stockOutFailed($component, $staffUser, $component->stock, $validated['stock']);
+            
+            return back()->with([
+                'message' => 'Insufficient stock. Available: ' . $component->stock,
+                'type' => 'error',
+            ]);
+        }
+
+        // Store old stock for logging
+        $oldStock = $component->stock;
+
         // UPDATE THE STOCK
         $component->stock -= $validated['stock'];
         $component->save();
 
-        StockHistory::create([
+        // Create stock history record
+        $stockHistory = StockHistory::create([
             'component_id' => $validated['label'],
             'action' => 'stock-out',
             'quantity_changed' => $validated['stock'],
-            'user_id' => Auth::id(),
+            'user_id' => $staffUser->id,
         ]);
 
+        // Log the stock out action
+        ActivityLogService::stockOut($component, $staffUser, $oldStock, $component->stock, $validated['stock']);
+
         return back()->with([
-            'message' => 'Stock successfully remove to ' . ucfirst($validated['type']),
+            'message' => 'Stock successfully removed from ' . ucfirst($validated['type']), // Fixed message
             'type' => 'success',
         ]);
     }

@@ -241,6 +241,12 @@ class="flex">
                     <button @click="openModal('order')">
                         <x-icons.cart class="build-cart"/>
                     </button>
+                @elseif (!auth()->check())
+                    <form action="{{ route('home') }}">
+                        <button>
+                            <x-icons.arrow class="build-arrow"/>
+                        </button>
+                    </form>
                 @else
                 @endif
             </div>

@@ -84,8 +84,8 @@ body{
 
 .layout-container {
     padding-top: 1dvh;
-    /* height: 71dvh; */
-    height: 67dvh;
+    height: 71dvh;
+    /* height: 67dvh; */
     display: flex;
     justify-content: space-between;
 }

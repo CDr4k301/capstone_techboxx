@@ -406,6 +406,10 @@
     width: 80%;
 }
 
+.build-details-modal div input {
+    width: 30%;
+}
+
 .build-details-header {
     border-bottom: 1px solid black;
     height: fit-content !important;

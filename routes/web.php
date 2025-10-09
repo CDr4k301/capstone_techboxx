@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ActivityLogsController;
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Auth\ForcePasswordResetController;
 use App\Http\Controllers\BuildController;
 use App\Http\Controllers\BuildExtController;
@@ -81,7 +81,7 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
     Route::get('sales', [SalesController::class, 'index'])->name('sales');
 
     // ACTIVITY LOGS
-    Route::get('activity-logs', [ActivityLogsController::class, 'index'])->name('activitylogs');
+    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activitylogs');
 
 });
 
@@ -91,8 +91,8 @@ Route::prefix('staff')->middleware(['auth'])->name('staff.')->group(function () 
     Route::get('dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
 
     //SUPPLIER
-    Route::get('supplier', [SupplierController::class, 'index'])->name('supplier');
     Route::post('supplier/store', [SupplierController::class, 'storeSupplier'])->name('supplier.store');
+    Route::get('supplier/store/search', [SupplierController::class, 'search'])->name('supplier.search');
     Route::post('supplier/store/brand', [SupplierController::class, 'storeBrand'])->name('supplier.store.brand');
     Route::put('supplier/update/{id}', [SupplierController::class, 'update'])->name('supplier.update');
     Route::delete('supplier/delete/{id}', [SupplierController::class, 'delete'])->name('supplier.delete');
@@ -183,3 +183,5 @@ Route::get('/paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.
 
 Route::post('/reviews', [ReviewController::class, 'store'])
     ->name('reviews.store');
+
+Route::post('/cart/add-bundle', [CartController::class, 'addBundle'])->name('cart.add.bundle');

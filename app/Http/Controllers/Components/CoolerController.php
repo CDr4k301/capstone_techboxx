@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Supplier;
 use App\Models\Brand;
-
+use App\Services\ActivityLogService;
+use Illuminate\Support\Facades\Auth;
 
 class CoolerController extends Controller
 {
@@ -52,6 +53,8 @@ class CoolerController extends Controller
 
     public function store(Request $request)
     {
+        $staffUser = Auth::user();
+
         $validated = $request->validate([
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
@@ -68,6 +71,7 @@ class CoolerController extends Controller
             'model_3d' => 'nullable|file|mimes:glb|max:150000',
             'build_category_id' => 'required|exists:build_categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
+            'base_price' => 'required|numeric',
         ]);
 
         // Handle image upload
@@ -90,9 +94,10 @@ class CoolerController extends Controller
         }
 
         // Store base_price
-        $validated['base_price'] = $validated['price'];
 
-        Cooler::create($validated);
+        $cooler = Cooler::create($validated);
+
+        ActivityLogService::componentCreated('cooler', $cooler, $staffUser);
 
         return redirect()->route('staff.componentdetails')->with([
             'message' => 'Cooler added',
@@ -102,8 +107,10 @@ class CoolerController extends Controller
 
     public function update(Request $request, string $id) 
     {
-        // Find the cooler instance
+        $staffUser = Auth::user();
         $cooler = Cooler::findOrFail($id);
+
+        $oldCoolerData = $cooler->toArray();
 
         // Prepare data for update
         $data = [
@@ -117,25 +124,36 @@ class CoolerController extends Controller
             'fan_count'            => $request->fan_count,
             'height_mm'            => $request->height_mm,
             'price'                => $request->price,
-            'base_price'           => $request->price, // <-- added base_price on update
+            'base_price'           => $request->base_price, // <-- added base_price on update
             'stock'                => $request->stock,
         ];
+
+        // Track file changes
+        $fileChanges = [];
 
         // Only update image if new image is uploaded
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('cooler', 'public');
             $data['image'] = $imagePath;
+            $fileChanges[] = 'image updated';
+        
+            ActivityLogService::componentImageUpdated('cooler', $cooler, $staffUser);
         }
 
         // Only update model_3d if new file is uploaded
         if ($request->hasFile('model_3d')) {
             $modelPath = $request->file('model_3d')->store('cooler', 'public');
             $data['model_3d'] = $modelPath;
+            $fileChanges[] = '3D model updated';
+        
+            ActivityLogService::component3dModelUpdated('cooler', $cooler, $staffUser);
         }
 
         // Update the cooler with the prepared data
         $cooler->update($data);
 
+        ActivityLogService::componentUpdated('cooler', $cooler, $staffUser, $oldCoolerData, $cooler->fresh()->toArray());
+        
         return redirect()->route('staff.componentdetails')->with([
             'message' => 'Cooler updated',
             'type' => 'success',

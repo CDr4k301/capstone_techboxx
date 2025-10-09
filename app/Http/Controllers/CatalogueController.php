@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Services\MBAnalysisService;
 
 class CatalogueController extends Controller
 {
@@ -288,57 +289,75 @@ class CatalogueController extends Controller
     }
 
     public function show($table, $id)
-    {
-        if (!Schema::hasTable($table)) {
-            abort(404, 'Table not found');
-        }
-
-        $columns = Schema::getColumnListing($table);
-        $row = DB::table($table)->find($id);
-
-        if (!$row) {
-            abort(404, 'Product not found');
-        }
-
-        // Define table-specific common columns
-        $commonColumns = $this->getCommonColumnsForTable($table);
-
-        // Fetch related data for specific tables
-        $relatedData = $this->getRelatedData($table, $id);
-
-        $maps = [
-            'cpus'         => 'cpu',
-            'gpus'         => 'gpu', 
-            'motherboards' => 'motherboard',
-            'rams'         => 'ram',
-            'storages'     => 'storage',
-            'psus'         => 'psu',
-            'pc_cases'     => 'case',
-            'coolers'      => 'cooler',
-        ];
-
-        $category = $maps[$table] ?? rtrim($table, 's');
-        $rowArr = (array) $row;
-
-        $product = [
-            'id'       => $rowArr['id'] ?? 0,
-            'name'     => trim(($rowArr['brand'] ?? '') . ' ' . ($rowArr['model'] ?? '')),
-            'brand'    => $rowArr['brand'] ?? '',
-            'category' => $category,
-            'price'    => (float) ($rowArr['price'] ?? 0),
-            'stock'    => (int) ($rowArr['stock'] ?? 0),
-            'image'    => $rowArr['image'] ?? 'images/placeholder.png',
-            'description' => $rowArr['description'] ?? 'No description available.',
-        ];
-
-        // ✅ Get reviews linked to this product
-        $reviews = Review::where('product_id', $product['id'])
-                    ->where('product_type', $table)
-                    ->latest()
-                    ->get();
-
-        return view('product.show', compact('product', 'row', 'columns', 'table', 'commonColumns', 'relatedData', 'reviews'));
+{
+    if (!Schema::hasTable($table)) {
+        abort(404, 'Table not found');
     }
+
+    $columns = Schema::getColumnListing($table);
+    $row = DB::table($table)->find($id);
+
+    if (!$row) {
+        abort(404, 'Product not found');
+    }
+
+    // Define table-specific common columns
+    $commonColumns = $this->getCommonColumnsForTable($table);
+
+    // Fetch related data for specific tables
+    $relatedData = $this->getRelatedData($table, $id);
+
+    $maps = [
+        'cpus'         => 'cpu',
+        'gpus'         => 'gpu', 
+        'motherboards' => 'motherboard',
+        'rams'         => 'ram',
+        'storages'     => 'storage',
+        'psus'         => 'psu',
+        'pc_cases'     => 'case',
+        'coolers'      => 'cooler',
+    ];
+
+    $category = $maps[$table] ?? rtrim($table, 's');
+    $rowArr = (array) $row;
+
+    $product = [
+        'id'       => $rowArr['id'] ?? 0,
+        'name'     => trim(($rowArr['brand'] ?? '') . ' ' . ($rowArr['model'] ?? '')),
+        'brand'    => $rowArr['brand'] ?? '',
+        'category' => $category,
+        'price'    => (float) ($rowArr['price'] ?? 0),
+        'stock'    => (int) ($rowArr['stock'] ?? 0),
+        'image'    => $rowArr['image'] ?? 'images/placeholder.png',
+        'description' => $rowArr['description'] ?? 'No description available.',
+    ];
+
+    // ✅ Get reviews linked to this product
+    $reviews = Review::where('product_id', $product['id'])
+                ->where('product_type', $table)
+                ->latest()
+                ->get();
+
+    // ✅ Get MBA recommendations
+    $mbaService = new MBAnalysisService();
+    $mbaRecommendations = $mbaService->getRecommendations($product['name'], $category);
+    
+    // If no MBA recommendations, use fallback
+    if (empty($mbaRecommendations)) {
+        $mbaRecommendations = $mbaService->getFallbackRecommendations($category);
+    }
+
+    return view('product.show', compact(
+        'product', 
+        'row', 
+        'columns', 
+        'table', 
+        'commonColumns', 
+        'relatedData', 
+        'reviews',
+        'mbaRecommendations'
+    ));
+}
 
     private function getCommonColumnsForTable($table)
     {

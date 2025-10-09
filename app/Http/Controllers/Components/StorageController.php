@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Storage as StorageFacade;
 use Illuminate\Support\Facades\DB;
 use App\Models\Supplier;
 use App\Models\Brand;
+use App\Services\ActivityLogService;
+use Illuminate\Support\Facades\Auth;
 
 class StorageController extends Controller
 {
@@ -54,6 +56,9 @@ class StorageController extends Controller
 
     public function store(Request $request)
     {
+        $staffUser = Auth::user();
+        
+        // Validate the request data
         $validated = $request->validate([
             'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
@@ -69,6 +74,7 @@ class StorageController extends Controller
             'model_3d' => 'nullable|file|mimes:glb|max:150000',
             'build_category_id' => 'required|exists:build_categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
+            'base_price' => 'required|numeric',
         ]);
 
         if ($request->hasFile('image')) {
@@ -88,10 +94,11 @@ class StorageController extends Controller
         }
 
         // Store base_price
-        $validated['base_price'] = $validated['price'];
 
-        Storage::create($validated);
+        $storage = Storage::create($validated);
 
+        ActivityLogService::componentCreated('storage', $storage, $staffUser);
+        
         return redirect()->route('staff.componentdetails')->with([
             'message' => 'Storage added',
             'type' => 'success',
@@ -100,8 +107,12 @@ class StorageController extends Controller
 
     public function update(Request $request, string $id)
     {
+        $staffUser = Auth::user();
         $storage = Storage::findOrFail($id);
 
+        $oldStorageData = $storage->toArray();
+        
+        // Prepare data for update
         $data = [
             'build_category_id' => $request->build_category_id,
             'supplier_id' => $request->supplier_id,
@@ -114,20 +125,34 @@ class StorageController extends Controller
             'read_speed_mbps' => $request->read_speed_mbps,
             'write_speed_mbps' => $request->write_speed_mbps,
             'price' => $request->price,
-            'base_price' => $request->price, // <-- added base_price
+            'base_price' => $request->base_price, // <-- added base_price
             'stock' => $request->stock,
         ];
 
+        // Track file changes
+        $fileChanges = [];
+        
+        // Only update image if a new image is uploaded
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('storages', 'public');
+            $imagePath = $request->file('image')->store('storages', 'public');
+            $data['image'] = $imagePath;
+            $fileChanges[] = 'image updated';
+            
+            ActivityLogService::componentImageUpdated('storage', $storage, $staffUser);
         }
 
         if ($request->hasFile('model_3d')) {
-            $data['model_3d'] = $request->file('model_3d')->store('storages', 'public');
+            $modelPath = $request->file('model_3d')->store('storages', 'public');
+            $data['model_3d'] = $modelPath;
+            $fileChanges[] = '3D model updated';
+            
+            ActivityLogService::component3dModelUpdated('storage', $storage, $staffUser);
         }
 
         $storage->update($data);
 
+        ActivityLogService::componentUpdated('storage', $storage, $staffUser, $oldStorageData, $storage->fresh()->toArray());
+        
         return redirect()->route('staff.componentdetails')->with([
             'message' => 'Storage updated',
             'type' => 'success',

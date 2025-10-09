@@ -11,8 +11,10 @@ use App\Http\Controllers\Components\PsuController;
 use App\Http\Controllers\Components\RamController;
 use App\Http\Controllers\Components\StorageController;
 use App\Models\Supplier;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage as FacadesStorage;
 
 class ComponentDetailsController extends Controller
@@ -65,6 +67,7 @@ class ComponentDetailsController extends Controller
         );
 
         $suppliers = Supplier::with('brands')
+            ->withTrashed()
             ->orderByRaw("CASE WHEN is_active = 0 THEN 1 ELSE 0 END")
             ->orderByDesc('created_at')
             ->paginate(6);
@@ -78,7 +81,8 @@ class ComponentDetailsController extends Controller
         ));
     }
 
-    public function delete (string $type, string $id) {
+    public function delete(string $type, string $id) {
+        $staffUser = Auth::user();
         $modelMap = config('components'); // FOUND IN CONFIG FILE
 
         if (!array_key_exists($type, $modelMap)) {
@@ -88,17 +92,35 @@ class ComponentDetailsController extends Controller
         $model = $modelMap[$type];
         $component = $model::findOrFail($id);
 
+        // Store component data for logging before deletion
+        $componentData = [
+            'id' => $component->id,
+            'brand' => $component->brand,
+            'model' => $component->model,
+            'price' => $component->price,
+            'stock' => $component->stock,
+            'image' => $component->image,
+            'model_3d' => $component->model_3d,
+            'build_category_id' => $component->build_category_id,
+            'supplier_id' => $component->supplier_id,
+        ];
+
         // DELETE PRODUCT IMAGE
         if ($component->image) {
             FacadesStorage::disk('public')->delete($component->image);
+            ActivityLogService::componentImageDeleted($type, $component, $staffUser);
         }
 
         // DELETE 3D MODEL
         if ($component->model_3d) {
             FacadesStorage::disk('public')->delete($component->model_3d);
+            ActivityLogService::component3dModelDeleted($type, $component, $staffUser);
         }
 
         $component->delete();
+
+        // Log the component deletion
+        ActivityLogService::componentDeleted($type, $component, $staffUser, $componentData);
 
         return back()->with([
             'message' => ucfirst($type) . ' has been deleted.',
@@ -106,7 +128,8 @@ class ComponentDetailsController extends Controller
         ]);
     }
 
-    public function restore (string $type, string $id) {
+    public function restore(string $type, string $id) {
+        $staffUser = Auth::user();
         $modelMap = config('components'); // FOUND IN CONFIG FILE
 
         if (!array_key_exists($type, $modelMap)) {
@@ -115,7 +138,21 @@ class ComponentDetailsController extends Controller
 
         $model = $modelMap[$type];
         $component = $model::withTrashed()->findOrFail($id);
+        
+        // Store component data before restoration
+        $componentData = [
+            'id' => $component->id,
+            'brand' => $component->brand,
+            'model' => $component->model,
+            'price' => $component->price,
+            'stock' => $component->stock,
+            'deleted_at' => $component->deleted_at,
+        ];
+
         $component->restore();
+
+        // Log the component restoration
+        ActivityLogService::componentRestored($type, $component, $staffUser, $componentData);
 
         return back()->with([
             'message' => ucfirst($type) . ' has been restored.',
@@ -145,8 +182,7 @@ class ComponentDetailsController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        $suppliers = Supplier::with('brands')
-            ->orderByRaw("CASE WHEN is_active = 0 THEN 1 ELSE 0 END")
+        $suppliers = Supplier::orderByRaw("CASE WHEN is_active = 0 THEN 1 ELSE 0 END")
             ->orderByDesc('created_at')
             ->paginate(6);
 
