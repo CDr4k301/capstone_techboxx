@@ -1,4 +1,4 @@
-{{-- <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@
     @vite([
         'resources\css\app.css',
         'resources\css\build.css',
-        'resources\css\buildext.css',
+        'resources\css\buildextsoft.css',
         'resources\js\app.js',
         'resources\js\buildext.js',
         'resources\css\admin-staff\modal.css',
@@ -27,7 +27,7 @@
     <main class="main-content header !m-0">
         <div class="ext-icons">
             @if (auth()->user() && auth()->user()->role === 'Customer')
-                <form action="{{ route('home') }}">
+                <form action="{{ route('techboxx.build.extend') }}">
                     @csrf
                     <button>
                         <x-icons.arrow class="ext-arrow"/>
@@ -43,7 +43,7 @@
                     <x-icons.reload class="ext-reload" />
                 </button>
             @else
-                <form action="{{ route('techboxx.build') }}">
+                <form action="{{ route('techboxx.build.extend') }}">
                     @csrf
                     <button>
                         <x-icons.arrow class="build-arrow"/>
@@ -64,18 +64,84 @@
         </section>
 
         <div class="layout-container">
-            <section class="software-section">
-                <label for="" class="soft">Software Compatibility</label>
-                <div class="category">
-                    <label for="">General Use</label>
-                    <label for="">Gaming</label>
-                    <label for="">Graphic Use</label>
+            <div x-data="{ viewModal: false, selectedSoftware: {} }">
+                <section class="software-section">
+                    <label class="soft">Software Compatibility</label>
+                    @foreach ($buildCategories as $category)
+                        <h3>{{ $category->name }}</h3>
+                        <div class="software-icons">
+                            @foreach ($softwares->where('build_category_id', $category->id) as $software)
+                                <div 
+                                    @click="viewModal = true; selectedSoftware = {{ $software->toJson() }}"
+                                    class="cursor-pointer"
+                                >
+                                    <img 
+                                        src="{{ asset('storage/' . $software->icon) }}" 
+                                        alt="{{ $software->name }}"
+                                        class="hover:scale-105 transition"
+                                    >
+                                </div>
+                            @endforeach
+                        </div>
+                    @endforeach
+                </section>
+
+                {{-- VIEW SOFTWARE DETAILS MODAL --}}
+                <div 
+                    x-show="viewModal" 
+                    x-cloak 
+                    x-transition 
+                    class="fixed inset-0 bg-opacity-50 flex justify-center items-center overflow-y-auto z-50 p-5"
+                >
+                    <div 
+                        class=" max-w-2xl rounded-lg shadow-lg p-6 relative"
+                        @click.away="viewModal = false"
+                    >
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-white">Software Details</h2>
+                            <button 
+                                @click="viewModal = false"
+                                class=" text-white hover:tetext-gray-600 text-2xl leading-none"
+                            >&times;</button>
+                        </div>
+
+                        <div class="flex items-center gap-4 mb-6">
+                            <img 
+                                :src="'/storage/' + selectedSoftware.icon" 
+                                alt="Software Icon" 
+                                class="w-16 h-16 rounded-md object-contain shadow"
+                            >
+                            <h3 class="text-lg font-medium text-white" x-text="selectedSoftware.name"></h3>
+                        </div>
+
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-white mb-2">Minimum System Requirements</h4>
+                            <div class="grid grid-cols-2 gap-y-2 text-sm text-white">
+                                <p>Operating System:</p> <p x-text="selectedSoftware.os_min || '-'"></p>
+                                <p>CPU:</p> <p x-text="selectedSoftware.cpu_min || '-'"></p>
+                                <p>GPU:</p> <p x-text="selectedSoftware.gpu_min || '-'"></p>
+                                <p>RAM:</p> <p x-text="selectedSoftware.ram_min || '-'"></p>
+                                <p>Storage:</p> <p x-text="selectedSoftware.storage_min || '-'"></p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold text-white mb-2">Recommended System Requirements</h4>
+                            <div class="grid grid-cols-2 gap-y-2 text-sm text-white">
+                                <p>CPU:</p> <p x-text="selectedSoftware.cpu_reco || '-'"></p>
+                                <p>GPU:</p> <p x-text="selectedSoftware.gpu_reco || '-'"></p>
+                                <p>RAM:</p> <p x-text="selectedSoftware.ram_reco || '-'"></p>
+                                <p>Storage:</p> <p x-text="selectedSoftware.storage_reco || '-'"></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </section> --}}
+            </div>
+
             
 
             {{-- COMPONENTS --}}
-            {{-- <div class="component-section">
+            <div class="component-section">
                 <div class="component-section-left">
                     <x-component data-type="motherboard">Motherboard</x-component>
                     <x-component data-type="cpu">CPU</x-component>
@@ -94,4 +160,4 @@
         </div>
     </main>
     </div>
-</body> --}}
+</body>

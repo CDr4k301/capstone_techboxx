@@ -301,6 +301,9 @@
                 <div>
                     <h4>COMPATIBILITY CHECK</h4>
                     <button id="validateBuild">Validate Build</button>
+                    <button id="validateBuild">
+                    <a  href="{{ route('techboxx.build.software') }}">SOFTWARE</a>
+                    </button>
                 </div>
             </section>
 

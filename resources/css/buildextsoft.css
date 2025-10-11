@@ -152,30 +152,50 @@ body{
     text-align: center;
     transition: transform 0.5s ease; /* smooth animation */
     display: flex;
-    flex-direction: column;
-    background-color: rgba(0, 0, 0, 0.2); border-radius: 2.5rem;
-    width: 25%;
-}
-.category{
-    height: 50%;
-    display: flex;
+    align-items: center;
     flex-direction: column;
     justify-content: space-between;
-    align-items: center;
-}
-.category label{
-    text-align: left;
-    font-size: small;
+    background-color: rgba(0, 0, 0, 0.2); border-radius: 2.5rem;
+    width: 25%;
     padding: 2%;
+}
+.software-section h3{
+    font-size: small;
     background-color: rgba(0, 0, 0, 0.6); border-radius: 0.5rem;
     width: 50%;
     text-align: center;
+    padding: 2%;
+    margin: 5%;
 }
 .soft{
     text-align: center;
     font-size: larger;
-    margin: 30px 0px;
 }
+.software-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(3rem, 1fr));
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-items: center;
+}
+
+.software-section img {
+  width: 100%;
+  max-width: 3rem;
+  aspect-ratio: 1/1;
+  object-fit: contain;
+  border-radius: 0.375rem; /* rounded-md */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.software-section img:hover {
+  transform: scale(1.05);
+}
+
 /*componentbutton*/
 .component-button {
     background: linear-gradient(
