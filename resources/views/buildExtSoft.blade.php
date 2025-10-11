@@ -78,7 +78,7 @@
                                     <img 
                                         src="{{ asset('storage/' . $software->icon) }}" 
                                         alt="{{ $software->name }}"
-                                        class="hover:scale-105 transition"
+                                        class="hover:scale-105 transition bg-white"
                                     >
                                 </div>
                             @endforeach
@@ -109,7 +109,7 @@
                             <img 
                                 :src="'/storage/' + selectedSoftware.icon" 
                                 alt="Software Icon" 
-                                class="w-16 h-16 rounded-md object-contain shadow"
+                                class="w-12 h-12 rounded-md object-contain shadow bg-white"
                             >
                             <h3 class="text-lg font-medium text-white" x-text="selectedSoftware.name"></h3>
                         </div>
