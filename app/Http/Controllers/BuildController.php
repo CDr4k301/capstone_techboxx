@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class BuildController extends Controller
 {
@@ -88,7 +89,7 @@ class BuildController extends Controller
         $output = shell_exec($command . " 2>&1");
 
         // Debugging: log output if something goes wrong
-        // \Log::info("Python Output: " . $output);
+        Log::info("Python Output: " . $output);
 
         // Decode JSON safely
         $build = json_decode($output, true);

@@ -2,7 +2,7 @@
     <h2>Activity Logs</h2>
 
     {{-- TABLE --}}
-    <section class="section-style !pl-0 !h-[65vh]">
+    <section class="section-style !pl-0 !h-[100vh]">
         <div>
             <table class="table">
                 <thead>

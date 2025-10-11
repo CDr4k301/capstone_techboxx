@@ -112,23 +112,37 @@ class="flex">
 
     <x-buildheader :name="Auth::user()?->first_name" />
     
-    <div id="loadingSpinner" class="hidden">
-        <div class="spinner-message">
-            <pre id="loadingText">Loading...</pre>
+    <div id="loadingSpinner" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md mx-4">
+            <div class="flex flex-col items-center">
+                <!-- Spinner -->
+                <div class="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-6"></div>
+                
+                <!-- Loading message -->
+                <div class="text-center">
+                    <pre id="loadingText" class="text-gray-800 font-semibold whitespace-pre-wrap text-base bg-blue-50 p-4 rounded-lg border border-blue-100 mb-4"></pre>
+                </div>
+                
+                <p class="text-gray-600 text-sm">Generating your perfect build...</p>
+            </div>
         </div>
     </div>
 
     {{-- SINGLE ADAPTIVE MODAL --}}
-    <div x-show="showModal" x-cloak x-transition class="modal overflow-y-scroll p-5">
-        <div class="add-component" @click.away="showModal = false">
-            <div class="relative !m-0">
-                <h2 class="text-center w-[100%]" x-text="modalTitle">
-                    <x-icons.close class="close hover:opacity-50" @click="showModal = false"/>    
-                </h2>
+    <div x-show="showModal" x-cloak x-transition class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" @click.away="showModal = false">
+            {{-- Header --}}
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl z-10">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-800" x-text="modalTitle"></h2>
+                    <button @click="showModal = false" class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                        <x-icons.close class="w-6 h-6 text-gray-500 hover:text-gray-700" />
+                    </button>
+                </div>
             </div>
 
             {{-- DYNAMIC FORM --}}
-            <form :action="formAction" method="POST" id="cartForm">
+            <form :action="formAction" method="POST" id="cartForm" class="p-6 space-y-6">
                 @csrf
                 
                 {{-- Hidden inputs for component IDs --}}
@@ -146,38 +160,50 @@ class="flex">
                 {{-- Hidden input for total price --}}
                 <input type="hidden" name="total_price" id="hidden_total_price" value="">
 
-                <div class="build-details-modal">
-                    <div class="build-details-header">
-                        <h4>Customer Information</h4>
+                {{-- Customer Information --}}
+                <div class="bg-gray-50 rounded-xl p-6 space-y-4">
+                    <div class="border-b border-gray-200 pb-3">
+                        <h4 class="text-lg font-semibold text-gray-800">Customer Information</h4>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Name</p>
+                            <p class="text-gray-800 font-semibold" x-text="currentUser.first_name + ' ' + currentUser.last_name"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Contact No</p>
+                            <p class="text-gray-800 font-semibold" x-text="currentUser.phone"></p>
+                        </div>
                     </div>
                     <div>
-                        <p>Name</p>
-                        <p x-text="currentUser.first_name + ' ' + currentUser.last_name"></p>
-                    </div>
-                    <div>
-                        <p>Contact No</p>
-                        <p x-text="currentUser.phone"></p>
-                    </div>
-                    <div>
-                        <p>Build Name</p>
-                        <input required type="text" name="build_name" placeholder="Enter build name" class="build-name">
+                        <label for="build_name" class="block text-sm font-medium text-gray-700 mb-2">Build Name</label>
+                        <input 
+                            required 
+                            type="text" 
+                            name="build_name" 
+                            id="build_name"
+                            placeholder="Enter build name" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                        >
                     </div>
                 </div>
 
-                <div class="build-details-modal">
-                    <div class="build-details-header">
-                        <h4>Selected Components</h4>
+                {{-- Selected Components --}}
+                <div class="bg-gray-50 rounded-xl p-6 space-y-4">
+                    <div class="border-b border-gray-200 pb-3">
+                        <h4 class="text-lg font-semibold text-gray-800">Selected Components</h4>
                     </div>
                     
                     {{-- Dynamic component display --}}
                     <template x-for="(component, type) in selectedComponents" :key="type">
-                        <div class="component-input-group">
-                            <p x-text="type.toUpperCase()" class="component-label"></p>
-                            <input type="text" 
-                                :name="'components[' + type + ']'" 
-                                :value="component.name" 
-                                readonly 
-                                class="build-name-component readonly">
+                        <div class="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-4">
+                            <div class="flex-1">
+                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide" x-text="type"></p>
+                                <p class="text-gray-800 font-semibold" x-text="component.name"></p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-bold text-green-600" x-text="'₱' + component.price.toFixed(2)"></p>
+                            </div>
                             <input type="hidden" 
                                 :name="'component_ids[' + type + ']'" 
                                 :value="component.componentId">
@@ -185,40 +211,46 @@ class="flex">
                     </template>
 
                     {{-- Fallback if no components selected --}}
-                    <div x-show="Object.keys(selectedComponents).length === 0">
-                        <p class="text-gray-500">No components selected yet</p>
+                    <div x-show="Object.keys(selectedComponents).length === 0" class="text-center py-8">
+                        <p class="text-gray-500 text-lg">No components selected yet</p>
+                        <p class="text-gray-400 text-sm mt-2">Please select components from the catalog</p>
                     </div>
                 </div>
 
-                <div class="build-details-modal">
-                    <div class="build-details-price">
-                        <h4>Build Price:</h4>
-                        <h4 x-text="'₱' + totalPrice.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')"></h4>
+                {{-- Total Price --}}
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xl font-bold text-gray-800">Total Build Price:</h4>
+                        <h4 class="text-2xl font-bold text-green-600" x-text="'₱' + totalPrice.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')"></h4>
                     </div>
                 </div>
 
                 {{-- PAYMENT METHOD - ONLY FOR ORDER --}}
-                <div x-show="modalType === 'order'">
-                    <h4>Payment Method</h4>
-                    <div class="flex gap-2">
+                <div x-show="modalType === 'order'" class="bg-gray-50 rounded-xl p-6 space-y-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Payment Method</h4>
+                    <div class="flex gap-3">
                         <input type="hidden" name="payment_method" id="payment_method" required>
                         <button
                             type="button"
                             onclick="selectPayment('PayPal', this)"
-                            class="payment-btn px-4 py-2 rounded-lg font-semibold hover:!bg-yellow-400">
+                            class="payment-btn flex-1 bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg border-2 border-transparent hover:bg-yellow-400 hover:border-yellow-500 transition-all duration-200 transform hover:scale-105">
                             PayPal
                         </button>
                         <button
                             type="button"
                             onclick="selectPayment('Cash on Pickup', this)"
-                            class="payment-btn px-4 py-2 rounded-lg font-semibold hover:!bg-yellow-400">
+                            class="payment-btn flex-1 bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg border-2 border-transparent hover:bg-yellow-400 hover:border-yellow-500 transition-all duration-200 transform hover:scale-105">
                             Cash On Pickup
                         </button>
                     </div>
                 </div>
 
-                <div class="flex justify-end mt-4">
-                    <button type="submit" class="bg-blue-500 hover:!bg-blue-700 text-white font-bold py-2 px-4 rounded" x-text="submitButtonText">
+                {{-- Submit Button --}}
+                <div class="flex justify-end pt-4 border-t border-gray-200">
+                    <button 
+                        type="submit" 
+                        class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
+                        x-text="submitButtonText">
                     </button>
                 </div>
             </form>
@@ -315,6 +347,7 @@ class="flex">
             <div class="catalog-button">
                 <button id="componentsTab"  class="active">Components</button>
                 <button id="summaryTab">Summary</button>
+                <button id="remarksTab">Remarks</button>
             </div>
 
             {{-- COMPONENTS --}}
@@ -390,6 +423,24 @@ class="flex">
                     </table>
                 </div>
                 <div class="build-details">
+                </div>
+            </div>
+
+            {{-- REMARKS --}}
+            <div class="summary-section hidden" id="remarksSection">
+                <div class="remarks-content bg-white rounded-lg border border-gray-200 h-full flex flex-col" id="buildRemarks">
+                    <!-- Default state when no remarks are available -->
+                    <div class="flex flex-col items-center justify-center py-12 text-center flex-1">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-600 mb-2">No Analysis Available</h3>
+                        <p class="text-gray-500 text-sm max-w-sm">
+                            Generate a build with a budget to see detailed analysis, performance insights, and smart recommendations.
+                        </p>
+                    </div>
                 </div>
             </div>
         </section>    

@@ -197,11 +197,10 @@ canvas {
 .build-name,
 .build-name-component{
     height: 20px;
-    position: relative;
-    right: 390;
     font-size: 0.75rem;
     border-radius: 4px;
     padding: 0 4px ;
+    
 }
 
 .build-name-component {
@@ -461,6 +460,132 @@ canvas {
     text-align: center;
 }
 
+/* REMARKS SECTION STYLING */
+#remarksSection {
+    height: 92%;
+    overflow: hidden;
+}
+
+.remarks-content {
+    height: 97%;
+    overflow-y: auto;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    margin: 5px;
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom scrollbar for remarks */
+.remarks-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.remarks-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.remarks-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.remarks-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.remarks-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.remarks-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.remark-item {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.remark-item:last-child {
+    margin-bottom: 0;
+}
+
+.remark-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.remark-value {
+    font-size: 1rem;
+    color: #1f2937;
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+.remark-value.success {
+    color: #059669;
+}
+
+.remark-value.warning {
+    color: #dc2626;
+}
+
+.recommendations {
+    border-left-color: #f59e0b;
+}
+
+.remark-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.remark-list li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+.remark-list li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #667eea;
+    font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .remarks-content {
+        padding: 0.75rem;
+    }
+    
+    .remarks-title {
+        font-size: 1.125rem;
+    }
+    
+    .remark-item {
+        padding: 0.75rem;
+    }
+}
 
 
 #validateBuild {

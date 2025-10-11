@@ -57,7 +57,7 @@
                 <input required name="max_tdp" id="max_tdp" type="number" placeholder="00 W" x-model="selectedComponent.max_tdp" onkeydown="return !['e','E','+','-'].includes(event.key)">
             </div>
             <div class="flex flex-col"
-                x-data="{ slots:[{}] }">
+                >
                 <template x-for="(slot, index) in selectedComponent.socket_compatibility" 
                           :key="index">
                     <div>

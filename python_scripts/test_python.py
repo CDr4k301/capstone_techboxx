@@ -302,7 +302,7 @@ def get_recommendations_for_category(target_category, preferred_cpu_brand=None):
     return recommendations
 
 def get_budget_recommendations(user_budget, target_category=None, preferred_cpu_brand=None, budget_tolerance=0.05):
-    print(f"User Budget: ₱{user_budget:,.2f}")
+    # print(f"User Budget: {user_budget:,.2f}")
     
     if target_category:
         initial_recommendations = get_recommendations_for_category(target_category, preferred_cpu_brand)
@@ -333,10 +333,10 @@ def get_budget_recommendations(user_budget, target_category=None, preferred_cpu_
 
                 total_price += price
     
-    print(f"Initial total price: ₱{total_price:,.2f}")
+    # print(f"Initial total price: {total_price:,.2f}")
     
     if total_price > user_budget:
-        print(f"Over budget by ₱{total_price - user_budget:,.2f}, finding cheaper alternatives...")
+        # print(f"Over budget by {total_price - user_budget:,.2f}, finding cheaper alternatives...")
         sorted_components = sorted(component_details.items(), key=lambda x: x[1]["price"], reverse=True)
         for comp_type, details in sorted_components:
             if total_price <= user_budget * (1 + budget_tolerance):
@@ -348,7 +348,7 @@ def get_budget_recommendations(user_budget, target_category=None, preferred_cpu_
             if cheaper_alternative:
                 savings = details["price"] - cheaper_alternative["price"]
                 if savings > 0:
-                    print(f"  Replacing {comp_type}: {details['name']} (₱{details['price']:,.2f}) → {cheaper_alternative['name']} (₱{cheaper_alternative['price']:,.2f}) [Save ₱{savings:,.2f}]")
+                    # print(f"  Replacing {comp_type}: {details['name']} ({details['price']:,.2f})  {cheaper_alternative['name']} ({cheaper_alternative['price']:,.2f}) [Save {savings:,.2f}]")
                     component_details[comp_type] = cheaper_alternative
                     total_price -= savings
     
@@ -448,7 +448,7 @@ def get_fallback_for_component_with_brand(comp_type, target_category, preferred_
             return " ".join(parts[:-2])  # Remove category number and price
     
     # If no match found with preferred brand, fall back to any brand in the category
-    print(f"Warning: No {preferred_brand} {comp_type} found in category {target_category}, using any brand")
+    # print(f"Warning: No {preferred_brand} {comp_type} found in category {target_category}, using any brand")
     return get_fallback_for_component(comp_type, target_category)
 
 def get_fallback_for_component(comp_type, target_category):
@@ -509,13 +509,10 @@ def get_fallback_recommendations():
 # BUDGET-BASED RECOMMENDATIONS (calculates individual component prices)
 if user_budget:
     if best_category and preferred_cpu_brand:
-        print(f"Getting recommendations for category {best_category} with {preferred_cpu_brand} CPU within ₱{user_budget:,} budget")
         recommendations = get_budget_recommendations(user_budget, best_category, preferred_cpu_brand)
     elif best_category:
-        print(f"Getting recommendations for category {best_category} within ₱{user_budget:,} budget")
         recommendations = get_budget_recommendations(user_budget, best_category)
     else:
-        print(f"Getting recommendations within ₱{user_budget:,} budget")
         recommendations = get_budget_recommendations(user_budget)
 else:
     # ORIGINAL METHOD (no budget consideration)

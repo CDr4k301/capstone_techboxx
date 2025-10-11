@@ -155,186 +155,186 @@
         
         <!-- Frequently Bought Together Section -->
         @if(!empty($mbaRecommendations))
-<div class="mba_container bg-white rounded-lg shadow p-6 mt-12">
-    <!-- Header -->
-    <div class="text-xl font-bold mb-3">
-        Frequently Bought Together / Suggested Add-Ons:
-    </div>
-
-    <!-- Products and Total -->
-    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 p-4">
-        <!-- Product images -->
-        <div class="flex gap-4 flex-wrap">
-            <!-- Current Product -->
-            <div class="flex flex-col items-center border rounded-md bg-gray-50 p-4 shadow w-32">
-                <img src="{{ asset('storage/' . $product['image']) }}" 
-                    alt="{{ $product['name'] }}" 
-                    class="object-contain h-16 mb-2">
-                <span class="text-xs text-center font-medium">{{ $product['name'] }}</span>
-                <!-- Current Product Stock -->
-                <div class="mt-1">
-                    @if(($product['stock'] ?? 0) > 0)
-                        <span class="text-xs text-green-600 font-semibold">In Stock</span>
-                    @else
-                        <span class="text-xs text-red-600 font-semibold">Out of Stock</span>
-                    @endif
+            <div class="mba_container bg-white rounded-lg shadow p-6 mt-12">
+                <!-- Header -->
+                <div class="text-xl font-bold mb-3">
+                    Frequently Bought Together / Suggested Add-Ons:
                 </div>
-                <span class="text-sm font-bold text-blue-600 mt-1">₱{{ number_format($product['price'], 0) }}</span>
-            </div>
-            
-            <!-- Plus icon -->
-            <div class="flex items-center justify-center text-2xl font-bold text-gray-400">
-                +
-            </div>
-            
-            <!-- Recommended Products -->
-            @foreach($mbaRecommendations as $index => $recommendation)
-                @php
-                    $isOutOfStock = ($recommendation['stock'] ?? 0) <= 0;
-                @endphp
-                <div class="flex flex-col items-center border rounded-md bg-gray-50 p-4 shadow w-32 
-                           @if($isOutOfStock) opacity-60 grayscale @endif">
-                    
-                    <!-- Out of Stock Badge -->
-                    @if($isOutOfStock)
-                        <div class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
-                            SOLD OUT
-                        </div>
-                    @endif
-                    
-                    @if(isset($recommendation['image']) && $recommendation['image'])
-                        <img src="{{ asset('storage/' . $recommendation['image']) }}" 
-                            alt="{{ $recommendation['name'] }}" 
-                            class="object-contain h-16 mb-2">
-                    @else
-                        <!-- Fallback if no image -->
-                        <div class="h-16 w-16 bg-gray-200 rounded flex items-center justify-center mb-2">
-                            <span class="text-xs text-gray-500">No Image</span>
-                        </div>
-                    @endif
-                    <span class="text-xs text-center font-medium">{{ $recommendation['name'] }}</span>
-                    <span class="text-xs text-center font-medium text-gray-500">{{ strtoupper($recommendation['type']) }}</span>
-                    
-                    <!-- Stock Status for Recommendations -->
-                    <div class="mt-1">
-                        @if(($recommendation['stock'] ?? 0) > 0)
-                            <span class="text-xs text-green-600 font-semibold">
-                                @if(($recommendation['stock'] ?? 0) <= 5)
-                                    Only {{ $recommendation['stock'] }} left!
+
+                <!-- Products and Total -->
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 p-4">
+                    <!-- Product images -->
+                    <div class="flex gap-4 flex-wrap">
+                        <!-- Current Product -->
+                        <div class="flex flex-col items-center border rounded-md bg-gray-50 p-4 shadow w-32">
+                            <img src="{{ asset('storage/' . $product['image']) }}" 
+                                alt="{{ $product['name'] }}" 
+                                class="object-contain h-16 mb-2">
+                            <span class="text-xs text-center font-medium">{{ $product['name'] }}</span>
+                            <!-- Current Product Stock -->
+                            <div class="mt-1">
+                                @if(($product['stock'] ?? 0) > 0)
+                                    <span class="text-xs text-green-600 font-semibold">In Stock</span>
                                 @else
-                                    In Stock
+                                    <span class="text-xs text-red-600 font-semibold">Out of Stock</span>
                                 @endif
-                            </span>
-                        @else
-                            <span class="text-xs text-red-600 font-semibold">Out of Stock</span>
+                            </div>
+                            <span class="text-sm font-bold text-blue-600 mt-1">₱{{ number_format($product['price'], 0) }}</span>
+                        </div>
+                        
+                        <!-- Plus icon -->
+                        <div class="flex items-center justify-center text-2xl font-bold text-gray-400">
+                            +
+                        </div>
+                        
+                        <!-- Recommended Products -->
+                        @foreach($mbaRecommendations as $index => $recommendation)
+                            @php
+                                $isOutOfStock = ($recommendation['stock'] ?? 0) <= 0;
+                            @endphp
+                            <div class="flex flex-col items-center border rounded-md bg-gray-50 p-4 shadow w-32 
+                                    @if($isOutOfStock) opacity-60 grayscale @endif">
+                                
+                                <!-- Out of Stock Badge -->
+                                @if($isOutOfStock)
+                                    <div class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
+                                        SOLD OUT
+                                    </div>
+                                @endif
+                                
+                                @if(isset($recommendation['image']) && $recommendation['image'])
+                                    <img src="{{ asset('storage/' . $recommendation['image']) }}" 
+                                        alt="{{ $recommendation['name'] }}" 
+                                        class="object-contain h-16 mb-2">
+                                @else
+                                    <!-- Fallback if no image -->
+                                    <div class="h-16 w-16 bg-gray-200 rounded flex items-center justify-center mb-2">
+                                        <span class="text-xs text-gray-500">No Image</span>
+                                    </div>
+                                @endif
+                                <span class="text-xs text-center font-medium">{{ $recommendation['name'] }}</span>
+                                <span class="text-xs text-center font-medium text-gray-500">{{ strtoupper($recommendation['type']) }}</span>
+                                
+                                <!-- Stock Status for Recommendations -->
+                                <div class="mt-1">
+                                    @if(($recommendation['stock'] ?? 0) > 0)
+                                        <span class="text-xs text-green-600 font-semibold">
+                                            @if(($recommendation['stock'] ?? 0) <= 5)
+                                                Only {{ $recommendation['stock'] }} left!
+                                            @else
+                                                In Stock
+                                            @endif
+                                        </span>
+                                    @else
+                                        <span class="text-xs text-red-600 font-semibold">Out of Stock</span>
+                                    @endif
+                                </div>
+                                
+                                <span class="text-sm font-bold text-blue-600 mt-1">
+                                    ₱{{ number_format($recommendation['price'] ?? 0, 0) }}
+                                </span>
+                            </div>
+                            
+                            <!-- Plus icon between recommendations (except last) -->
+                            @if(!$loop->last)
+                            <div class="flex items-center justify-center text-2xl font-bold text-gray-400">
+                                +
+                            </div>
+                            @endif
+                        @endforeach
+                    </div>
+
+                    <!-- Total price and Add to Cart -->
+                    <div class="border border-gray-200 rounded-lg p-4 flex flex-col justify-between w-full md:w-64 mt-4 md:mt-0">
+                        @php
+                            $totalPrice = $product['price'];
+                            $hasOutOfStockItems = false;
+                            foreach($mbaRecommendations as $rec) {
+                                if (($rec['stock'] ?? 0) > 0) {
+                                    $totalPrice += $rec['price'] ?? 0;
+                                } else {
+                                    $hasOutOfStockItems = true;
+                                }
+                            }
+                        @endphp
+                        
+                        <div class="text-lg font-bold mb-4 text-right">
+                            Total: ₱<span id="totalPrice">{{ number_format($totalPrice, 0) }}</span>
+                        </div>
+                        
+                        @if($hasOutOfStockItems)
+                            <div class="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
+                                ⚠️ Some recommended items are out of stock and won't be added to cart.
+                            </div>
                         @endif
+                        
+                        <form action="{{ route('cart.add.bundle') }}" method="POST" id="bundleForm">
+                            @csrf
+                            <input type="hidden" name="main_product_id" value="{{ $product['id'] }}">
+                            <input type="hidden" name="main_product_type" value="{{ $product['category'] }}">
+                            <input type="hidden" name="main_product_table" value="{{ $table }}">
+                            
+                            <!-- Hidden field to store checked items -->
+                            <input type="hidden" name="checked_items" id="checkedItems" value="">
+                            
+                            <button type="submit"
+                                class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                                Add Selected to Cart
+                            </button>
+                        </form>
+                        
+                        <p class="text-xs text-gray-500 text-center mt-2">
+                            Select items you want to add to cart
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Individual item list with checkboxes -->
+                <div class="border-t border-gray-200 pt-4 space-y-2" id="itemList">
+                    <!-- Main Product (always checked) -->
+                    <div class="flex justify-between items-center bg-blue-50 p-3 rounded">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" class="item-checkbox main-product" 
+                                data-price="{{ $product['price'] }}" 
+                                data-id="{{ $product['id'] }}"
+                                data-type="{{ $product['category'] }}"
+                                data-table="{{ $table }}"
+                                data-name="{{ $product['name'] }}"
+                                data-stock="{{ $product['stock'] ?? 0 }}"
+                                checked disabled>
+                            <span class="font-medium">This item: {{ $product['name'] }}</span>
+                            <span class="text-xs {{ ($product['stock'] ?? 0) > 0 ? 'text-green-600' : 'text-red-600' }} ml-2">
+                                ({{ ($product['stock'] ?? 0) > 0 ? 'In Stock' : 'Out of Stock' }})
+                            </span>
+                        </label>
+                        <span class="font-semibold">₱{{ number_format($product['price'], 0) }}</span>
                     </div>
                     
-                    <span class="text-sm font-bold text-blue-600 mt-1">
-                        ₱{{ number_format($recommendation['price'] ?? 0, 0) }}
-                    </span>
+                    <!-- Recommended Items -->
+                    @foreach($mbaRecommendations as $rec)
+                    @php
+                        $isOutOfStock = ($rec['stock'] ?? 0) <= 0;
+                    @endphp
+                    <div class="flex justify-between items-center p-3 hover:bg-gray-50 rounded @if($isOutOfStock) bg-red-50 @endif">
+                        <label class="flex items-center gap-2 @if($isOutOfStock) cursor-not-allowed @endif">
+                            <input type="checkbox" class="item-checkbox bundle-item" 
+                                data-price="{{ $rec['price'] ?? 0 }}" 
+                                data-id="{{ $rec['id'] ?? '' }}"
+                                data-type="{{ $rec['type'] ?? '' }}"
+                                data-table="{{ $rec['table'] ?? '' }}"
+                                data-name="{{ $rec['name'] ?? '' }}"
+                                data-stock="{{ $rec['stock'] ?? 0 }}"
+                                @if($isOutOfStock) disabled @else checked @endif>
+                            <span class="@if($isOutOfStock) text-gray-500 @endif">{{ $rec['name'] }}</span>
+                            <span class="text-xs {{ $isOutOfStock ? 'text-red-600' : 'text-green-600' }} ml-2">
+                                ({{ $isOutOfStock ? 'Out of Stock' : 'In Stock' }})
+                            </span>
+                        </label>
+                        <span class="@if($isOutOfStock) text-gray-400 @endif">₱{{ number_format($rec['price'] ?? 0, 0) }}</span>
+                    </div>
+                    @endforeach
                 </div>
-                
-                <!-- Plus icon between recommendations (except last) -->
-                @if(!$loop->last)
-                <div class="flex items-center justify-center text-2xl font-bold text-gray-400">
-                    +
-                </div>
-                @endif
-            @endforeach
-        </div>
-
-        <!-- Total price and Add to Cart -->
-        <div class="border border-gray-200 rounded-lg p-4 flex flex-col justify-between w-full md:w-64 mt-4 md:mt-0">
-            @php
-                $totalPrice = $product['price'];
-                $hasOutOfStockItems = false;
-                foreach($mbaRecommendations as $rec) {
-                    if (($rec['stock'] ?? 0) > 0) {
-                        $totalPrice += $rec['price'] ?? 0;
-                    } else {
-                        $hasOutOfStockItems = true;
-                    }
-                }
-            @endphp
-            
-            <div class="text-lg font-bold mb-4 text-right">
-                Total: ₱<span id="totalPrice">{{ number_format($totalPrice, 0) }}</span>
             </div>
-            
-            @if($hasOutOfStockItems)
-                <div class="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
-                    ⚠️ Some recommended items are out of stock and won't be added to cart.
-                </div>
-            @endif
-            
-            <form action="{{ route('cart.add.bundle') }}" method="POST" id="bundleForm">
-                @csrf
-                <input type="hidden" name="main_product_id" value="{{ $product['id'] }}">
-                <input type="hidden" name="main_product_type" value="{{ $product['category'] }}">
-                <input type="hidden" name="main_product_table" value="{{ $table }}">
-                
-                <!-- Hidden field to store checked items -->
-                <input type="hidden" name="checked_items" id="checkedItems" value="">
-                
-                <button type="submit"
-                    class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
-                    Add Selected to Cart
-                </button>
-            </form>
-            
-            <p class="text-xs text-gray-500 text-center mt-2">
-                Select items you want to add to cart
-            </p>
-        </div>
-    </div>
-
-    <!-- Individual item list with checkboxes -->
-    <div class="border-t border-gray-200 pt-4 space-y-2" id="itemList">
-        <!-- Main Product (always checked) -->
-        <div class="flex justify-between items-center bg-blue-50 p-3 rounded">
-            <label class="flex items-center gap-2">
-                <input type="checkbox" class="item-checkbox main-product" 
-                    data-price="{{ $product['price'] }}" 
-                    data-id="{{ $product['id'] }}"
-                    data-type="{{ $product['category'] }}"
-                    data-table="{{ $table }}"
-                    data-name="{{ $product['name'] }}"
-                    data-stock="{{ $product['stock'] ?? 0 }}"
-                    checked disabled>
-                <span class="font-medium">This item: {{ $product['name'] }}</span>
-                <span class="text-xs {{ ($product['stock'] ?? 0) > 0 ? 'text-green-600' : 'text-red-600' }} ml-2">
-                    ({{ ($product['stock'] ?? 0) > 0 ? 'In Stock' : 'Out of Stock' }})
-                </span>
-            </label>
-            <span class="font-semibold">₱{{ number_format($product['price'], 0) }}</span>
-        </div>
-        
-        <!-- Recommended Items -->
-        @foreach($mbaRecommendations as $rec)
-        @php
-            $isOutOfStock = ($rec['stock'] ?? 0) <= 0;
-        @endphp
-        <div class="flex justify-between items-center p-3 hover:bg-gray-50 rounded @if($isOutOfStock) bg-red-50 @endif">
-            <label class="flex items-center gap-2 cursor-pointer @if($isOutOfStock) cursor-not-allowed @endif">
-                <input type="checkbox" class="item-checkbox bundle-item" 
-                    data-price="{{ $rec['price'] ?? 0 }}" 
-                    data-id="{{ $rec['id'] ?? '' }}"
-                    data-type="{{ $rec['type'] ?? '' }}"
-                    data-table="{{ $rec['table'] ?? '' }}"
-                    data-name="{{ $rec['name'] ?? '' }}"
-                    data-stock="{{ $rec['stock'] ?? 0 }}"
-                    @if($isOutOfStock) disabled @else checked @endif>
-                <span class="@if($isOutOfStock) text-gray-500 @endif">{{ $rec['name'] }}</span>
-                <span class="text-xs {{ $isOutOfStock ? 'text-red-600' : 'text-green-600' }} ml-2">
-                    ({{ $isOutOfStock ? 'Out of Stock' : 'In Stock' }})
-                </span>
-            </label>
-            <span class="@if($isOutOfStock) text-gray-400 @endif">₱{{ number_format($rec['price'] ?? 0, 0) }}</span>
-        </div>
-        @endforeach
-    </div>
-</div>
         @endif
         
         <!-- Full Description -->

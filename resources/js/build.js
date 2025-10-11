@@ -14,8 +14,12 @@ const buildSectionButtons = document.querySelectorAll('#buildSection button');
 const catalogList = document.querySelector('.catalog-list');
 const catalogItem = document.querySelectorAll('.catalog-item');
 const buildSection = document.getElementById('buildSection');
+const remarksTab = document.getElementById('remarksTab');
+const remarksSection = document.getElementById('remarksSection');
+const componentsSection = document.getElementById('componentsSection');
 const summarySection = document.getElementById('summarySection');
-const summaryTableBody = document.getElementById("summaryTableBody");
+const componentsTab = document.getElementById('componentsTab');
+const summaryTab = document.getElementById('summaryTab');
 const cartForm = document.getElementById("cartForm");
 
 window.selectedComponents = {};
@@ -66,24 +70,180 @@ function applyAllFilters() {
 }
 
 
-// FILTER CPU
-function filterCPUByBrand(brand) {
-    catalogItem.forEach(item => {
-        const type = item.getAttribute('data-type');
-        const name = item.getAttribute('data-name').toLowerCase();
+// // FILTER CPU
+// function filterCPUByBrand(brand) {
+//     catalogItem.forEach(item => {
+//         const type = item.getAttribute('data-type');
+//         const name = item.getAttribute('data-name').toLowerCase();
 
-        if (type === 'cpu') {
-            if (name.includes(brand.toLowerCase())) {
-                item.classList.remove('hidden');
-            }
-            else {
-                item.classList.add('hidden');
-            }
+//         if (type === 'cpu') {
+//             if (name.includes(brand.toLowerCase())) {
+//                 item.classList.remove('hidden');
+//             }
+//             else {
+//                 item.classList.add('hidden');
+//             }
+//         }
+//         else {
+//             item.classList.remove('hidden');
+//         }
+//     })
+// }
+
+function displayBuildRemarks(budgetSummary, userBudget, totalPrice, category, cpuBrand) {
+    const remarksContainer = document.getElementById('buildRemarks');
+    let remaining = null;
+    
+    if (!remarksContainer) {
+        console.error('Remarks container not found');
+        return;
+    }
+    
+    // Hide remarks if no budget was set
+    if (!userBudget && !budgetSummary) {
+        remarksContainer.style.display = 'none';
+        return;
+    }
+    
+    // Show remarks container
+    remarksContainer.style.display = 'block';
+    
+    let remarksHTML = '<div class="remarks-content">';
+    remarksHTML += '<h4 class="remarks-title">📊 Build Analysis & Recommendations</h4>';
+    
+    // Budget Analysis Section
+    if (userBudget) {
+        const remaining = userBudget - totalPrice;
+        const percentUsed = (totalPrice / userBudget * 100).toFixed(1);
+        
+        remarksHTML += '<div class="remark-item">';
+        remarksHTML += '<p class="remark-label">💰 Budget Status</p>';
+        
+        if (remaining >= 0) {
+            const savingsPercent = (remaining / userBudget * 100).toFixed(1);
+            remarksHTML += `<p class="remark-value success">
+                ✓ Within Budget (${percentUsed}% utilized)<br>
+                <strong>Remaining: ₱${remaining.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</strong> (${savingsPercent}% saved)
+            </p>`;
+        } else {
+            const overPercent = (Math.abs(remaining) / userBudget * 100).toFixed(1);
+            remarksHTML += `<p class="remark-value warning">
+                ⚠ Over Budget by <strong>₱${Math.abs(remaining).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</strong> (${overPercent}% over)
+            </p>`;
         }
-        else {
-            item.classList.remove('hidden');
+        remarksHTML += '</div>';
+    }
+    
+    // Build Configuration Section
+    remarksHTML += '<div class="remark-item">';
+    remarksHTML += '<p class="remark-label">⚙️ Configuration Details</p>';
+    remarksHTML += `<p class="remark-value">
+        <strong>Build Type:</strong> ${category ? category.charAt(0).toUpperCase() + category.slice(1) : 'General Purpose'}<br>
+        <strong>Processor Brand:</strong> ${cpuBrand ? cpuBrand.toUpperCase() : 'Any'}<br>
+        <strong>Total Components:</strong> 8 items<br>
+        <strong>Total Cost:</strong> ₱${totalPrice.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+    </p>`;
+    remarksHTML += '</div>';
+    
+    // Performance Tier Section
+    const tierInfo = getPerformanceTier(totalPrice);
+    remarksHTML += '<div class="remark-item">';
+    remarksHTML += '<p class="remark-label">🎯 Performance Tier</p>';
+    remarksHTML += `<p class="remark-value">
+        <strong>${tierInfo.tier}</strong> (₱${tierInfo.range})<br>
+        ${tierInfo.description}
+    </p>`;
+    remarksHTML += '</div>';
+    
+    // Recommendations Section
+    const recommendations = getRecommendations(category, userBudget, totalPrice, remaining);
+    remarksHTML += '<div class="remark-item recommendations">';
+    remarksHTML += '<p class="remark-label">💡 Smart Recommendations</p>';
+    remarksHTML += '<ul class="remark-list">';
+    
+    recommendations.forEach(rec => {
+        remarksHTML += `<li>${rec}</li>`;
+    });
+    
+    remarksHTML += '</ul>';
+    remarksHTML += '</div>';
+    
+    remarksHTML += '</div>';
+    
+    remarksContainer.innerHTML = remarksHTML;
+}
+
+function getPerformanceTier(totalPrice) {
+    if (totalPrice > 100000) {
+        return {
+            tier: '🚀 Enthusiast/Extreme',
+            range: '100,000+',
+            description: 'Top-tier performance for demanding workloads and high-end gaming at maximum settings.'
+        };
+    } else if (totalPrice > 80000) {
+        return {
+            tier: '💎 High-End',
+            range: '80,000 - 100,000',
+            description: 'Excellent performance for professional work, content creation, and high-FPS gaming.'
+        };
+    } else if (totalPrice > 50000) {
+        return {
+            tier: '⭐ Mid-High Range',
+            range: '50,000 - 80,000',
+            description: 'Great balance of performance and value for gaming and productivity tasks.'
+        };
+    } else if (totalPrice > 30000) {
+        return {
+            tier: '✨ Mid-Range',
+            range: '30,000 - 50,000',
+            description: 'Solid performance for 1080p gaming and general computing needs.'
+        };
+    } else {
+        return {
+            tier: '📌 Budget-Friendly',
+            range: 'Under 30,000',
+            description: 'Entry-level build suitable for basic tasks and light gaming.'
+        };
+    }
+}
+
+function getRecommendations(category, userBudget, totalPrice, remaining) {
+    const recommendations = [];
+    
+    // Category-specific recommendations
+    if (category === 'gaming') {
+        recommendations.push('Optimized for gaming performance with balanced GPU and CPU selection');
+        recommendations.push('Consider pairing with a 144Hz+ monitor for the best experience');
+        recommendations.push('Ensure adequate airflow for sustained gaming sessions');
+    } else if (category === 'graphics intensive') {
+        recommendations.push('Configured for content creation, 3D rendering, and video editing');
+        recommendations.push('High-performance GPU selected for GPU-accelerated workloads');
+        recommendations.push('Consider additional cooling for extended rendering tasks');
+    } else {
+        recommendations.push('Balanced build suitable for everyday computing tasks');
+        recommendations.push('Can handle office work, web browsing, and light multitasking');
+        if (totalPrice < 40000) {
+            recommendations.push('Upgrade GPU for improved gaming capabilities');
         }
-    })
+    }
+    
+    // Budget-based recommendations
+    if (userBudget && remaining !== undefined) {
+        if (remaining > 10000) {
+            recommendations.push(`You have ₱${remaining.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} remaining - consider upgrading storage, adding RGB peripherals, or a better monitor`);
+        } else if (remaining > 5000) {
+            recommendations.push(`Consider using the remaining ₱${remaining.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} for a quality keyboard/mouse combo or additional storage`);
+        } else if (remaining > 0) {
+            recommendations.push('Budget well-optimized! Consider saving for future upgrades or peripherals');
+        } else if (remaining < -5000) {
+            recommendations.push('Consider selecting more budget-friendly components to stay within budget');
+        }
+    }
+    
+    // General recommendations
+    recommendations.push('Verify all components are compatible before purchasing');
+    
+    return recommendations;
 }
 
 //Components & Summary active tab
@@ -117,7 +277,13 @@ document.querySelectorAll('.catalog-button button').forEach(btn => {
 });
 
 customBuildBtn.addEventListener('click', function() {
+    const remarksContainer = document.getElementById('buildRemarks');
+    
     currentBudget = null;
+
+    if (remarksContainer) {
+        remarksContainer.style.display = 'none';
+    }
 
     generateBuildBtn.classList.remove('active');
     buildSection.classList.remove('hidden');
@@ -239,7 +405,7 @@ generateBtn.addEventListener('click', () => {
         body: JSON.stringify({
             category : currentCategoryFilter,
             cpuBrand: currentBrandFilter,
-            useBudget: currentBudget
+            userBudget: currentBudget
         })
     })
     .then(res => res.json())
@@ -251,8 +417,12 @@ generateBtn.addEventListener('click', () => {
 
         let totalPrice = 0;
 
-        Object.values(data).forEach(item => {
-            // Ensure price is a valid number (handle string with commas too)
+        // Filter out the budget_summary and only process components
+        const components = Object.entries(data).filter(([key, item]) => {
+            return key !== 'budget_summary' && item && item.price !== undefined;
+        });
+
+        components.forEach(([key, item]) => {
             const price = parseFloat(item.price.toString().replace(/,/g, ''));
             if (isNaN(price)) {
                 console.warn(`Invalid price for item:`, item);
@@ -263,7 +433,6 @@ generateBtn.addEventListener('click', () => {
 
             let row = '';
             row += `<tr>`;
-            // row += `<td><p>${item.id}</p></td>`;
             row += `<td><p>${item.name}</p></td>`;
             row += `<td><p>1</p></td>`;
             row += `<td><p>₱${price.toFixed(2)}</p></td>`;
@@ -281,35 +450,35 @@ generateBtn.addEventListener('click', () => {
 
         summaryTableBody.innerHTML += totalRow;
 
+        // ** NEW: Display remarks if budget_summary exists **
+        displayBuildRemarks(data.budget_summary, currentBudget, totalPrice, currentCategoryFilter, currentBrandFilter);
+
         // Show summary UI
-        summarySection.classList.remove("hidden");
-        document.getElementById('summaryTab').classList.add('active');
-        document.getElementById('componentsTab').classList.remove('active');
+        summarySection.classList.add("hidden");
+        remarksSection.classList.remove("hidden");
         componentsSection.classList.add("hidden");
 
-        Object.entries(data).forEach(([key, item]) => {
-            console.log([key, item]);
-            let buttonSelector = null;
-            let componentType = key;
+        summaryTab.classList.remove('active');
+        componentsTab.classList.remove('active');
+        remarksTab.classList.add('active');
 
+        // Update component mapping
+        Object.entries(data).forEach(([key, item]) => {
+            if (key === 'budget_summary') return;
+            
+            let componentType = key;
             if (key === 'pc_case') {
                 key = 'case';
                 componentType = 'case';
             }
-
             if (key === 'storage') {
-                // Use item.type (either 'ssd' or 'hdd') to determine the actual component type
-                componentType = item.type; // This will be 'ssd' or 'hdd'
+                componentType = item.type;
             }
 
-            if (key === 'storage') {
-                // Use item.type (either 'ssd' or 'hdd') to match the correct button
-                buttonSelector = `button[data-type="${item.type}"]`;
-            } else {
-                // For other types of items, match by the key
-                buttonSelector = `button[data-type="${key}"]`;
-            }
-
+            let buttonSelector = key === 'storage' 
+                ? `button[data-type="${item.type}"]`
+                : `button[data-type="${key}"]`;
+            
             selectedComponents[componentType] = {
                 componentId: item.id,
                 name: item.name,
@@ -336,27 +505,16 @@ generateBtn.addEventListener('click', () => {
             if (button) {
                 const selectedName = button.querySelector('.selected-name');
                 if (selectedName) {
-                    // Update the button text for storage based on its type
-                    if (key === 'storage') {
-                        if (item.type === 'ssd') {
-                            selectedName.textContent = `${item.name}`;
-                        } else if (item.type === 'hdd') {
-                            selectedName.textContent = `${item.name}`;
-                        }
-                    } else {
-                        // For non-storage items, just set the name
-                        selectedName.textContent = item.name;
-                    }
+                    selectedName.textContent = item.name;
                 }
             }
-        })
+        });
     })
     .catch(err => {
         console.error("Error:", err);
         loadingSpinner.classList.add('hidden');
     });
 });
-
 
 buildSectionButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -423,21 +581,35 @@ document.querySelectorAll('.catalog-item').forEach(item => {
     })
 });
 
-document.getElementById('componentsTab').addEventListener('click', () => {
-    document.getElementById('componentsSection').classList.remove('hidden');
-    document.getElementById('summarySection').classList.add('hidden');
-    document.getElementById('componentsTab').classList.add('active');
-    document.getElementById('summaryTab').classList.remove('active');
+componentsTab.addEventListener('click', () => {
+    componentsSection.classList.remove('hidden');
+    summarySection.classList.add('hidden');
+    remarksSection.classList.add('hidden');
 
+    componentsTab.classList.add('active');
+    summaryTab.classList.remove('active');
+    remarksTab.classList.remove('active');
 });
 
-document.getElementById('summaryTab').addEventListener('click', () => {
-    document.getElementById('componentsSection').classList.add('hidden');
-    document.getElementById('summarySection').classList.remove('hidden');
-    document.getElementById('componentsTab').classList.remove('active');
-    document.getElementById('summaryTab').classList.add('active');
+summaryTab.addEventListener('click', () => {
+    remarksSection.classList.add('hidden');
+    componentsSection.classList.add('hidden');
+    summarySection.classList.remove('hidden');
+
+    componentsTab.classList.remove('active');
+    remarksTab.classList.remove('active');
+    summaryTab.classList.add('active');
 });
 
+remarksTab.addEventListener('click', () => {
+    summarySection.classList.add('hidden');
+    componentsSection.classList.add('hidden');
+    remarksSection.classList.remove('hidden');
+    
+    componentsTab.classList.remove('active');
+    summaryTab.classList.remove('active');
+    remarksTab.classList.add('active');
+});
 
 
 function updateSummaryTable() {

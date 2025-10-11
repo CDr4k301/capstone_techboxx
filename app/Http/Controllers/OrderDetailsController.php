@@ -29,6 +29,7 @@ class OrderDetailsController extends Controller
                 $query->where('user_id', $user->id);
             })
             ->whereNull('pickup_date')
+            ->orderBy('created_at', 'desc')
             ->paginate(2);
 
         return view('customer.orderdetails', compact('orders'));

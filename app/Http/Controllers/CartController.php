@@ -282,7 +282,7 @@ class CartController extends Controller
                 ]);
             }
 
-            return back()->with([
+            return redirect()->route('customer.orderdetails')->with([
                 'message' => 'Build ordered successfully!',
                 'type' => 'success',
             ]);
@@ -324,7 +324,7 @@ class CartController extends Controller
             ]);
         }
 
-        return back()->with([
+        return redirect()->route('customer.orderdetails')->with([
             'message' => 'Build ordered successfully!',
             'type' => 'success',
         ]);

@@ -88,7 +88,7 @@
             </div>
             
             <div class="flex flex-col"
-                x-data="{ slots:[{}] }">
+                >
                     <template x-for="(slot, index) in selectedComponent.supported_cpu" 
                             :key="index">
                         <div>
