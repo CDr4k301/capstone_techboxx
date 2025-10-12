@@ -63,7 +63,7 @@ Route::post('techboxx/build/search', [BuildController::class, 'search'])->name('
 Route::post('techboxx/build/generate-build', [BuildController::class, 'generateBuild'])->name('techboxx.generate');
 Route::post('techboxx/build/validate', [BuildController::class, 'validateBuild'])->name('techboxx.validate');
 Route::get('techboxx/build-extended', [BuildExtController::class, 'index'])->name('techboxx.build.extend');
-Route::get('techboxx/build-software',[BuildSoftwareController::class,'index'])->name('techboxx.build.software');
+Route::match(['get', 'post'], '/techboxx/build-software', [BuildSoftwareController::class, 'index'])->name('techboxx.build.software');
 
 
 // ADMIN ROUTES

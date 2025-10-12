@@ -301,11 +301,17 @@
                 <div>
                     <h4>COMPATIBILITY CHECK</h4>
                     <button id="validateBuild">Validate Build</button>
-                    <button id="validateBuild">
-                    <a  href="{{ route('techboxx.build.software') }}">SOFTWARE</a>
-                    </button>
+                    <form action="{{ route('techboxx.build.software') }}" method="POST" id="softwareForm">
+                        @csrf
+                        @foreach($components as $component)
+                            <input type="hidden" name="component_ids[]" value="{{ $component->id }}">
+                        @endforeach
+                        <button type="submit" id="validateBuild">SOFTWARE</button>
+                    </form>
                 </div>
+
             </section>
+
 
             {{-- COMPONENTS --}}
             

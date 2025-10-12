@@ -141,7 +141,7 @@
             
 
             {{-- COMPONENTS --}}
-            <div class="component-section">
+            {{-- <div class="component-section">
                 <div class="component-section-left">
                     <x-component data-type="motherboard">Motherboard</x-component>
                     <x-component data-type="cpu">CPU</x-component>
@@ -155,8 +155,37 @@
                     <x-component data-type="cooler">Cooler</x-component>
                     <x-component data-type="psu">PSU</x-component>
                 </div>
+            </div> --}}
+            
+            <div class="component-section">
+                <div class="component-section-left">
+                    @foreach(['motherboard','cpu','gpu','ram'] as $type)
+                        @php
+                            $component = $selectedComponents->first(fn($c) => strtolower($c->component_type) === $type);
+                        @endphp
+                        @if($component)
+                            <div class="component-button">
+                                <img src="{{ asset('storage/' . $component->image) }}" alt="{{ $component->label }}">
+                                <p>{{$component->label}}</p>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+                <div class="component-section-right">
+                    @foreach(['case','ssd','hdd','cooler','psu'] as $type)
+                        @php
+                            $component = $selectedComponents->first(fn($c) => strtolower($c->component_type) === $type);
+                        @endphp
+                        @if($component)
+                            <div class="component-button">
+                                <img src="{{ asset('storage/' . $component->image) }}" alt="{{ $component->label }}">
+                                <p>{{$component->label}}</p>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
             </div>
-                
+
         </div>
     </main>
     </div>
