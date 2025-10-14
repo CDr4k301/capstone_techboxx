@@ -1,43 +1,78 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use App\Models\BuildCategory;
 use App\Models\Software;
 
 class BuildSoftwareController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
-    {
-        // 1. Get the selected component IDs from buildExt.blade
-        $selectedIds = $request->input('component_ids', []);
 
-        // 2. Get all components from BuildExtController
-        $allComponents = app(BuildExtController::class)->index()->getData()['components'];
+public function index()
+{
+    // 1️⃣ Get session components
+    $sessionComponents = session('selected_components', []); // your session format
 
-        // 3. Filter only the components that were selected
-        $selectedComponents = $allComponents->filter(fn($c) => in_array($c->id, $selectedIds))->values();
+    // 2️⃣ Map each type to its model
+    $modelMap = [
+        'cpu' => \App\Models\Hardware\Cpu::class,
+        'gpu' => \App\Models\Hardware\Gpu::class,
+        'ram' => \App\Models\Hardware\Ram::class,
+        'motherboard' => \App\Models\Hardware\Motherboard::class,
+        'case' => \App\Models\Hardware\PcCase::class,
+        'psu' => \App\Models\Hardware\Psu::class,
+        'ssd' => \App\Models\Hardware\Storage::class,
+        'hdd' => \App\Models\Hardware\Storage::class,
+        'cooler' => \App\Models\Hardware\Cooler::class,
+    ];
 
-        // 4. Cache the selected components (full objects) for 30 minutes
-        Cache::put('selected_components_full', $selectedComponents, now()->addMinutes(30));
+    // 3️⃣ Build the selectedComponents array
+    $selectedComponents = [];
 
-        // 5. Get software & categories
-        $softwares = Software::withTrashed()->get();
-        $buildCategories = BuildCategory::select('id','name')->get();
-
-        // 6. Return view with everything
-        return view('buildExtSoft', [
-            'softwares' => $softwares,
-            'buildCategories' => $buildCategories,
-            'selectedComponents' => $selectedComponents,
-        ]);
+    foreach ($sessionComponents as $type => $data) {
+        if (isset($modelMap[$type]) && isset($data['componentId'])) {
+            $component = $modelMap[$type]::find($data['componentId']);
+            if ($component) {
+                $selectedComponents[$type] = $component;
+            }
+        }
     }
 
+    $fullComponents = [
+        'ram' => isset($selectedComponents['ram']) ? [
+            'total_capacity_gb' => $selectedComponents['ram']->total_capacity_gb,
+            'brand' => $selectedComponents['ram']->brand,
+            'model' => $selectedComponents['ram']->model,
+            'speed_mhz' => $selectedComponents['ram']->speed_mhz,
+            'ram_type' => $selectedComponents['ram']->ram_type,
+        ] : null,
 
+        'ssd' => isset($selectedComponents['ssd']) ? [
+            'capacity_gb' => $selectedComponents['ssd']->capacity_gb,
+            'brand' => $selectedComponents['ssd']->brand,
+            'model' => $selectedComponents['ssd']->model,
+        ] : null,
+
+        'hdd' => isset($selectedComponents['hdd']) ? [
+            'capacity_gb' => $selectedComponents['hdd']->capacity_gb,
+            'brand' => $selectedComponents['hdd']->brand,
+            'model' => $selectedComponents['hdd']->model,
+        ] : null,
+    ];
+
+
+    // 4️⃣ Get build categories and software (unchanged)
+    $buildCategories = BuildCategory::all();
+    $softwares = Software::all();
+    // 5️⃣ Return view
+    return view('buildExtSoft', [
+        'selectedComponents' => $selectedComponents,
+        'fullComponents' => $fullComponents, // new variable for all DB details
+        'buildCategories' => $buildCategories,
+        'softwares' => $softwares,
+    ]);
+
+}
 
     
     

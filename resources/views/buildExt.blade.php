@@ -16,6 +16,9 @@
         ])
     
 </head>
+<script>
+    window.selectedComponents = @json(session('selected_components', []));
+</script>
 <body class="flex flex-col"
       x-data="{ 
           showViewModal: false, 
@@ -28,7 +31,8 @@
               last_name: '{{ Auth::user()->last_name ?? '' }}',
               phone: '{{ Auth::user()->phone_number ?? '' }}'
           },
-          selectedComponents: {},
+          // Initialize Alpine reactive state from session immediately
+          selectedComponents: { ...window.selectedComponents || {} },
           totalPrice: 0,
           
           // Open modal for specific type
@@ -298,19 +302,19 @@
 
             {{-- COMPATIBILITY --}}
             <section class="compatibility-section">
-                <div>
-                    <h4>COMPATIBILITY CHECK</h4>
-                    <button id="validateBuild">Validate Build</button>
-                    <form action="{{ route('techboxx.build.software') }}" method="POST" id="softwareForm">
-                        @csrf
-                        @foreach($components as $component)
-                            <input type="hidden" name="component_ids[]" value="{{ $component->id }}">
-                        @endforeach
-                        <button type="submit" id="validateBuild">SOFTWARE</button>
-                    </form>
-                </div>
+                <div class="flex gap-2 items-center">
+                    <button id="validateBuild" 
+                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">
+                        Validate Build
+                    </button>
 
+                    <a href="{{ route('techboxx.build.software') }}" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">
+                    SOFTWARE
+                    </a>
+                </div>
             </section>
+
 
 
             {{-- COMPONENTS --}}

@@ -272,8 +272,7 @@ function reloadScene() {
 
 // LAYOUT / FUNCTIONALITY JS
 // Initialize global selectedComponents object
-window.selectedComponents = {};
-
+window.selectedComponents = window.selectedComponents || {};
 // Function to handle component selection from catalog
 function selectComponent(componentData) {
     const componentType = componentData.type.toLowerCase();
@@ -286,6 +285,9 @@ function selectComponent(componentData) {
     };
     
     console.log('Selected component:', componentType, window.selectedComponents[componentType]);
+
+    // Update session in backend
+    updateSession(window.selectedComponents);
 }
 
 
@@ -476,10 +478,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- PRE-POPULATE SELECTED COMPONENTS FROM SESSION ---
+    if (window.selectedComponents && Object.keys(window.selectedComponents).length > 0) {
+        catalogItems.forEach(item => {
+            const type = item.getAttribute('data-type');
+            const id = item.getAttribute('data-id');
+
+            // Check if this component is stored in session
+            if (window.selectedComponents[type] && window.selectedComponents[type].componentId == id) {
+                const componentData = {
+                    id: id,
+                    type: type,
+                    name: item.getAttribute('data-name'),
+                    price: parseFloat(item.getAttribute('data-price')) || 0,
+                    image: item.getAttribute('data-image')
+                };
+
+                selectComponent(componentData);
+                setComponentImage(componentData);
+
+                // Highlight selected
+                item.classList.add('selected-component');
+            }
+        });
+    }
+
+
     // SINGLE EVENT LISTENER FOR CATALOG ITEMS - COMBINED FUNCTIONALITY
     catalogItems.forEach(item => {
         item.addEventListener('click', function() {
-            // Get all component data at once
             const componentData = {
                 id: this.getAttribute('data-id'),
                 type: this.getAttribute('data-type'),
@@ -488,7 +515,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 image: this.getAttribute('data-image')
             };
             
-            // Call both functions with the same data
             selectComponent(componentData);
             setComponentImage(componentData);
         });
@@ -505,13 +531,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // ✅ Condition 1: No components selected
         if (Object.keys(selections).length === 0) {
             alert("⚠️ No components selected.\nPlease choose at least one component before validating.");
             return;
         }
 
-        // SEND TO BACKEND
         fetch('/techboxx/build/validate', {
             method: 'POST',
             headers: { 
@@ -532,11 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 message += '⚠️ Warnings:\n' + data.warnings.join("\n") + '\n\n';
             }
 
-            // ✅ Condition 2: No errors, no warnings, but components were selected
-            if (
-                (!data.errors || data.errors.length === 0) &&
-                (!data.warnings || data.warnings.length === 0)
-            ) {
+            if ((!data.errors || data.errors.length === 0) && (!data.warnings || data.warnings.length === 0)) {
                 message = "✅ No issues found. However, make sure all components are added for a complete compatibility check.";
             }
 
@@ -552,3 +572,20 @@ document.addEventListener('DOMContentLoaded', () => {
         reloadScene();
     });
 });
+function updateSession(selectedComponents) {
+    fetch('/techboxx/build/update-session', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ selected_components: selectedComponents })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log('Session updated:', data);
+    })
+    .catch(err => {
+        console.error('Failed to update session:', err);
+    });
+}

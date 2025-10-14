@@ -35,8 +35,10 @@ class BuildExtController extends Controller
         });
 
         $components = $components->merge($storages);
+        // Retrieve selected components from session
+        $selectedComponents = session('selected_components', []);
 
-        return view('buildExt', compact('components'));
+        return view('buildExt', compact('components', 'selectedComponents'));
     }
 
     /**

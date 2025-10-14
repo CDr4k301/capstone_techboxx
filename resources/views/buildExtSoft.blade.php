@@ -16,8 +16,17 @@
         ])
     
 </head>
-<body class="flex flex-col"
-      x-data="{ showViewModal: false, selectedComponent:{} }">
+<script>
+    window.selectedComponents = @json(session('selected_components', []));
+</script>
+
+<body class="flex flex-col" x-data="softwareModal()">
+
+<script>
+    window.selectedComponents = @json(session('selected_components', []));
+</script>
+
+<body class="flex flex-col" x-data="softwareModal()">
     @if (session('message'))
         <x-message :type="session('type')">
             {{ session('message') }}
@@ -27,12 +36,9 @@
     <main class="main-content header !m-0">
         <div class="ext-icons">
             @if (auth()->user() && auth()->user()->role === 'Customer')
-                <form action="{{ route('techboxx.build.extend') }}">
-                    @csrf
-                    <button>
-                        <x-icons.arrow class="ext-arrow"/>
-                    </button>
-                </form>
+                <button type="button" onclick="window.location='{{ route('techboxx.build.extend') }}'">
+                    <x-icons.arrow class="ext-arrow"/>
+                </button>
                 <button @click="openModal('save')">
                     <x-icons.save class="ext-save"/>
                 </button>
@@ -43,12 +49,9 @@
                     <x-icons.reload class="ext-reload" />
                 </button>
             @else
-                <form action="{{ route('techboxx.build.extend') }}">
-                    @csrf
-                    <button>
-                        <x-icons.arrow class="build-arrow"/>
-                    </button>
-                </form>
+                <button type="button" onclick="window.location='{{ route('techboxx.build.extend') }}'">
+                    <x-icons.arrow class="build-arrow"/>
+                </button>
                 <button id="reloadButton">
                     <x-icons.reload class="ext-reload" />
                 </button>
@@ -134,6 +137,14 @@
                                 <p>Storage:</p> <p x-text="selectedSoftware.storage_reco || '-'"></p>
                             </div>
                         </div>
+                        <div class="mt-4">
+                            <button 
+                                @click="checkCompatibility()"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200"
+                            >
+                                Check Compatibility
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -157,36 +168,82 @@
                 </div>
             </div> --}}
             
-            <div class="component-section">
-                <div class="component-section-left">
-                    @foreach(['motherboard','cpu','gpu','ram'] as $type)
-                        @php
-                            $component = $selectedComponents->first(fn($c) => strtolower($c->component_type) === $type);
-                        @endphp
-                        @if($component)
-                            <div class="component-button">
-                                <img src="{{ asset('storage/' . $component->image) }}" alt="{{ $component->label }}">
-                                <p>{{$component->label}}</p>
-                            </div>
-                        @endif
-                    @endforeach
+<div class="component-section">
+    <div class="component-section-left">
+        @foreach (['motherboard','cpu','gpu','ram'] as $type)
+            @if(isset($selectedComponents[$type]))
+                @php $component = $selectedComponents[$type]; @endphp
+                <div class="component-button">
+                    @if(!empty($component->image))
+                        <img src="{{ asset('storage/' . $component->image) }}" alt="{{ $component->brand }} {{ $component->model }}">
+                    @endif
+                    <p class="component-name">{{ $component->brand }} {{ $component->model }}</p>
                 </div>
-                <div class="component-section-right">
-                    @foreach(['case','ssd','hdd','cooler','psu'] as $type)
-                        @php
-                            $component = $selectedComponents->first(fn($c) => strtolower($c->component_type) === $type);
-                        @endphp
-                        @if($component)
-                            <div class="component-button">
-                                <img src="{{ asset('storage/' . $component->image) }}" alt="{{ $component->label }}">
-                                <p>{{$component->label}}</p>
-                            </div>
-                        @endif
-                    @endforeach
+            @endif
+        @endforeach
+    </div>
+
+    <div class="component-section-right">
+        @foreach (['case','ssd','hdd','cooler','psu'] as $type)
+            @if(isset($selectedComponents[$type]))
+                @php $component = $selectedComponents[$type]; @endphp
+                <div class="component-button">
+                    @if(!empty($component->image))
+                        <img src="{{ asset('storage/' . $component->image) }}" alt="{{ $component->brand }} {{ $component->model }}">
+                    @endif
+                    <p class="component-name">{{ $component->brand }} {{ $component->model }}</p>
                 </div>
-            </div>
+            @endif
+        @endforeach
+    </div>
+</div>
+
+
 
         </div>
     </main>
     </div>
+
+
+    <script>
+
+    const fullComponents = @json($fullComponents);
+
+    function softwareModal() {
+        return {
+            viewModal: false,
+            selectedSoftware: {},
+            // Use fullComponents passed from the controller
+            fullComponents: @json($fullComponents),
+
+            checkCompatibility() {
+                const ramSize = this.fullComponents.ram?.total_capacity_gb || 0;
+                const ssdSize = this.fullComponents.ssd?.capacity_gb || 0;
+                const hddSize = this.fullComponents.hdd?.capacity_gb || 0;
+                const totalStorage = ssdSize + hddSize;
+
+                const minRam = parseInt(this.selectedSoftware.ram_min || 0);
+                const minStorage = parseInt(this.selectedSoftware.storage_min || 0);
+
+                let messages = [];
+
+                if (ramSize < minRam) {
+                    messages.push(`Insufficient RAM: You have ${ramSize}GB, minimum required is ${minRam}GB.`);
+                }
+                if (totalStorage < minStorage) {
+                    messages.push(`Insufficient Storage: You have ${totalStorage}GB, minimum required is ${minStorage}GB.`);
+                }
+
+                if (messages.length === 0) {
+                    alert("✅ Your build meets the minimum requirements for this software!");
+                } else {
+                    alert("⚠ Compatibility Issues:\n" + messages.join("\n"));
+                }
+            }
+
+        }
+    }
+    </script>
+
+
 </body>

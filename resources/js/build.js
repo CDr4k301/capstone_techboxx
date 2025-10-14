@@ -548,13 +548,30 @@ document.querySelectorAll('.catalog-item').forEach(item => {
         // STORE SELECTED COMPONENT
         window.selectedComponents[type] = { componentId, name, price, imageUrl };
 
+                // --- SEND TO LARAVEL SESSION ---
+        fetch('/store-component', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                type,
+                name,
+                price,
+                componentId,
+                imageUrl
+            })
+        })
+        .then(response => response.json())
+        .then(data => console.log(data.message))
+        .catch(error => console.error('Error storing session:', error));
+
         // UPDATE HIDDEN INPUT
         const hiddenInput = document.getElementById(`hidden_${type}`);
         if (hiddenInput) {
             hiddenInput.value = componentId;
         }
-
-        sessionStorage.setItem(type, JSON.stringify(window.selectedComponents));
 
         // FIND THE MATCHING BUTTON
         const targetButton = document.querySelector(`#buildSection button[data-type="${type}"]`);
