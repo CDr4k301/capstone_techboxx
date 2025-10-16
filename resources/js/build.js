@@ -486,6 +486,32 @@ generateBtn.addEventListener('click', () => {
                 imageUrl: item.image || '' // Add image URL if available from API
             };
 
+
+
+            // --- NEW: Send generated component to Laravel session ---
+            fetch('/store-component', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    type: componentType,
+                    name: item.name,
+                    price: parseFloat(item.price.toString().replace(/,/g, '')),
+                    componentId: item.id,
+                    imageUrl: item.image || ''
+                })
+            })
+            .then(response => response.json())
+            .then(data => console.log('Session stored:', data.message))
+            .catch(error => console.error('Error storing session:', error));
+
+
+
+
+            
+
             // UPDATE HIDDEN INPUTS FOR CART FORM
             if (componentType === 'hdd' || componentType === 'ssd') {
                 // For storage components, update the storage input
