@@ -22,7 +22,7 @@ class OrderedBuildFactory extends Factory
             //
             'user_build_id' => UserBuild::inRandomOrder()->first()->id,
             'status' => 'Pending',
-            'user_id' => null,
+            'user_id' => User::inRandomOrder()->first()->id,
             'payment_status' => 'Paid',
             'payment_method' => fake()->randomElement(['Paypal', 'Cash']),
             'pickup_status' => null,

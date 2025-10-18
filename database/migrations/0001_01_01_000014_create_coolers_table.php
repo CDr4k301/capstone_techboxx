@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('brand');
             $table->string('model');
             $table->string('cooler_type');
-            $table->json('socket_compatibility');
+            $table->string('socket_compatibility');
             $table->integer('max_tdp');
             $table->integer('radiator_size_mm')->nullable();
             $table->integer('fan_count');

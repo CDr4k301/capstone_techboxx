@@ -9,13 +9,16 @@ let caseModel = null;
 let moboModel = null;
 let cpuModel = null;
 let psuModel = null;
+let coolerModel = null;
 let moboSlotPosition = null;
 let cpuSlotPosition = null;
 let psuSlotPosition = null;
+let coolerSlotPosition = null;
 let selectedCaseModelUrl = null;
 let selectedMoboModelUrl = null;
 let selectedCpuModelUrl = null;
 let selectedPsuModelUrl = null;
+let selectedCoolerModelUrl = null;
 
 function setupCatalogClickHandlers() {
   document.querySelectorAll('.catalog-item').forEach(item => {
@@ -43,6 +46,9 @@ function setupCatalogClickHandlers() {
       } else if (type === 'psu') {
         selectedPsuModelUrl = modelUrl;
         console.log('Selected model URL for draggin:', selectedPsuModelUrl);
+      } else if (type === 'cooler') {
+        selectedCoolerModelUrl = modelUrl;
+        console.log('Selected model URL for draggin:', selectedCoolerModelUrl);
       }
 
     })
@@ -116,6 +122,7 @@ function setupDragAndDrop() {
   let casemarker = null;
   let cpumarker = null;
   let psumarker = null;
+  let coolermarker = null;
   let wasDroppedSuccessfully = false; // Track if the drop was successful
 
   interact('.draggable').draggable({
@@ -162,7 +169,7 @@ function setupDragAndDrop() {
           }
         } 
 
-        // If dragging Mobo, highlight the Mobo slot
+        // If dragging psu, highlight the psu slot
         if (draggingId === 'psu' && caseModel) {
           const psuSlot = caseModel.getObjectByName('Slot_Psu');
           if (psuSlot) {
@@ -177,7 +184,7 @@ function setupDragAndDrop() {
 
             // Optionally, create a visible marker at the slot position
             psumarker = new THREE.Mesh(
-              new THREE.BoxGeometry(2, 2, 0.1),
+              new THREE.BoxGeometry(1, .8, 2),
               new THREE.MeshStandardMaterial({
                 color: 0x00ff00,
                 emissive: 0x003300,
@@ -191,12 +198,12 @@ function setupDragAndDrop() {
             psumarker.rotation.x = 0; // No rotation on the Y axis
             psumarker.rotation.y = Math.PI / 2;  // 90 degrees        
             psumarker.rotation.z = 0;          // No rotation on the Z axis
-            psumarker.position.set(psuSlotPosition.x, psuSlotPosition.y + -1, psuSlotPosition.z + -1.4); // Position the psumarker
+            psumarker.position.set(psuSlotPosition.x + 1.4, psuSlotPosition.y + .4, psuSlotPosition.z + -1); // Position the psumarker
             scene.add(psumarker);
           }
         } 
 
-        // If dragging Mobo, highlight the Mobo slot
+        // If dragging cpu, highlight the cpu slot
         if (draggingId === 'cpu' && moboModel) {
           const cpuSlot = moboModel.getObjectByName('Slot_Cpu');
           if (cpuSlot) {
@@ -228,9 +235,43 @@ function setupDragAndDrop() {
             cpumarker.position.set(cpuSlotPosition.x, cpuSlotPosition.y + -1, cpuSlotPosition.z + -1.4); // Position the cpumarker
             scene.add(cpumarker);
           }
+          
         }
 
+        // If dragging cooler, highlight the cooler slot
+        if (draggingId === 'cooler' && moboModel) {
+          const coolerSlot = moboModel.getObjectByName('Slot_Cooler');
+          if (coolerSlot) {
+            // Save the original material and change to the highlighted one
+            originalSlotMaterial = coolerSlot.material; // Store the original material
+            coolerSlot.material = new THREE.MeshStandardMaterial({
+              color: 0x00ff00,        // Bright green to show it's active
+              emissive: 0x003300,     // A little glowing effect
+              transparent: true,
+              opacity: 0.4,           // Semi-transparent
+            });
 
+            // Optionally, create a visible marker at the slot position
+            coolermarker = new THREE.Mesh(
+              new THREE.BoxGeometry(2, 2, 0.1),
+              new THREE.MeshStandardMaterial({
+                color: 0x00ff00,
+                emissive: 0x003300,
+                transparent: true,
+                opacity: 0.4,
+              })
+            );
+
+            
+            // Rotate 45 degrees on the X axis
+            coolermarker.rotation.x = 0; // No rotation on the Y axis
+            coolermarker.rotation.y = Math.PI / 2;  // 90 degrees        
+            coolermarker.rotation.z = 0;          // No rotation on the Z axis
+            coolermarker.position.set(coolerSlotPosition.x, coolerSlotPosition.y + -1, coolerSlotPosition.z + -1.4); // Position the coolermarker
+            scene.add(coolermarker);
+          }
+          
+        }
       },
       move(event) {
         // Optional: Add extra visual feedback during dragging if necessary
@@ -256,8 +297,14 @@ function setupDragAndDrop() {
         } else if (dropPos && draggingId === 'motherboard' && caseModel) {
           spawnMoboAtSlot();
           wasDroppedSuccessfully = true;  // Mark that the case was dropped successfully
+        } else if (dropPos && draggingId === 'psu' && caseModel) {
+          spawnPsuAtSlot();
+          wasDroppedSuccessfully = true;  // Mark that the case was dropped successfully
         } else if (dropPos && draggingId === 'cpu' && moboModel) {
           spawnCpuAtSlot();
+          wasDroppedSuccessfully = true;  // Mark that the case was dropped successfully
+        } else if (dropPos && draggingId === 'cooler' && moboModel) {
+          spawnCoolerAtSlot();
           wasDroppedSuccessfully = true;  // Mark that the case was dropped successfully
         } 
 
@@ -271,9 +318,17 @@ function setupDragAndDrop() {
             scene.remove(moboModel);  // Remove the GPU if it was dropped unsuccessfully
             moboModel = null;
           }
+          if (draggingId === 'psu' && psuModel) {
+            scene.remove(psuModel);  // Remove the GPU if it was dropped unsuccessfully
+            psuModel = null;
+          }
           if (draggingId === 'cpu' && cpuModel) {
             scene.remove(cpuModel);  // Remove the GPU if it was dropped unsuccessfully
             cpuModel = null;
+          }
+          if (draggingId === 'cooler' && coolerModel) {
+            scene.remove(coolerModel);  // Remove the GPU if it was dropped unsuccessfully
+            coolerModel = null;
           }
 
           // Reset the marker to the center when the drop fails
@@ -291,9 +346,17 @@ function setupDragAndDrop() {
           scene.remove(mobomarker);
           mobomarker = null;
         }
+        if (psumarker) {
+          scene.remove(psumarker);
+          psumarker = null;
+        }
         if (cpumarker) {
           scene.remove(cpumarker);
           cpumarker = null;
+        }
+        if (coolermarker) {
+          scene.remove(coolermarker);
+          coolermarker = null;
         }
 
         if (originalSlotMaterial) {
@@ -353,6 +416,7 @@ async function spawnCase(position, modelUrl) {
     controls.target.copy(model.position);
     controls.update();
 
+    // MOBO SLOT
     const moboSlot = model.getObjectByName('Slot_Mobo');
     if (moboSlot) {
       moboSlotPosition = new THREE.Vector3();
@@ -362,8 +426,46 @@ async function spawnCase(position, modelUrl) {
       moboSlotPosition = new THREE.Vector3(0, 0, 0);
       console.warn('GPU slot not found in case model');
     }
+
+    // PSU SLOT
+    const psuSlot = model.getObjectByName('Slot_Psu');
+    if (psuSlot) {
+      psuSlotPosition = new THREE.Vector3();
+      psuSlot.getWorldPosition(psuSlotPosition);
+      console.log('PSU slot position:', psuSlotPosition);
+    } else {
+      psuSlotPosition = new THREE.Vector3(0, 0, 0);
+      console.warn('PSU slot not found in case model');
+    }
+
   } catch (error) {
     console.error('Failed to load case model', error);
+  }
+}
+
+async function spawnPsuAtSlot() {
+  if (!psuSlotPosition) {
+    alert('PSU slot position unknown');
+    return;
+  }
+
+  if (!selectedPsuModelUrl) {
+    alert('Please select a PSU model first.');
+    return;
+  }
+
+  if (psuModel) {
+    scene.remove(psuModel);
+    psuModel = null;
+  }
+  
+  try {
+    const model = await loadGLTFModel(selectedPsuModelUrl);
+    model.position.copy(psuSlotPosition);
+    scene.add(model);
+    psuModel = model;
+  } catch (error) {
+    console.error('Failed to load PSU model', error);
   }
 }
 
@@ -389,6 +491,7 @@ async function spawnMoboAtSlot() {
     scene.add(model);
     moboModel = model;
 
+    // CPU SLOT
     const cpuSlot = model.getObjectByName('Slot_Cpu');
     if (cpuSlot) {
       cpuSlotPosition = new THREE.Vector3();
@@ -397,6 +500,17 @@ async function spawnMoboAtSlot() {
     } else {
       cpuSlotPosition = new THREE.Vector3(0, 0, 0);
       console.warn('CPU slot not found in GPU model');
+    }
+
+    // Cooler SLOT
+    const coolerSlot = model.getObjectByName('Slot_Cooler');
+    if (coolerSlot) {
+      coolerSlotPosition = new THREE.Vector3();
+      coolerSlot.getWorldPosition(coolerSlotPosition);
+      console.log('Cooler slot position:', coolerSlotPosition);
+    } else {
+      coolerSlotPosition = new THREE.Vector3(0, 0, 0);
+      console.warn('Cooler slot not found in case model');
     }
   } catch (error) {
     console.error('Failed to load GPU model', error);
@@ -429,6 +543,32 @@ async function spawnCpuAtSlot() {
   }
 }
 
+async function spawnCoolerAtSlot() {
+  if (!coolerSlotPosition) {
+    alert('Cooler slot position unknown');
+    return;
+  }
+
+  if (!selectedCoolerModelUrl) {
+    alert('Please select a Cooler model first.');
+    return;
+  }
+
+  if (coolerModel) {
+    scene.remove(coolerModel);
+    coolerModel = null;
+  }
+  
+  try {
+    const model = await loadGLTFModel(selectedCoolerModelUrl);
+    model.position.copy(coolerSlotPosition);
+    scene.add(model);
+    coolerModel = model;
+  } catch (error) {
+    console.error('Failed to load Cooler model', error);
+  }
+}
+
 function reloadScene() {
     // Remove case model
     if (caseModel) {
@@ -442,10 +582,22 @@ function reloadScene() {
         moboModel = null;
     }
 
+    // Remove psu model
+    if (psuModel) {
+        scene.remove(psuModel);
+        psuModel = null;
+    }
+
     // Remove CPU model
     if (cpuModel) {
         scene.remove(cpuModel);
         cpuModel = null;
+    }
+
+    // Remove cooler model
+    if (coolerModel) {
+        scene.remove(coolerModel);
+        coolerModel = null;
     }
 
     // Reset the camera controls target to the origin (or wherever you prefer)

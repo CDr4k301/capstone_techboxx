@@ -75,6 +75,13 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ route('admin.analytics') }}" 
+                               class="child {{ request()->routeIs('admin.analytics') ? 'active' : '' }}">
+                                <x-dynamic-component :component="'x-icons.bargraph'" />
+                                Analytics
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ route('admin.activitylogs') }}" 
                                class="child {{ request()->routeIs('admin.activitylogs') ? 'active' : '' }}">
                                 <x-dynamic-component :component="'x-icons.logs'" />

@@ -30,18 +30,27 @@ class CompatibilityService
         }
         //motherboard supports cpu fallback
         if (!empty($motherboard->supported_cpu)) {
-            $cpuList = array_map('trim', explode(',', $motherboard->supported_cpu));
+            $supportedCpus = is_array($motherboard->supported_cpu) 
+                ? $motherboard->supported_cpu 
+                : array_map('trim', explode(',', $motherboard->supported_cpu));
+            
             $supported = false;
+            $cpuModelName = strtolower($cpu->model_name);
 
-            foreach ($cpuList as $supportedCpu) {
-                if (stripos($cpu->model_name, $supportedCpu) !== false) {
+            foreach ($supportedCpus as $supportedCpu) {
+                $supportedCpu = strtolower(trim($supportedCpu));
+                
+                // Check for exact match or partial match in model name
+                if ($supportedCpu === $cpuModelName || 
+                    str_contains($cpuModelName, $supportedCpu) ||
+                    str_contains($supportedCpu, $cpuModelName)) {
                     $supported = true;
                     break;
                 }
             }
 
             if (!$supported) {
-                $results['errors'][] = "Motherboard doesn't support this CPU model.";
+                $results['errors'][] = "Motherboard doesn't support this CPU model ({$cpu->model_name}). Supported CPUs: " . implode(', ', $supportedCpus);
             }
         }
 
@@ -86,15 +95,22 @@ class CompatibilityService
     {
         $results = ['errors' => [], 'warnings' => []];
 
-        // Check socket support
-        $supportedSockets = $cooler->supported_sockets ? array_map('trim', explode(',', $cooler->supported_sockets)): [];
-        if (!in_array($motherboard->socket_type, $supportedSockets)) {
-            $results['errors'][] = "Cooler does not support CPU socket type ({$motherboard->socket_type}).";
+        // Check socket support - handle both array and string formats
+        $supportedSockets = !empty($cooler->socket_compatibility) 
+            ? (is_array($cooler->socket_compatibility) 
+                ? $cooler->socket_compatibility 
+                : array_map('trim', explode(',', $cooler->socket_compatibility)))
+            : [];
+
+        if (!empty($supportedSockets) && !in_array($motherboard->socket_type, $supportedSockets)) {
+            $results['errors'][] = "Cooler does not support CPU socket type ({$motherboard->socket_type}). Supported sockets: " . implode(', ', $supportedSockets);
         }
+
         // Check cooler height vs case clearance
         if ($cooler->height_mm > $case->max_cooler_height_mm) {
             $results['errors'][] = "Cooler height ({$cooler->height_mm}mm) exceeds case limit ({$case->max_cooler_height_mm}mm).";
         } 
+        
         return $results;
     }
 

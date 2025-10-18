@@ -69,27 +69,6 @@ function applyAllFilters() {
     });
 }
 
-
-// // FILTER CPU
-// function filterCPUByBrand(brand) {
-//     catalogItem.forEach(item => {
-//         const type = item.getAttribute('data-type');
-//         const name = item.getAttribute('data-name').toLowerCase();
-
-//         if (type === 'cpu') {
-//             if (name.includes(brand.toLowerCase())) {
-//                 item.classList.remove('hidden');
-//             }
-//             else {
-//                 item.classList.add('hidden');
-//             }
-//         }
-//         else {
-//             item.classList.remove('hidden');
-//         }
-//     })
-// }
-
 function displayBuildRemarks(budgetSummary, userBudget, totalPrice, category, cpuBrand) {
     const remarksContainer = document.getElementById('buildRemarks');
     let remaining = null;
@@ -244,6 +223,35 @@ function getRecommendations(category, userBudget, totalPrice, remaining) {
     recommendations.push('Verify all components are compatible before purchasing');
     
     return recommendations;
+}
+
+// Simple toggle function for storage
+function toggleStorage(selectedType) {
+    const otherType = selectedType === 'ssd' ? 'hdd' : 'ssd';
+    
+    // If the other type was previously selected, clear it
+    if (window.selectedComponents[otherType]) {
+        // Clear the other type from UI
+        const otherButton = document.querySelector(`#buildSection button[data-type="${otherType}"]`);
+        if (otherButton) {
+            const span = otherButton.querySelector('.selected-name');
+            if (span) span.textContent = 'None';
+            otherButton.removeAttribute('data-selected-id');
+        }
+        
+        // Clear from selectedComponents
+        delete window.selectedComponents[otherType];
+        
+        // Clear hidden input
+        const otherHiddenInput = document.getElementById(`hidden_${otherType}`);
+        if (otherHiddenInput) otherHiddenInput.value = '';
+        
+        // Reset draggable
+        const otherDraggable = document.getElementById(otherType);
+        if (otherDraggable) {
+            otherDraggable.innerHTML = `<p>${otherType.toUpperCase()}</p>`;
+        }
+    }
 }
 
 //Components & Summary active tab
@@ -554,10 +562,12 @@ buildSectionButtons.forEach(button => {
         button.classList.add('active');
         catalogList.classList.remove('hidden');
 
+        remarksSection.classList.add("hidden");
+        remarksTab.classList.remove('active');
         summarySection.classList.add("hidden");
-        document.getElementById('summaryTab').classList.remove('active');
+        summaryTab.classList.remove('active');
         componentsSection.classList.remove("hidden");
-        document.getElementById('componentsTab').classList.add('active');
+        componentsTab.classList.add('active');
 
         applyAllFilters();
     })

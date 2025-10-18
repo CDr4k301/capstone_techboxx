@@ -277,6 +277,11 @@ window.selectedComponents = window.selectedComponents || {};
 function selectComponent(componentData) {
     const componentType = componentData.type.toLowerCase();
     
+    // CALL TOGGLE STORAGE IF SSD OR HDD IS SELECTED - DO THIS FIRST
+    if (componentType === 'ssd' || componentType === 'hdd') {
+        toggleStorage(componentType);
+    }
+    
     window.selectedComponents[componentType] = {
         componentId: componentData.id,
         name: componentData.name,
@@ -418,6 +423,38 @@ function setComponentImage(componentData) {
         }
         // Set the selected ID on the button to indicate the item has been selected
         targetButton.setAttribute('data-selected-id', componentData.id);
+    }
+}
+
+// Storage toggle function to clear the other storage type
+function toggleStorage(selectedType) {
+    const otherType = selectedType === 'ssd' ? 'hdd' : 'ssd';
+    
+    console.log(`Toggle storage: ${selectedType} selected, checking ${otherType}`);
+    
+    // If the other type was previously selected, clear it
+    if (window.selectedComponents[otherType]) {
+        // Clear from selectedComponents
+        delete window.selectedComponents[otherType];
+        
+        // Clear the UI for the other storage type
+        const otherComponent = document.querySelector(`.component-button[data-type="${otherType}"]`);
+        if (otherComponent) {
+            // Reset the component button
+            otherComponent.innerHTML = `
+                <img src="" alt="" style="display: none;">
+                <p>${otherType.toUpperCase()}</p>
+            `;
+            otherComponent.removeAttribute('data-selected-id');
+        }
+        
+        // Clear hidden input
+        const otherHiddenInput = document.getElementById(`hidden_${otherType}`);
+        if (otherHiddenInput) otherHiddenInput.value = '';
+        
+        console.log(`Cleared ${otherType} from selection`);
+    } else {
+        console.log(`No ${otherType} to clear`);
     }
 }
 

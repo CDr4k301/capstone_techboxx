@@ -26,39 +26,50 @@
 
         {{-- Chart + Recent Orders --}}
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {{-- 📊 Order Volume --}}
-            <div class="lg:col-span-3 bg-white rounded-2xl shadow p-6">
-                <div class="flex items-start justify-between mb-4">
-                    <h2 class="font-semibold text-gray-700">Order Volume</h2>
+
+            {{-- Left Column: Charts --}}
+            <div class="lg:col-span-3 space-y-6">
+
+                {{-- 📈 Order Volume --}}
+                <div class="bg-white rounded-2xl shadow p-6">
+                    <h2 class="font-semibold text-gray-700 mb-4">Order Volume</h2>
+                    <div class="relative h-56">
+                        <canvas id="orderVolumeChart"></canvas>
+                    </div>
                 </div>
 
-                <div class="relative h-56">
-                    <canvas id="orderVolumeChart"></canvas>
+                {{-- 💰 Revenue Trend --}}
+                <div class="bg-white rounded-2xl shadow p-6">
+                    <h2 class="font-semibold text-gray-700 mb-4">Revenue Trend</h2>
+                    <div class="relative h-56">
+                        <canvas id="revenueTrendChart"></canvas>
+                    </div>
                 </div>
+
             </div>
 
-            {{-- Recent Orders --}}
-            <div class="lg:col-span-2 bg-white rounded-2xl shadow p-6 overflow-hidden">
-                <h2 class="font-semibold text-gray-700">Recent Orders</h2>
+            {{-- Right Column: Recent Orders --}}
+            <div class="lg:col-span-2 bg-white rounded-2xl shadow p-6">
+                <h2 class="font-semibold mb-4 text-gray-700">Recent Orders</h2>
                 <div>
-                    <table class="w-full text-sm text-gray-600 border-separate border-spacing-y-2 overflow-hidden">
+                    <table class="w-full text-sm text-gray-600 border-separate border-spacing-y-2">
                         <thead>
                             <tr class="text-gray-500 text-xs uppercase">
-                                <th class="py-3 px-4 text-left text-xs">Order ID</th>
-                                <th class="py-3 px-4 text-left text-xs">Customer</th>
-                                <th class="py-3 px-4 text-left text-xs">Date</th>
-                                <th class="py-3 px-4 text-left text-xs">Amount</th>
-                                <th class="py-3 px-4 text-left text-xs">Status</th>
+                                <th class="py-3 px-4 text-left">Order ID</th>
+                                <th class="py-3 px-4 text-left">Customer</th>
+                                <th class="py-3 px-4 text-left">Date</th>
+                                <th class="py-3 px-4 text-left">Amount</th>
+                                {{-- <th class="py-3 px-4 text-left">Status</th> --}}
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($recentOrders->sortBy('id') as $order)
+                            @foreach($allRecentOrders->sortBy('id') as $order)
                                 <tr>
                                     <td class="py-3 px-4">{{ $order->id }}</td>
-                                    <td class="py-3 px-4">{{ $order->customer->name ?? 'N/A' }}</td>
-                                    <td class="py-3 px-4">{{ $order->created_at->format('Y-m-d') }}</td>
-                                    <td class="py-3 px-4">₱{{ number_format($order->total, 2) }}</td>
-                                    <td class="py-3 px-4">
+                                    <td class="py-3 px-4">{{ $order->customer_name ?? 'N/A' }}</td>
+                                    <td class="py-3 px-4">{{ $order->date->format('Y-m-d') }}</td>
+                                    <td class="py-3 px-4">₱{{ number_format($order->amount, 2) }}</td>
+                                    {{-- <td class="py-3 px-4">
                                         @if($order->status === 'completed')
                                             <span class="text-green-600 font-semibold">Completed</span>
                                         @elseif($order->status === 'pending')
@@ -68,7 +79,7 @@
                                         @else
                                             <span class="text-gray-600 font-semibold">{{ ucfirst($order->status) }}</span>
                                         @endif
-                                    </td>
+                                    </td> --}}
                                 </tr>
                             @endforeach
                         </tbody>
@@ -81,27 +92,22 @@
     {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctx = document.getElementById('orderVolumeChart');
-
-        new Chart(ctx, {
+        // Order Volume Chart (line)
+        const ctxOrder = document.getElementById('orderVolumeChart');
+        new Chart(ctxOrder, {
             type: 'line',
             data: {
-                labels: [
-                    "{{ $prevMonth->format('F') }}", 
-                    "{{ $thisMonth->format('F') }}"
-                ],
-                datasets: [
-                    {
-                        label: 'Order Volume',
-                        data: [{{ $previousMonthOrders }}, {{ $thisMonthOrders }}],
-                        borderColor: '#2563eb',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: false,
-                        pointRadius: 6,
-                        pointBackgroundColor: '#2563eb'
-                    }
-                ]
+                labels: {!! json_encode($dates) !!},
+                datasets: [{
+                    label: 'Orders (Last 7 Days)',
+                    data: {!! json_encode($orderCounts) !!},
+                    borderColor: '#2563eb',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#2563eb'
+                }]
             },
             options: {
                 responsive: true,
@@ -111,6 +117,39 @@
                     x: { grid: { display: false } },
                     y: {
                         beginAtZero: true,
+                        ticks: { precision: 0 },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    }
+                }
+            }
+        });
+
+        // Revenue Trend Chart (bar)
+        const ctxRevenue = document.getElementById('revenueTrendChart');
+        new Chart(ctxRevenue, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($dates) !!},
+                datasets: [{
+                    label: 'Revenue (₱)',
+                    data: {!! json_encode($revenues) !!},
+                    backgroundColor: '#10b981',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value){
+                                return '₱' + Number(value).toLocaleString();
+                            }
+                        },
                         grid: { color: 'rgba(0,0,0,0.05)' }
                     }
                 }

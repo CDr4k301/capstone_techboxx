@@ -29,6 +29,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchasedHistoryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\SoftwareDetailsController;
 use App\Http\Controllers\StaffDashboardController;
 use App\Http\Controllers\SupplierController;
@@ -84,7 +85,7 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
 
     // SALES
     Route::get('sales', [SalesController::class, 'index'])->name('sales');
-
+    Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics');
     // ACTIVITY LOGS
     Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activitylogs');
 

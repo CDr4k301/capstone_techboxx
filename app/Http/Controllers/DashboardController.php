@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Checkout;
 use App\Models\Order;
+use App\Models\OrderedBuild;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use Carbon\Carbon;
@@ -12,15 +14,23 @@ class DashboardController extends Controller
     public function index()
     {
         try {
-            $totalOrders = Order::count();
-            $pendingOrders = Order::where('status', 'pending')->count();
+            // Basic stats
+            $totalOrders = Checkout::count() 
+                   + OrderedBuild::count();
+            $pendingOrders = Checkout::where('pickup_date', null)->count() 
+                   + OrderedBuild::where('pickup_date', null)->count();
 
-            // ✅ Daily revenue (today only)
-            $revenue = (float) Order::whereIn('status', ['paid', 'completed'])
-                ->whereDate('created_at', Carbon::today())
-                ->sum('total');
+            // Today's revenue
+            $revenue = (float) Checkout::whereNotNull('pickup_date')
+                ->whereDate('updated_at', Carbon::today())
+                ->sum('total_cost');
 
-            // ✅ Low stock items
+            $revenue += (float) OrderedBuild::join('user_builds', 'ordered_builds.user_build_id', '=', 'user_builds.id')
+                ->whereNotNull('ordered_builds.pickup_date')
+                ->whereDate('ordered_builds.updated_at', Carbon::today())
+                ->sum('user_builds.total_price');
+
+            // Low stock items (same logic you had)
             $lowStockItems = 0;
             $models = config('components', []);
             if (!empty($models) && is_array($models)) {
@@ -30,49 +40,76 @@ class DashboardController extends Controller
                             $lowStockItems += (int) $modelClass::where('stock', '<', 10)->count();
                         } catch (Exception $exModel) {
                             Log::warning("Dashboard: skipped {$modelClass} when calculating low stock: " . $exModel->getMessage());
-                            continue;
                         }
                     }
                 }
             }
 
-            // ✅ Recent orders
-            $recentOrders = Order::with(['user'])->latest()->take(5)->get();
-            foreach ($recentOrders as $order) {
-                $customerName = 'N/A';
-                try {
-                    if ($order->relationLoaded('user') && $order->user) {
-                        $u = $order->user;
-                        $customerName = $u->name ?? trim(($u->first_name ?? '') . ' ' . ($u->last_name ?? '')) ?: ($u->email ?? 'N/A');
-                    }
-                } catch (Exception $e) {
-                    Log::warning("Dashboard: error resolving customer name for order {$order->id}: " . $e->getMessage());
-                }
-                $order->customer = (object) ['name' => $customerName];
+            // Get recent orders from both sources
+            $recentOrders = OrderedBuild::with(['userBuild.user'])->latest()->take(3)->get();
+            $recentCheckouts = Checkout::with(['cartItem.shoppingCart.user'])->latest()->take(4)->get();
+
+            // Normalize both collections into a unified structure
+            $normalizedOrders = $recentOrders->map(function ($order) {
+                return (object) [
+                    'id' => $order->id,
+                    'type' => 'custom_build',
+                    'customer_name' => $this->extractCustomerName($order->userBuild->user ?? null),
+                    'date' => $order->created_at,
+                    'amount' => $order->userBuild->total_price ?? $order->userBuild->total_price ?? 0,
+                    // 'status' => $order->status ?? $order->pickup_status ?? 'unknown',
+                    'original' => $order // Keep original if needed
+                ];
+            });
+
+            $normalizedCheckouts = $recentCheckouts->map(function ($checkout) {
+                return (object) [
+                    'id' => $checkout->id,
+                    'type' => 'checkout',
+                    'customer_name' => $this->extractCustomerName($checkout->cartItem->shoppingCart->user ?? null),
+                    'date' => $checkout->created_at,
+                    'amount' => $checkout->total_cost ?? $checkout->total ?? 0,
+                    'status' => $checkout->pickup_status ?? '-',
+                    'original' => $checkout
+                ];
+            });
+
+            // Merge and sort
+            $allRecentOrders = $normalizedOrders->toBase()
+            ->merge($normalizedCheckouts->toBase())
+            ->sortByDesc('date')
+            ->take(7);
+
+            // Last 7 days: prepare arrays (plain arrays — easier to json_encode)
+            $dates = [];
+            $orderCounts = [];
+            $revenues = [];
+
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::today()->subDays($i);
+                $dates[] = $date->format('M d');
+
+                $orderCounts[] = (int) OrderedBuild::whereDate('created_at', $date)->count()
+                    + (int) Checkout::whereDate('created_at', $date)->count();
+
+                $revenues[] = (float) Checkout::whereNotNull('pickup_status')
+                    ->whereDate('updated_at', $date)
+                    ->sum('total_cost')
+                    + (float) OrderedBuild::join('user_builds', 'ordered_builds.user_build_id', '=', 'user_builds.id')
+                    ->whereNotNull('ordered_builds.pickup_status')
+                    ->whereDate('ordered_builds.updated_at', $date)
+                    ->sum('user_builds.total_price');
             }
-
-            // === 📊 Order Volume (Previous Month vs This Month) ===
-            $prevMonth = Carbon::now()->subMonth();
-            $thisMonth = Carbon::now();
-
-            $previousMonthOrders = Order::whereMonth('created_at', $prevMonth->month)
-                ->whereYear('created_at', $prevMonth->year)
-                ->count();
-
-            $thisMonthOrders = Order::whereMonth('created_at', $thisMonth->month)
-                ->whereYear('created_at', $thisMonth->year)
-                ->count();
 
             return view('admin.dashboard', compact(
                 'totalOrders',
                 'pendingOrders',
                 'revenue',
                 'lowStockItems',
-                'recentOrders',
-                'prevMonth',
-                'thisMonth',
-                'previousMonthOrders',
-                'thisMonthOrders'
+                'allRecentOrders',
+                'dates',
+                'orderCounts',
+                'revenues'
             ));
         } catch (Exception $ex) {
             Log::error('Dashboard controller error: ' . $ex->getMessage());
@@ -82,12 +119,23 @@ class DashboardController extends Controller
                 'pendingOrders' => 0,
                 'revenue' => 0,
                 'lowStockItems' => 0,
-                'recentOrders' => collect(),
-                'prevMonth' => Carbon::now()->subMonth(),
-                'thisMonth' => Carbon::now(),
-                'previousMonthOrders' => 0,
-                'thisMonthOrders' => 0,
+                'allRecentOrders' => collect(),
+                'dates' => [],
+                'orderCounts' => [],
+                'revenues' => [],
             ]);
         }
+    }
+
+    private function extractCustomerName($user)
+    {
+        if (!$user) {
+            return 'N/A';
+        }
+        
+        return $user->name 
+            ?? trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) 
+            ?: $user->email 
+            ?? 'N/A';
     }
 }

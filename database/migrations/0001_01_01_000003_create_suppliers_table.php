@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('phone', 11)->nullable();
             $table->boolean('is_active')->default(true);
+            $table->softDeletes();
         });
     }
 

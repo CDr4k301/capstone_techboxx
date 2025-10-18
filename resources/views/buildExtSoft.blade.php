@@ -1,4 +1,5 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     @vite([
         'resources\css\app.css',
         'resources\css\build.css',
+        'resources\css\buildextsoft.css',
         'resources\css\buildextsoft.css',
         'resources\js\app.js',
         'resources\js\buildext.js',
@@ -147,6 +149,8 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
             </div>
 
             

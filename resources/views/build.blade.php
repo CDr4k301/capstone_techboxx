@@ -55,7 +55,7 @@
     },
     
     updateModalHiddenInputs() {
-        const componentTypes = ['gpu', 'motherboard', 'cpu', 'hdd', 'ssd', 'psu', 'ram', 'cooler', 'case'];
+        const componentTypes = ['gpu', 'motherboard', 'cpu', 'psu', 'ram', 'cooler', 'case'];
         
         componentTypes.forEach(type => {
             const component = this.selectedComponents[type];
@@ -66,14 +66,26 @@
             }
         });
 
-        // Handle storage component specifically
+        // Handle storage components specifically - both HDD and SSD become 'storage'
         const storageInput = document.getElementById('hidden_storage');
         if (storageInput) {
-            if (this.selectedComponents.hdd && this.selectedComponents.hdd.componentId) {
-                storageInput.value = this.selectedComponents.hdd.componentId;
-            } else if (this.selectedComponents.ssd && this.selectedComponents.ssd.componentId) {
+            // Clear storage input first
+            storageInput.value = '';
+            
+            // Prioritize SSD over HDD if both are selected
+            if (this.selectedComponents.ssd && this.selectedComponents.ssd.componentId) {
                 storageInput.value = this.selectedComponents.ssd.componentId;
+                console.log('Storage set to SSD:', this.selectedComponents.ssd.componentId);
+            } else if (this.selectedComponents.hdd && this.selectedComponents.hdd.componentId) {
+                storageInput.value = this.selectedComponents.hdd.componentId;
+                console.log('Storage set to HDD:', this.selectedComponents.hdd.componentId);
             }
+            
+            // Clear the individual hdd/ssd hidden inputs since we're using storage now
+            const hddInput = document.getElementById('hidden_hdd');
+            const ssdInput = document.getElementById('hidden_ssd');
+            if (hddInput) hddInput.value = '';
+            if (ssdInput) ssdInput.value = '';
         }
 
         // Update total price hidden input
@@ -147,14 +159,11 @@ class="flex">
                 
                 {{-- Hidden inputs for component IDs --}}
                 @php
-                    $componentTypes = ['gpu', 'motherboard', 'cpu', 'hdd', 'ssd', 'psu', 'ram', 'cooler', 'case'];
+                    $componentTypes = ['gpu', 'motherboard', 'cpu', 'storage', 'psu', 'ram', 'cooler', 'case'];
                 @endphp
 
                 @foreach ($componentTypes as $componentType)
-                    @php
-                        $inputName = ($componentType === 'hdd' || $componentType === 'ssd') ? 'storage' : $componentType;
-                    @endphp
-                    <input type="hidden" name="component_ids[{{ $inputName }}]" id="hidden_{{ $componentType }}" value="">
+                    <input type="hidden" name="component_ids[{{ $componentType }}]" id="hidden_{{ $componentType }}" value="">
                 @endforeach
 
                 {{-- Hidden input for total price --}}

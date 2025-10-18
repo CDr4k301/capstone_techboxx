@@ -195,7 +195,10 @@ class BuildController extends Controller
                 'status' => 'Saved',
             ]);
 
-            return redirect()->route('home')->with('✅Success', '✅Build saved successfully!');
+            return redirect()->route('customer.dashboard')->with([
+                'message' => 'Build saved successfully!',
+                'type' => 'success',
+            ]);
 
         } catch (\Exception $e) {
             // Log::error('Order build failed: ' . $e->getMessage());
