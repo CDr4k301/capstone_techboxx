@@ -32,6 +32,7 @@ class BuildController extends Controller
                     'label'          => "{$storage->brand} {$storage->model}",
                     'price'          => $storage->price,
                     'image'          => $storage->image,
+                    'model_3d'       => $storage->model_3d,
                     'buildCategory'  => $storage->buildCategory,
             ];      
         });

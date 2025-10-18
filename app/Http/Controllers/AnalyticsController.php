@@ -8,6 +8,10 @@ use App\Models\OrderedBuild;
 use App\Models\UserBuild;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Exception;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class AnalyticsController extends Controller
 {
@@ -151,6 +155,11 @@ class AnalyticsController extends Controller
             ]);
         }
 
+        // ---------------------
+        // Frequent pairs from Python script
+        // ---------------------
+        $frequentPairs = $this->getFrequentPairsFromPython();
+
         // --------------------
         // Manual pagination
         // --------------------
@@ -167,7 +176,44 @@ class AnalyticsController extends Controller
         return view('admin.analytics', [
             'ordersByType' => $ordersByType,
             'cartAnalysis' => $paginatedCartAnalysis,
+            'frequentPairs' => $frequentPairs,
         ]);
 
+    }
+
+    private function getFrequentPairsFromPython()
+    {
+        try {
+            $pythonScriptPath = base_path('python_scripts/frequent_pairs.py');
+            
+            $process = new Process(['python', $pythonScriptPath]);
+            $process->run();
+            
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+            
+            $output = $process->getOutput();
+            $result = json_decode($output, true);
+            
+            if ($result['status'] === 'success') {
+                // Convert to collection of objects for the view
+                return collect($result['frequentPairs'])->map(function ($pair) {
+                    return (object) [
+                        'product_a' => $pair['product_a'],
+                        'product_b' => $pair['product_b'],
+                        'total_price' => $pair['total_price']
+                    ];
+                });
+            }
+            
+            // Fallback to empty collection if Python script fails
+            return collect();
+            
+        } catch (Exception $e) {
+            // Log error and return empty collection
+            Log::error('Failed to get frequent pairs from Python script: ' . $e->getMessage());
+            return collect();
+        }
     }
 }

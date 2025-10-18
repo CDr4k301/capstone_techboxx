@@ -10,15 +10,25 @@ let moboModel = null;
 let cpuModel = null;
 let psuModel = null;
 let coolerModel = null;
+let ssdModel = null;
+let gpuModel = null;
+// let ramModel = null;
+let ramModels = [];
 let moboSlotPosition = null;
 let cpuSlotPosition = null;
 let psuSlotPosition = null;
 let coolerSlotPosition = null;
+let ssdSlotPosition = null;
+let gpuSlotPosition = null;
+let ramSlotPosition = null;
 let selectedCaseModelUrl = null;
 let selectedMoboModelUrl = null;
 let selectedCpuModelUrl = null;
 let selectedPsuModelUrl = null;
 let selectedCoolerModelUrl = null;
+let selectedSsdModelUrl = null;
+let selectedGpuModelUrl = null;
+let selectedRamModelUrl = null;
 
 function setupCatalogClickHandlers() {
   document.querySelectorAll('.catalog-item').forEach(item => {
@@ -49,7 +59,16 @@ function setupCatalogClickHandlers() {
       } else if (type === 'cooler') {
         selectedCoolerModelUrl = modelUrl;
         console.log('Selected model URL for draggin:', selectedCoolerModelUrl);
-      }
+      } else if (type === 'ssd') {
+        selectedSsdModelUrl = modelUrl;
+        console.log('Selected model URL for draggin:', selectedSsdModelUrl);
+      } else if (type === 'gpu') {
+        selectedGpuModelUrl = modelUrl;
+        console.log('Selected model URL for draggin:', selectedGpuModelUrl);
+      } else if (type === 'ram') {
+        selectedRamModelUrl = modelUrl;
+        console.log('Selected model URL for draggin:', selectedRamModelUrl);
+      } 
 
     })
   })
@@ -123,6 +142,9 @@ function setupDragAndDrop() {
   let cpumarker = null;
   let psumarker = null;
   let coolermarker = null;
+  let ssdmarker = null;
+  let gpumarker = null;
+  let rammarker = null;
   let wasDroppedSuccessfully = false; // Track if the drop was successful
 
   interact('.draggable').draggable({
@@ -185,6 +207,7 @@ function setupDragAndDrop() {
             // Optionally, create a visible marker at the slot position
             psumarker = new THREE.Mesh(
               new THREE.BoxGeometry(1, .8, 2),
+              new THREE.BoxGeometry(1, .8, 2),
               new THREE.MeshStandardMaterial({
                 color: 0x00ff00,
                 emissive: 0x003300,
@@ -198,6 +221,7 @@ function setupDragAndDrop() {
             psumarker.rotation.x = 0; // No rotation on the Y axis
             psumarker.rotation.y = Math.PI / 2;  // 90 degrees        
             psumarker.rotation.z = 0;          // No rotation on the Z axis
+            psumarker.position.set(psuSlotPosition.x + 1.4, psuSlotPosition.y + .4, psuSlotPosition.z + -1); // Position the psumarker
             psumarker.position.set(psuSlotPosition.x + 1.4, psuSlotPosition.y + .4, psuSlotPosition.z + -1); // Position the psumarker
             scene.add(psumarker);
           }
@@ -236,6 +260,7 @@ function setupDragAndDrop() {
             scene.add(cpumarker);
           }
           
+          
         }
 
         // If dragging cooler, highlight the cooler slot
@@ -272,6 +297,118 @@ function setupDragAndDrop() {
           }
           
         }
+
+        // If dragging ssd, highlight the ssd slot
+        if (draggingId === 'ssd' && moboModel) {
+          const ssdSlot = moboModel.getObjectByName('Slot_Ssd');
+          if (ssdSlot) {
+            // Save the original material and change to the highlighted one
+            originalSlotMaterial = ssdSlot.material; // Store the original material
+            ssdSlot.material = new THREE.MeshStandardMaterial({
+              color: 0x00ff00,        // Bright green to show it's active
+              emissive: 0x003300,     // A little glowing effect
+              transparent: true,
+              opacity: 0.4,           // Semi-transparent
+            });
+
+            // Optionally, create a visible marker at the slot position
+            ssdmarker = new THREE.Mesh(
+              new THREE.BoxGeometry(2, 2, 0.1),
+              new THREE.MeshStandardMaterial({
+                color: 0x00ff00,
+                emissive: 0x003300,
+                transparent: true,
+                opacity: 0.4,
+              })
+            );
+
+            
+            // Rotate 45 degrees on the X axis
+            ssdmarker.rotation.x = 0; // No rotation on the Y axis
+            ssdmarker.rotation.y = Math.PI / 2;  // 90 degrees        
+            ssdmarker.rotation.z = 0;          // No rotation on the Z axis
+            ssdmarker.position.set(ssdSlotPosition.x, ssdSlotPosition.y + -1, ssdSlotPosition.z + -1.4); // Position the ssdmarker
+            scene.add(ssdmarker);
+          }
+          
+        }
+
+        // If dragging gpu, highlight the gpu slot
+        if (draggingId === 'gpu' && moboModel) {
+          const gpuSlot = moboModel.getObjectByName('Slot_Gpu');
+          if (gpuSlot) {
+            // Save the original material and change to the highlighted one
+            originalSlotMaterial = gpuSlot.material; // Store the original material
+            gpuSlot.material = new THREE.MeshStandardMaterial({
+              color: 0x00ff00,        // Bright green to show it's active
+              emissive: 0x003300,     // A little glowing effect
+              transparent: true,
+              opacity: 0.4,           // Semi-transparent
+            });
+
+            // Optionally, create a visible marker at the slot position
+            gpumarker = new THREE.Mesh(
+              new THREE.BoxGeometry(2, 2, 0.1),
+              new THREE.MeshStandardMaterial({
+                color: 0x00ff00,
+                emissive: 0x003300,
+                transparent: true,
+                opacity: 0.4,
+              })
+            );
+
+            
+            // Rotate 45 degrees on the X axis
+            gpumarker.rotation.x = 0; // No rotation on the Y axis
+            gpumarker.rotation.y = Math.PI / 2;  // 90 degrees        
+            gpumarker.rotation.z = 0;          // No rotation on the Z axis
+            gpumarker.position.set(ssdSlotPosition.x, ssdSlotPosition.y + -1, ssdSlotPosition.z + -1.4); // Position the gpumarker
+            scene.add(gpumarker);
+          }
+          
+        }
+
+        // If dragging ram, highlight the ram slot
+        if (draggingId === 'ram' && moboModel) {
+          // Look for the individual RAM slots instead of a single 'Slot_Ram'
+          const ramSlot01 = moboModel.getObjectByName('Slot_Ram1');
+          const ramSlot02 = moboModel.getObjectByName('Slot_Ram2');
+          
+          if (ramSlot01 || ramSlot02) {
+            // Save the original material and change to the highlighted one
+            // We'll highlight the first found slot, or you can highlight both
+            const firstRamSlot = ramSlot01 || ramSlot02;
+            originalSlotMaterial = firstRamSlot.material; // Store the original material
+            firstRamSlot.material = new THREE.MeshStandardMaterial({
+              color: 0x00ff00,        // Bright green to show it's active
+              emissive: 0x003300,     // A little glowing effect
+              transparent: true,
+              opacity: 0.4,           // Semi-transparent
+            });
+
+            // Optionally, create a visible marker at the slot position
+            rammarker = new THREE.Mesh(
+              new THREE.BoxGeometry(2, 2, 0.1),
+              new THREE.MeshStandardMaterial({
+                color: 0x00ff00,
+                emissive: 0x003300,
+                transparent: true,
+                opacity: 0.4,
+              })
+            );
+
+            // Rotate 45 degrees on the X axis
+            rammarker.rotation.x = 0; // No rotation on the Y axis
+            rammarker.rotation.y = Math.PI / 2;  // 90 degrees        
+            rammarker.rotation.z = 0;          // No rotation on the Z axis
+            
+            // Use the position of the first RAM slot for the marker
+            const ramSlotPosition = new THREE.Vector3();
+            firstRamSlot.getWorldPosition(ramSlotPosition);
+            rammarker.position.set(ramSlotPosition.x, ramSlotPosition.y + -1, ramSlotPosition.z + -1.4); // Position the rammarker
+            scene.add(rammarker);
+          }
+        }
       },
       move(event) {
         // Optional: Add extra visual feedback during dragging if necessary
@@ -300,11 +437,23 @@ function setupDragAndDrop() {
         } else if (dropPos && draggingId === 'psu' && caseModel) {
           spawnPsuAtSlot();
           wasDroppedSuccessfully = true;  // Mark that the case was dropped successfully
+        } else if (dropPos && draggingId === 'psu' && caseModel) {
+          spawnPsuAtSlot();
+          wasDroppedSuccessfully = true;  // Mark that the case was dropped successfully
         } else if (dropPos && draggingId === 'cpu' && moboModel) {
           spawnCpuAtSlot();
           wasDroppedSuccessfully = true;  // Mark that the case was dropped successfully
         } else if (dropPos && draggingId === 'cooler' && moboModel) {
           spawnCoolerAtSlot();
+          wasDroppedSuccessfully = true;  // Mark that the case was dropped successfully
+        } else if (dropPos && draggingId === 'ssd' && moboModel) {
+          spawnSsdAtSlot();
+          wasDroppedSuccessfully = true;  // Mark that the case was dropped successfully
+        } else if (dropPos && draggingId === 'gpu' && moboModel) {
+          spawnGpuAtSlot();
+          wasDroppedSuccessfully = true;  // Mark that the case was dropped successfully
+        } else if (dropPos && draggingId === 'ram' && moboModel) {
+          spawnRamAtSlot();
           wasDroppedSuccessfully = true;  // Mark that the case was dropped successfully
         } 
 
@@ -322,6 +471,10 @@ function setupDragAndDrop() {
             scene.remove(psuModel);  // Remove the GPU if it was dropped unsuccessfully
             psuModel = null;
           }
+          if (draggingId === 'psu' && psuModel) {
+            scene.remove(psuModel);  // Remove the GPU if it was dropped unsuccessfully
+            psuModel = null;
+          }
           if (draggingId === 'cpu' && cpuModel) {
             scene.remove(cpuModel);  // Remove the GPU if it was dropped unsuccessfully
             cpuModel = null;
@@ -329,6 +482,18 @@ function setupDragAndDrop() {
           if (draggingId === 'cooler' && coolerModel) {
             scene.remove(coolerModel);  // Remove the GPU if it was dropped unsuccessfully
             coolerModel = null;
+          }
+          if (draggingId === 'ssd' && ssdModel) {
+            scene.remove(ssdModel);  // Remove the GPU if it was dropped unsuccessfully
+            ssdModel = null;
+          }
+          if (draggingId === 'gpu' && gpuModel) {
+            scene.remove(gpuModel);  // Remove the GPU if it was dropped unsuccessfully
+            gpuModel = null;
+          }
+          if (draggingId === 'ram' && ramModel) {
+            scene.remove(ramModel);  // Remove the GPU if it was dropped unsuccessfully
+            ramModel = null;
           }
 
           // Reset the marker to the center when the drop fails
@@ -350,6 +515,10 @@ function setupDragAndDrop() {
           scene.remove(psumarker);
           psumarker = null;
         }
+        if (psumarker) {
+          scene.remove(psumarker);
+          psumarker = null;
+        }
         if (cpumarker) {
           scene.remove(cpumarker);
           cpumarker = null;
@@ -357,6 +526,18 @@ function setupDragAndDrop() {
         if (coolermarker) {
           scene.remove(coolermarker);
           coolermarker = null;
+        }
+        if (ssdmarker) {
+          scene.remove(ssdmarker);
+          ssdmarker = null;
+        }
+        if (gpumarker) {
+          scene.remove(gpumarker);
+          gpumarker = null;
+        }
+        if (rammarker) {
+          scene.remove(rammarker);
+          rammarker = null;
         }
 
         if (originalSlotMaterial) {
@@ -438,6 +619,7 @@ async function spawnCase(position, modelUrl) {
       console.warn('PSU slot not found in case model');
     }
 
+
   } catch (error) {
     console.error('Failed to load case model', error);
   }
@@ -462,6 +644,13 @@ async function spawnPsuAtSlot() {
   try {
     const model = await loadGLTFModel(selectedPsuModelUrl);
     model.position.copy(psuSlotPosition);
+    
+    // APPLY ROTATION FROM SLOT
+    const psuSlot = caseModel.getObjectByName('Slot_Psu');
+    if (psuSlot) {
+      model.rotation.copy(psuSlot.rotation);
+    }
+    
     scene.add(model);
     psuModel = model;
   } catch (error) {
@@ -471,12 +660,12 @@ async function spawnPsuAtSlot() {
 
 async function spawnMoboAtSlot() {
   if (!moboSlotPosition) {
-    alert('GPU slot position unknown');
+    alert('mobo slot position unknown');
     return;
   }
 
   if (!selectedMoboModelUrl) {
-    alert('Please select a GPU model first.');
+    alert('Please select a mobo model first.');
     return;
   }
 
@@ -488,9 +677,17 @@ async function spawnMoboAtSlot() {
   try {
     const model = await loadGLTFModel(selectedMoboModelUrl);
     model.position.copy(moboSlotPosition);
+    
+    // APPLY ROTATION FROM SLOT
+    const moboSlot = caseModel.getObjectByName('Slot_Mobo');
+    if (moboSlot) {
+      model.rotation.copy(moboSlot.rotation);
+    }
+    
     scene.add(model);
     moboModel = model;
 
+    // CPU SLOT
     // CPU SLOT
     const cpuSlot = model.getObjectByName('Slot_Cpu');
     if (cpuSlot) {
@@ -499,7 +696,7 @@ async function spawnMoboAtSlot() {
       console.log('CPU slot position:', cpuSlotPosition);
     } else {
       cpuSlotPosition = new THREE.Vector3(0, 0, 0);
-      console.warn('CPU slot not found in GPU model');
+      console.warn('CPU slot not found in mobo model');
     }
 
     // Cooler SLOT
@@ -510,10 +707,43 @@ async function spawnMoboAtSlot() {
       console.log('Cooler slot position:', coolerSlotPosition);
     } else {
       coolerSlotPosition = new THREE.Vector3(0, 0, 0);
-      console.warn('Cooler slot not found in case model');
+      console.warn('Cooler slot not found in mobo model');
+    }
+
+    // SSD SLOT
+    const ssdSlot = model.getObjectByName('Slot_Ssd');
+    if (ssdSlot) {
+      ssdSlotPosition = new THREE.Vector3();
+      ssdSlot.getWorldPosition(ssdSlotPosition);
+      console.log('SSD slot position:', ssdSlotPosition);
+    } else {
+      ssdSlotPosition = new THREE.Vector3(0, 0, 0);
+      console.warn('SSD slot not found in mobo model');
+    }
+
+    // GPU SLOT
+    const gpuSlot = model.getObjectByName('Slot_Gpu');
+    if (gpuSlot) {
+      gpuSlotPosition = new THREE.Vector3();
+      gpuSlot.getWorldPosition(gpuSlotPosition);
+      console.log('GPU slot position:', gpuSlotPosition);
+    } else {
+      gpuSlotPosition = new THREE.Vector3(0, 0, 0);
+      console.warn('GPU slot not found in mobo model');
+    }
+
+    // RAM SLOT
+    const ramSlot01 = model.getObjectByName('Slot_Ram1');
+    const ramSlot02 = model.getObjectByName('Slot_Ram2'); 
+
+    if (ramSlot01 || ramSlot02) {
+      console.log('RAM slots found in mobo model');
+      // We don't need to store positions here since we'll use the slot objects directly
+    } else {
+      console.warn('RAM slots not found in mobo model');
     }
   } catch (error) {
-    console.error('Failed to load GPU model', error);
+    console.error('Failed to load Ram model', error);
   }
 }
 
@@ -569,6 +799,125 @@ async function spawnCoolerAtSlot() {
   }
 }
 
+async function spawnSsdAtSlot() {
+  if (!ssdSlotPosition) {
+    alert('Ssd slot position unknown');
+    return;
+  }
+
+  if (!selectedSsdModelUrl) {
+    alert('Please select a Ssd model first.');
+    return;
+  }
+
+  if (ssdModel) {
+    scene.remove(ssdModel);
+    ssdModel = null;
+  }
+  
+  try {
+    const model = await loadGLTFModel(selectedSsdModelUrl);
+    model.position.copy(ssdSlotPosition);
+    
+    // APPLY ROTATION FROM SLOT
+    const ssdSlot = moboModel.getObjectByName('Slot_Ssd');
+    if (ssdSlot) {
+      model.rotation.copy(ssdSlot.rotation);
+    }
+    
+    scene.add(model);
+    ssdModel = model;
+  } catch (error) {
+    console.error('Failed to load Ssd model', error);
+  }
+}
+
+async function spawnGpuAtSlot() {
+  if (!gpuSlotPosition) {
+    alert('Gpu slot position unknown');
+    return;
+  }
+
+  if (!selectedGpuModelUrl) {
+    alert('Please select a Gpu model first.');
+    return;
+  }
+
+  if (gpuModel) {
+    scene.remove(gpuModel);
+    gpuModel = null;
+  }
+  
+  try {
+    const model = await loadGLTFModel(selectedGpuModelUrl);
+    model.position.copy(gpuSlotPosition);
+    
+    scene.add(model);
+    gpuModel = model;
+  } catch (error) {
+    console.error('Failed to load Gpu model', error);
+  }
+}
+
+async function spawnRamAtSlot() {
+  if (!selectedRamModelUrl) {
+    alert('Please select a Ram model first.');
+    return;
+  }
+
+  // Remove existing RAM models if any
+  if (ramModels.length > 0) {
+    ramModels.forEach(ram => scene.remove(ram));
+    ramModels = [];
+  }
+  
+  try {
+    // Load the base RAM model
+    const baseRamModel = await loadGLTFModel(selectedRamModelUrl);
+    
+    // Get all RAM slots from the motherboard
+    const slotRam01 = moboModel.getObjectByName('Slot_Ram1');
+    const slotRam02 = moboModel.getObjectByName('Slot_Ram2');
+    
+    // Clone and position RAM sticks in available slots
+    if (slotRam01) {
+      const ram1 = baseRamModel.clone();
+      
+      // Get WORLD position (like GPU does)
+      const worldPosition = new THREE.Vector3();
+      slotRam01.getWorldPosition(worldPosition);
+      
+      ram1.position.copy(worldPosition);
+      ram1.rotation.copy(slotRam01.rotation);
+      scene.add(ram1);
+      ramModels.push(ram1);
+    }
+    
+    if (slotRam02) {
+      const ram2 = baseRamModel.clone();
+      
+      // Get WORLD position (like GPU does)
+      const worldPosition = new THREE.Vector3();
+      slotRam02.getWorldPosition(worldPosition);
+      
+      ram2.position.copy(worldPosition);
+      ram2.rotation.copy(slotRam02.rotation);
+      scene.add(ram2);
+      ramModels.push(ram2);
+    }
+    
+    if (ramModels.length === 0) {
+      alert('No RAM slots found on the motherboard');
+      return;
+    }
+    
+    console.log(`Spawned ${ramModels.length} RAM sticks`);
+    
+  } catch (error) {
+    console.error('Failed to load Ram model', error);
+  }
+}
+
 function reloadScene() {
     // Remove case model
     if (caseModel) {
@@ -588,6 +937,12 @@ function reloadScene() {
         psuModel = null;
     }
 
+    // Remove psu model
+    if (psuModel) {
+        scene.remove(psuModel);
+        psuModel = null;
+    }
+
     // Remove CPU model
     if (cpuModel) {
         scene.remove(cpuModel);
@@ -599,6 +954,25 @@ function reloadScene() {
         scene.remove(coolerModel);
         coolerModel = null;
     }
+
+    // Remove ssd model
+    if (ssdModel) {
+        scene.remove(ssdModel);
+        ssdModel = null;
+    }
+
+    // Remove gpu model
+    if (gpuModel) {
+        scene.remove(gpuModel);
+        gpuModel = null;
+    }
+
+    // Remove ALL ram models
+    if (ramModels.length > 0) {
+        ramModels.forEach(ram => scene.remove(ram));
+        ramModels = [];
+    }
+
 
     // Reset the camera controls target to the origin (or wherever you prefer)
     controls.target.set(0, 0, 0);

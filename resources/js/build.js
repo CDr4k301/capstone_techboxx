@@ -494,9 +494,7 @@ generateBtn.addEventListener('click', () => {
                 imageUrl: item.image || '' // Add image URL if available from API
             };
 
-
-
-            // --- NEW: Send generated component to Laravel session ---
+             // --- NEW: Send generated component to Laravel session ---
             fetch('/store-component', {
                 method: 'POST',
                 headers: {
@@ -514,11 +512,6 @@ generateBtn.addEventListener('click', () => {
             .then(response => response.json())
             .then(data => console.log('Session stored:', data.message))
             .catch(error => console.error('Error storing session:', error));
-
-
-
-
-            
 
             // UPDATE HIDDEN INPUTS FOR CART FORM
             if (componentType === 'hdd' || componentType === 'ssd') {
@@ -564,9 +557,13 @@ buildSectionButtons.forEach(button => {
 
         remarksSection.classList.add("hidden");
         remarksTab.classList.remove('active');
+        remarksSection.classList.add("hidden");
+        remarksTab.classList.remove('active');
         summarySection.classList.add("hidden");
         summaryTab.classList.remove('active');
+        summaryTab.classList.remove('active');
         componentsSection.classList.remove("hidden");
+        componentsTab.classList.add('active');
         componentsTab.classList.add('active');
 
         applyAllFilters();
@@ -577,13 +574,30 @@ document.querySelectorAll('.catalog-item').forEach(item => {
     item.addEventListener('click', () => {
         const type = item.getAttribute('data-type');
         const name = item.getAttribute('data-name');
+        const category = item.getAttribute('data-category');
         const price = parseFloat(item.getAttribute('data-price'));
         const componentId = item.getAttribute('data-id');
         const imageUrl = item.getAttribute('data-image');
+        const model = item.getAttribute('data-model');
 
+        // Console log all the data
+        console.log('Selected Component:', {
+            type: type,
+            name: name,
+            category: category,
+            price: price,
+            id: componentId,
+            image: imageUrl,
+            model3d: model
+        });
         // STORE SELECTED COMPONENT
         window.selectedComponents[type] = { componentId, name, price, imageUrl };
 
+        // CALL TOGGLE STORAGE IF SSD OR HDD IS SELECTED
+        if (type === 'ssd' || type === 'hdd') {
+            toggleStorage(type);
+        }
+        
                 // --- SEND TO LARAVEL SESSION ---
         fetch('/store-component', {
             method: 'POST',
