@@ -71,6 +71,40 @@ class BuildController extends Controller
         return view('build', compact('components'));
     }
 
+    public function generateBuild(Request $request) {   
+        $category = $request->input('category');
+        $cpuBrand = $request->input('cpuBrand');
+        $userBudget = $request->input('userBudget');
+
+        // Full path to your script
+        $scriptPath = base_path('python_scripts/test_python.py');
+
+        // Build the command with python interpreter
+        $escapedCategory = escapeshellarg($category);
+        $escapedBrand = escapeshellarg($cpuBrand);
+        $escapedBudget = escapeshellarg($userBudget);
+
+        $command = escapeshellcmd("python $scriptPath $escapedCategory $escapedBrand $escapedBudget");
+
+        // Execute and capture output + errors
+        $output = shell_exec($command . " 2>&1");
+
+        // Debugging: log output if something goes wrong
+        Log::info("Python Output: " . $output);
+
+        // Decode JSON safely
+        $build = json_decode($output, true);
+
+        if (!$build) {
+            return response()->json([
+                'error' => 'Python script did not return valid JSON',
+                'raw_output' => $output
+            ], 500);
+        }
+
+        return response()->json($build);
+    }
+
     public function validateBuild(Request $request, CompatibilityService $compat) {
         $cpu = Cpu::find($request->cpu_id);
         $mobo = Motherboard::find($request->motherboard_id);

@@ -11,7 +11,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # CONNECT DB
 username = "root"
-password = "MySQLPASSWORD25"
+password = "S34_dr4k3"
 host = "127.0.0.1"
 port = 3306
 database = "techboxx"

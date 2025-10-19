@@ -20,4 +20,6 @@ class StockHistory extends Model
     public function user() {
         return $this->hasMany(User::class);
     }
+
+    
 }
