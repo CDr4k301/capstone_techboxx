@@ -17,13 +17,12 @@
         </div>
 
         <!-- Tasks + Notifications -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Tasks -->
-            <div class="border rounded-lg p-4 flex flex-col h-[420px] bg-white">
+            <div class="col-span-1 border rounded-lg p-4 flex flex-col bg-white h-[420px]">
                 <h4 class="font-semibold text-sm mb-2">Tasks:</h4>
 
-                <!-- Task List (scrollable if needed) -->
-                <ul class="space-y-1 text-sm overflow-y-auto flex-1">
+                <ul class="space-y-1 text-sm overflow-y-auto flex-1 pr-2">
                     @forelse($tasksPaginated as $task)
                         <li class="py-1">
                             Pending Order Approval 
@@ -34,7 +33,6 @@
                     @endforelse
                 </ul>
 
-                <!-- Pagination fixed at bottom -->
                 <div class="mt-2 border-t bg-gray-50 p-2 text-xs text-gray-600 flex items-center justify-between">
                     @if ($tasksPaginated->count() > 0)
                         <span>
@@ -66,11 +64,11 @@
             </div>
 
             <!-- Notifications -->
-            <div class="border rounded-lg p-4 flex flex-col h-[420px] bg-white">
+            <div class="col-span-2 border rounded-lg p-4 flex flex-col bg-white h-[420px]">
                 <h4 class="font-semibold text-sm mb-3">Notifications:</h4>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 overflow-hidden">
-                    <!-- Stock-in Table -->
+                    <!-- Stock-in -->
                     <div class="flex flex-col border rounded-lg overflow-hidden bg-white">
                         <h5 class="font-semibold text-green-600 px-4 py-2 border-b">Stock-in</h5>
                         <div class="overflow-y-auto flex-1">
@@ -102,7 +100,6 @@
                             </table>
                         </div>
 
-                        <!-- Pagination Fixed at Bottom -->
                         <div class="border-t bg-gray-50 p-2 text-xs text-gray-600 flex items-center justify-between">
                             @if ($notifications['stockIns']->count() > 0)
                                 <span>
@@ -132,7 +129,7 @@
                         </div>
                     </div>
 
-                    <!-- Stock-out Table -->
+                    <!-- Stock-out -->
                     <div class="flex flex-col border rounded-lg overflow-hidden bg-white">
                         <h5 class="font-semibold text-red-600 px-4 py-2 border-b">Stock-out</h5>
                         <div class="overflow-y-auto flex-1">
@@ -164,7 +161,6 @@
                             </table>
                         </div>
 
-                        <!-- Pagination Fixed at Bottom -->
                         <div class="border-t bg-gray-50 p-2 text-xs text-gray-600 flex items-center justify-between">
                             @if ($notifications['stockOuts']->count() > 0)
                                 <span>
