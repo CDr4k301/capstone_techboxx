@@ -84,8 +84,8 @@
                                 <tbody>
                                     @forelse($notifications['stockIns'] as $stockIn)
                                         <tr class="border-b hover:bg-gray-50">
-                                            <td class="px-4 py-2 text-gray-700 max-w-[180px] truncate" title="{{ $stockIn->component_name }}">
-                                                {{ $stockIn->component_name }}
+                                            <td class="px-4 py-2 text-gray-700 max-w-[180px] truncate" title="{{ $stockIn->component_id }}">
+                                                {{ $stockIn->component_id }}
                                             </td>
                                             <td class="px-4 py-2 text-center text-green-600">
                                                 +{{ $stockIn->quantity_changed }}
@@ -146,8 +146,8 @@
                                 <tbody>
                                     @forelse($notifications['stockOuts'] as $stockOut)
                                         <tr class="border-b hover:bg-gray-50">
-                                            <td class="px-4 py-2 text-gray-700 max-w-[180px] truncate" title="{{ $stockOut->component_name }}">
-                                                {{ $stockOut->component_name }}
+                                            <td class="px-4 py-2 text-gray-700 max-w-[180px] truncate" title="{{ $stockOut->component_id }}">
+                                                {{ $stockOut->component_id }}
                                             </td>
                                             <td class="px-4 py-2 text-center text-red-600">
                                                 -{{ $stockOut->quantity_changed }}

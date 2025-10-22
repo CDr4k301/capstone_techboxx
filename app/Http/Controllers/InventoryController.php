@@ -24,7 +24,7 @@ class InventoryController extends Controller
         });
 
         // Paginate the collection
-        $perPage = 6; // Set the number of items per page
+        $perPage = 7; // Set the number of items per page
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $items = $componentss->slice(($currentPage - 1) * $perPage, $perPage)->all();
         $components = new LengthAwarePaginator(

@@ -32,7 +32,7 @@ class ActivityLogController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $logs = $query->paginate(3);
+        $logs = $query->paginate(7);
 
         return view('admin.activitylogs', compact('logs'));
     }

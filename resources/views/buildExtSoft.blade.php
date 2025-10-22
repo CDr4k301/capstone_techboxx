@@ -11,7 +11,6 @@
         'resources\css\app.css',
         'resources\css\build.css',
         'resources\css\buildextsoft.css',
-        'resources\css\buildextsoft.css',
         'resources\js\app.js',
         'resources\js\buildext.js',
         'resources\css\admin-staff\modal.css',
@@ -150,60 +149,35 @@
                     </div>
                 </div>
             </div>
-
-            </div>
-
-            
-
-            {{-- COMPONENTS --}}
-            {{-- <div class="component-section">
+            <div class="component-section">
                 <div class="component-section-left">
-                    <x-component data-type="motherboard">Motherboard</x-component>
-                    <x-component data-type="cpu">CPU</x-component>
-                    <x-component data-type="gpu">GPU</x-component>
-                    <x-component data-type="ram">RAM</x-component>
+                    @foreach (['motherboard','cpu','gpu','ram'] as $type)
+                        @if(isset($selectedComponents[$type]))
+                            @php $component = $selectedComponents[$type]; @endphp
+                            <div class="component-button">
+                                @if(!empty($component->image))
+                                    <img src="{{ asset('storage/' . $component->image) }}" alt="{{ $component->brand }} {{ $component->model }}">
+                                @endif
+                                <p class="component-name">{{ $component->brand }} {{ $component->model }}</p>
+                            </div>
+                        @endif
+                    @endforeach
                 </div>
+
                 <div class="component-section-right">
-                    <x-component data-type="case">Case</x-component>
-                    <x-component data-type="ssd">SSD</x-component>
-                    <x-component data-type="hdd">HDD</x-component>
-                    <x-component data-type="cooler">Cooler</x-component>
-                    <x-component data-type="psu">PSU</x-component>
+                    @foreach (['case','ssd','hdd','cooler','psu'] as $type)
+                        @if(isset($selectedComponents[$type]))
+                            @php $component = $selectedComponents[$type]; @endphp
+                            <div class="component-button">
+                                @if(!empty($component->image))
+                                    <img src="{{ asset('storage/' . $component->image) }}" alt="{{ $component->brand }} {{ $component->model }}">
+                                @endif
+                                <p class="component-name">{{ $component->brand }} {{ $component->model }}</p>
+                            </div>
+                        @endif
+                    @endforeach
                 </div>
-            </div> --}}
-            
-<div class="component-section">
-    <div class="component-section-left">
-        @foreach (['motherboard','cpu','gpu','ram'] as $type)
-            @if(isset($selectedComponents[$type]))
-                @php $component = $selectedComponents[$type]; @endphp
-                <div class="component-button">
-                    @if(!empty($component->image))
-                        <img src="{{ asset('storage/' . $component->image) }}" alt="{{ $component->brand }} {{ $component->model }}">
-                    @endif
-                    <p class="component-name">{{ $component->brand }} {{ $component->model }}</p>
-                </div>
-            @endif
-        @endforeach
-    </div>
-
-    <div class="component-section-right">
-        @foreach (['case','ssd','hdd','cooler','psu'] as $type)
-            @if(isset($selectedComponents[$type]))
-                @php $component = $selectedComponents[$type]; @endphp
-                <div class="component-button">
-                    @if(!empty($component->image))
-                        <img src="{{ asset('storage/' . $component->image) }}" alt="{{ $component->brand }} {{ $component->model }}">
-                    @endif
-                    <p class="component-name">{{ $component->brand }} {{ $component->model }}</p>
-                </div>
-            @endif
-        @endforeach
-    </div>
-</div>
-
-
-
+            </div>
         </div>
     </main>
     </div>

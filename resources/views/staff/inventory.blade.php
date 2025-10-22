@@ -35,6 +35,13 @@
         <div x-data="{ showStockInCompModal: false, showStockOutCompModal: false, selectedComponent:{} }" 
              class="h-[55vh]">
             <table class="table mb-3">
+                <colgroup>
+                    <col class="w-[30%]">  
+                    <col class="w-[15%]">  
+                    <col class="w-[15%]"> 
+                    <col class="w-[15%]"> 
+                    <col class="w-[15%]"> 
+                </colgroup>
                 <thead>
                     <tr class="text-sm">
                         <th>Component</th>

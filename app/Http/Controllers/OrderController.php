@@ -48,7 +48,7 @@ class OrderController extends Controller
                 END
             ")
             ->orderBy('created_at', 'desc')  // FIFO within groups (oldest first)
-            ->paginate(5);
+            ->paginate(7);
 
         $allCheckouts = Checkout::with([
             'cartItem' => fn ($q) => $q->with([

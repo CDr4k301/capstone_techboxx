@@ -54,7 +54,7 @@ class ComponentDetailsController extends Controller
     public function index() {
         $components = $this->getAllFormattedComponents();
 
-        $perPage = 5;
+        $perPage = 7;
         $currentPage = request()->get('page', 1);
         $currentPageItems = $components->forPage($currentPage, $perPage);
 
@@ -70,7 +70,7 @@ class ComponentDetailsController extends Controller
             ->withTrashed()
             ->orderByRaw("CASE WHEN is_active = 0 THEN 1 ELSE 0 END")
             ->orderByDesc('created_at')
-            ->paginate(6);
+            ->paginate(7);
 
         return view('staff.componentdetails', array_merge(
             [

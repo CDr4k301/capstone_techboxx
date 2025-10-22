@@ -111,14 +111,14 @@ def load_component_maps():
         clean_name = f"{row.brand} {row.model}"
         case_map[row.id] = {
             'name': clean_name,
-            'type': 'pc_case',
+            'type': 'case',  # Changed from 'pc_case' to 'case'
             'price': float(row.price),
             'category': int(row.build_category_id),
             'image': row.image if pd.notna(row.image) else 'images/placeholder.png',
             'table': 'pc_cases',
             'stock': int(row.stock) if pd.notna(row.stock) else 0
         }
-    maps['pc_case'] = case_map
+    maps['case'] = case_map  # Changed from 'pc_case' to 'case'
 
     # Cooler - Added stock column
     cooler_df = pd.read_sql("SELECT id, brand, model, build_category_id, price, image, stock FROM coolers", engine)
@@ -173,10 +173,12 @@ def get_product_recommendations(product_name, comp_type):
         for col in ["pc_case_id", "motherboard_id", "cpu_id", "gpu_id", "storage_id", "ram_id", "psu_id", "cooler_id"]:
             if pd.notna(row[col]):
                 comp_type_col = col.replace("_id", "")
+                # Map 'pc_case' to 'case' for lookup
+                lookup_type = 'case' if comp_type_col == 'pc_case' else comp_type_col
                 comp_id = int(row[col])
                 
-                if comp_type_col in lookup_maps and comp_id in lookup_maps[comp_type_col]:
-                    comp_data = lookup_maps[comp_type_col][comp_id]
+                if lookup_type in lookup_maps and comp_id in lookup_maps[lookup_type]:
+                    comp_data = lookup_maps[lookup_type][comp_id]
                     comp_name = comp_data['name']
                     
                     # Store component details

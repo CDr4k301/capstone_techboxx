@@ -21,7 +21,7 @@
                 <thead>
                     <tr class="text-sm">
                         <th>Order ID</th>
-                        <th>Build Details</th>
+                        <th class="text-left">Build Details</th>
                         <th>Order Date</th>
                         <th>Order Status</th>
                         <th>Pickup Status</th>
@@ -40,15 +40,15 @@
                         ])
                         @click="showModal = true; selectedBuild = {{ $order->toJson() }};"
                     >
-                        <td>{{ $order->id}}</td>
+                        <td class="text-center">{{ $order->id}}</td>
                         <td @click="showModal = true; selectedBuild = {{ $order->toJson() }};"
                             class="build-details">{{ $order->userBuild->build_name}}</td>
                         <td class="text-center !pr-[1.5%]">{{ $order->created_at ? $order->created_at->format('Y-m-d') : 'N/A' }}</td>
-                        <td>{{ $order->status }}</td>
-                        <td>{{ $order->pickup_status ? $order->pickup_status : '-' }}</td>
-                        <td>{{ $order->pickup_date ? $order->pickup_date->format('Y-m-d') : '-' }}</td>
-                        <td>{{ $order->payment_status }}</td>
-                        <td>{{ $order->payment_method }}</td>
+                        <td class="text-center">{{ $order->status }}</td>
+                        <td class="text-center">{{ $order->pickup_status ? $order->pickup_status : '-' }}</td>
+                        <td class="text-center">{{ $order->pickup_date ? $order->pickup_date->format('Y-m-d') : '-' }}</td>
+                        <td class="text-center">{{ $order->payment_status }}</td>
+                        <td class="text-center">{{ $order->payment_method }}</td>
                         <td class="align-middle text-center">
                             <div class="flex justify-center gap-2">
                                 @if ($order->status === 'Pending')
@@ -193,13 +193,13 @@
                             ])
                             @click="setSelectedOrder({{ json_encode($group) }})"
                         >
-                            <td>{{ $group['shopping_cart_id'] }}</td>
-                            <td>{{ $group['checkout_date'] ? ($group['checkout_date'])->format('Y-m-d') : '-' }}</td>
+                            <td class="text-center">{{ $group['shopping_cart_id'] }}</td>
+                            <td class="text-center">{{ $group['checkout_date'] ? ($group['checkout_date'])->format('Y-m-d') : '-' }}</td>
                             <td class="text-center">{{ number_format($group['total_cost'], 2) }}</td>
-                            <td>{{ $group['pickup_status'] ?? '-' }}</td>
-                            <td>{{ $group['payment_method'] ?? '-' }}</td>
-                            <td>{{ $group['payment_status'] ?? '-' }}</td>
-                            <td>{{ $group['pickup_date'] ? ($group['pickup_date'])->format('Y-m-d') : '-' }}</td>
+                            <td class="text-center">{{ $group['pickup_status'] ?? '-' }}</td>
+                            <td class="text-center">{{ $group['payment_method'] ?? '-' }}</td>
+                            <td class="text-center">{{ $group['payment_status'] ?? '-' }}</td>
+                            <td class="text-center">{{ $group['pickup_date'] ? ($group['pickup_date'])->format('Y-m-d') : '-' }}</td>
                             <td class="align-middle text-center">
                                 <div class="flex justify-center gap-2">
                                     @if (empty($group['pickup_status']))
@@ -268,10 +268,10 @@
                             <tbody>
                                 <template x-for="(item, index) in selectedOrder.cart_items" :key="`${item.id}-${index}`">
                                     <tr>
-                                        <td x-text="getComponentModel(item)"></td>
-                                        <td x-text="item.product_type"></td>
-                                        <td x-text="item.quantity"></td>
-                                        <td x-text="item.total_price"></td>
+                                        <td class="text-center" x-text="getComponentModel(item)"></td>
+                                        <td class="text-center" x-text="item.product_type"></td>
+                                        <td class="text-center" x-text="item.quantity"></td>
+                                        <td class="text-center" x-text="item.total_price"></td>
                                     </tr>
                                 </template>
                             </tbody>

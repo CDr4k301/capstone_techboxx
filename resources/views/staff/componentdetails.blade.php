@@ -52,6 +52,14 @@
     <section class="section-style !pl-0 !h-[65vh]">
         <div x-data="{ showViewModal: false, showEditModal: false, selectedComponent:{} }" class=" h-[55vh]">
             <table class="table">
+                <colgroup>
+                    <col class="w-[15%]">  
+                    <col class="w-[15%]">  
+                    <col class="w-[40%]"> 
+                    <col class="w-[10%]"> 
+                    <col class="w-[10%]"> 
+                    <col class="w-[10%]"> 
+                </colgroup>
                 <thead>
                     <tr>
                         <th>Category</th>
@@ -245,6 +253,14 @@
     <section class="section-style !pl-0 !pb-3 !h-[65vh]">
         <div x-data="{ showViewModal: false, currentSupplier: null, showEditModal: false }" class="h-[75vh]">
             <table class="table">
+                <colgroup>
+                    <col class="w-[15%]">  
+                    <col class="w-[15%]">  
+                    <col class="w-[15%]"> 
+                    <col class="w-[10%]"> 
+                    <col class="w-[10%]"> 
+                    <col class="w-[10%]"> 
+                </colgroup>
                 <thead>
                     <tr class="text-sm">
                         <th class="text-left p-2">Supplier Name</th>
