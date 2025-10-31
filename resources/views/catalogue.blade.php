@@ -256,7 +256,7 @@
                                     @if(($product['stock'] ?? 0) <= 5)
                                         Only {{ $product['stock'] }} left!
                                     @else
-                                        In Stock
+                                        Stocks Available: {{$product['stock']}} 
                                     @endif
                                 </span>
                             @endif

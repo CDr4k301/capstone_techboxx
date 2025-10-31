@@ -1,18 +1,23 @@
 <x-dashboardlayout>
     <div x-data="orderModal()" class="p-6 h-[90%]">
-    <div x-data="orderModal()" class="p-6 h-[90%]">
         <h2 class="text-2xl font-semibold mb-6">Checkout Details</h2>
 
         <div class="bg-white rounded-lg shadow mb-3 h-[80%] flex flex-col">
             <!-- Table Header -->
             <div class="overflow-x-auto border-b border-gray-200">
                 <table class="min-w-full">
+                    <colgroup>
+                        <col class="w-[40%]">   <!-- Component -->
+                        <col class="w-[20%]">   <!-- Category -->
+                        <col class="w-[20%]">   <!-- Qty -->
+                        <col class="w-[20%]">   <!-- Price -->
+                    </colgroup>
                     <thead class="bg-gray-100">
                         <tr>
                             <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 border-b">Component</th>
                             <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 border-b">Category</th>
                             <th class="px-6 py-3 text-center text-sm font-medium text-gray-700 border-b">Qty</th>
-                            <th class="px-6 py-3 text-right text-sm font-medium text-gray-700 border-b">Price</th>
+                            <th class="px-6 py-3 text-sm font-medium text-gray-700 border-b">Price</th>
                         </tr>
                     </thead>
                 </table>
@@ -21,6 +26,12 @@
             <!-- Scrollable Body -->
             <div class="flex-1 overflow-y-auto overflow-x-auto">
                 <table class="min-w-full h-full">
+                    <colgroup>
+                        <col class="w-[40%]">   <!-- Component -->
+                        <col class="w-[20%]">   <!-- Category -->
+                        <col class="w-[20%]">   <!-- Qty -->
+                        <col class="w-[20%]">   <!-- Price -->
+                    </colgroup>
                     <tbody class="align-top">
                         @forelse ($paginatedGroups as $index => $group)
                             @foreach ($group['cart_items'] as $cartItem)
@@ -43,60 +54,7 @@
                                     </td>
                                     <td class="px-6 py-4 border-b">{{ ucfirst($cartItem->product_type) }}</td>
                                     <td class="px-6 py-4 border-b text-center">{{ $cartItem->quantity }}</td>
-                                    <td class="px-6 py-4 border-b text-right">₱{{ number_format($cartItem->total_price, 2) }}</td>
-                                </tr>
-                            @endforeach
-
-{{-- TOTAL EACH ORDER --}}
-<tr class="bg-gray-50 h-16">
-    <td colspan="3" class="px-6 border-b text-right font-semibold align-middle">
-        Total:
-    </td>
-    <td class="px-6 border-b text-right font-bold text-gray-700 align-middle">
-        ₱{{ number_format($group['total_cost'], 2) }}
-    </td>
-</tr>
-        <div class="bg-white rounded-lg shadow mb-3 h-[80%] flex flex-col">
-            <!-- Table Header -->
-            <div class="overflow-x-auto border-b border-gray-200">
-                <table class="min-w-full">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 border-b">Component</th>
-                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 border-b">Category</th>
-                            <th class="px-6 py-3 text-center text-sm font-medium text-gray-700 border-b">Qty</th>
-                            <th class="px-6 py-3 text-right text-sm font-medium text-gray-700 border-b">Price</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-
-            <!-- Scrollable Body -->
-            <div class="flex-1 overflow-y-auto overflow-x-auto">
-                <table class="min-w-full h-full">
-                    <tbody class="align-top">
-                        @forelse ($paginatedGroups as $index => $group)
-                            @foreach ($group['cart_items'] as $cartItem)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 border-b">
-                                        @php
-                                            $model = 'Unknown';
-                                            switch($cartItem->product_type) {
-                                                case 'case': $model = $cartItem->case?->brand . ' ' . $cartItem->case?->model ?? 'N/A'; break;
-                                                case 'cpu': $model = $cartItem->cpu?->brand . ' ' . $cartItem->cpu?->model ?? 'N/A'; break;
-                                                case 'gpu': $model = $cartItem->gpu?->brand . ' ' . $cartItem->gpu?->model ?? 'N/A'; break;
-                                                case 'motherboard': $model = $cartItem->motherboard?->brand . ' ' . $cartItem->motherboard?->model ?? 'N/A'; break;
-                                                case 'ram': $model = $cartItem->ram?->brand . ' ' . $cartItem->ram?->model ?? 'N/A'; break;
-                                                case 'storage': $model = $cartItem->storage?->brand . ' ' . $cartItem->storage?->model ?? 'N/A'; break;
-                                                case 'psu': $model = $cartItem->psu?->brand . ' ' . $cartItem->psu?->model ?? 'N/A'; break;
-                                                case 'cooler': $model = $cartItem->cooler?->brand . ' ' . $cartItem->cooler?->model ?? 'N/A'; break;
-                                            }
-                                        @endphp
-                                        {{ $model }}
-                                    </td>
-                                    <td class="px-6 py-4 border-b">{{ ucfirst($cartItem->product_type) }}</td>
-                                    <td class="px-6 py-4 border-b text-center">{{ $cartItem->quantity }}</td>
-                                    <td class="px-6 py-4 border-b text-right">₱{{ number_format($cartItem->total_price, 2) }}</td>
+                                    <td class="px-6 py-4 border-b text-center">₱{{ number_format($cartItem->total_price, 2) }}</td>
                                 </tr>
                             @endforeach
 
@@ -105,7 +63,7 @@
                                 <td colspan="3" class="px-6 border-b text-right font-semibold align-middle">
                                     Total:
                                 </td>
-                                <td class="px-6 border-b text-right font-bold text-gray-700 align-middle">
+                                <td class="px-6 border-b text-center font-bold text-gray-700 align-middle">
                                     ₱{{ number_format($group['total_cost'], 2) }}
                                 </td>
                             </tr>

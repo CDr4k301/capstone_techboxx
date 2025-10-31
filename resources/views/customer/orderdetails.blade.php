@@ -136,7 +136,7 @@
                     <!-- Status Timeline -->
                     <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                         <h4 class="text-lg font-bold text-gray-800 mb-6 pb-2 border-b border-gray-300">Order Progress</h4>
-                        <div class="space-y-6">
+                        <div>
                             <!-- Submitted Status (Always shown) -->
                             <div class="flex items-start space-x-4">
                                 <div class="flex flex-col items-center">
@@ -145,11 +145,11 @@
                                         x-show="selectedOrder.status === 'Approved' || (selectedOrder.status === 'Approved' && selectedOrder.pickup_status === 'Pending')"></div>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="flex justify-between items-start">
+                                    <div class="flex justify-between items-center">
                                         <span class="font-bold text-gray-800" x-text="formatDate(selectedOrder.created_at) + ' - Submitted'"></span>
+                                        <p class="text-gray-600 items-center">Your order has been placed successfully and is awaiting approval.</p>
                                         <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">Completed</span>
                                     </div>
-                                    <p class="text-gray-600 mt-2">Your order has been placed successfully and is awaiting approval.</p>
                                 </div>
                             </div>
 
@@ -161,11 +161,11 @@
                                         x-show="selectedOrder.pickup_status === 'Pending'"></div>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="flex justify-between items-start">
+                                    <div class="flex justify-between items-center">
                                         <span class="font-bold text-gray-800" x-text="formatDate(selectedOrder.updated_at) + ' - Approved'"></span>
+                                        <p class="text-gray-600 items-center">Order has been approved and is currently being assembled by our technicians.</p>
                                         <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">Completed</span>
                                     </div>
-                                    <p class="text-gray-600 mt-2">Order has been approved and is currently being assembled by our technicians.</p>
                                 </div>
                             </div>
                             
@@ -175,11 +175,11 @@
                                     <div class="w-4 h-4 bg-green-500 rounded-full mt-1 ring-4 ring-green-100"></div>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="flex justify-between items-start">
+                                    <div class="flex justify-between items-center">
                                         <span class="font-bold text-gray-800" x-text="formatDate(selectedOrder.updated_at) + ' - Ready for Pickup'"></span>
+                                        <p class="text-gray-600 items-center">Your PC build is complete and ready to be picked up from our shop location.</p>
                                         <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">Completed</span>
                                     </div>
-                                    <p class="text-gray-600 mt-2">Your PC build is complete and ready to be picked up from our shop location.</p>
                                 </div>
                             </div>
                         </div>

@@ -104,15 +104,15 @@
 
                 <!-- Price & Stock -->
                 <div class="mt-6 border-t pt-6">
-                    <p class="text-sm text-gray-500">Price</p>
+                    <p class="text-sm text-gray-500">Price: </p>
                     <div class="text-2xl font-bold text-blue-600">₱{{ number_format($product['price'] ?? 0, 0) }}</div>
 
                     <!-- Stock directly below price -->
                     <div class="mt-2">
-                        <p class="text-sm text-gray-500">Stock</p>
+                        <p class="text-sm text-gray-500 pb-2">Stocks: </p>
                         @if(($product['stock'] ?? 0) > 0)
                             <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-semibold">
-                                In stock
+                                {{$product['stock']}} Available
                             </span>
                         @else
                             <span class="px-3 py-1 bg-red-50 text-red-700 rounded-full text-sm font-semibold">
@@ -174,7 +174,7 @@
                             <!-- Current Product Stock -->
                             <div class="mt-1">
                                 @if(($product['stock'] ?? 0) > 0)
-                                    <span class="text-xs text-green-600 font-semibold">In Stock</span>
+                                    <span class="text-xs text-green-600 font-semibold">Stocks: {{$product['stock']}}</span>
                                 @else
                                     <span class="text-xs text-red-600 font-semibold">Out of Stock</span>
                                 @endif
@@ -222,7 +222,7 @@
                                             @if(($recommendation['stock'] ?? 0) <= 5)
                                                 Only {{ $recommendation['stock'] }} left!
                                             @else
-                                                In Stock
+                                                Stocks: {{$product['stock']}} 
                                             @endif
                                         </span>
                                     @else
