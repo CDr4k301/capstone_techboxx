@@ -7,8 +7,22 @@
 
     <div class="header-container">
         <div class="order-tab">
-            <button class="{{ $activeTab === 'order' ? 'active' : '' }}" id="orderBuilds">Order Builds</button>
-            <button class="{{ $activeTab === 'checkout' ? 'active' : '' }}" id="checkOutComponents">Check-out Product</button>
+            <button class="relative pr-6 {{ $activeTab === 'order' ? 'active' : '' }}" id="orderBuilds">
+                Order Builds
+                @if($pendingPickupCount > 0)
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center z-10">
+                        {{ $pendingPickupCount }}
+                    </span>
+                @endif
+            </button>
+            <button class="relative pr-6 {{ $activeTab === 'checkout' ? 'active' : '' }}" id="checkOutComponents">
+                Check-out Product
+                @if($pendingCheckoutCount > 0)
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {{ $pendingCheckoutCount }}
+                    </span>
+                @endif
+            </button>
         </div>
     </div>
 

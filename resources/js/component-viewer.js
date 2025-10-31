@@ -491,9 +491,9 @@ function setupDragAndDrop() {
             scene.remove(gpuModel);  // Remove the GPU if it was dropped unsuccessfully
             gpuModel = null;
           }
-          if (draggingId === 'ram' && ramModel) {
-            scene.remove(ramModel);  // Remove the GPU if it was dropped unsuccessfully
-            ramModel = null;
+          if (draggingId === 'ram' && ramModels) {
+            scene.remove(ramModels);  // Remove the GPU if it was dropped unsuccessfully
+            ramModels = null;
           }
 
           // Reset the marker to the center when the drop fails

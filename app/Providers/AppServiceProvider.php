@@ -2,15 +2,13 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\ComponentDetailsController;
+use App\Models\Checkout;
+use App\Models\OrderedBuild;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Storage;
-use Masbug\Flysystem\GoogleDriveAdapter;
-use Illuminate\Filesystem\FilesystemAdapter;
-
-use Google_Client;
-use Google\Service\Drive as Google_Service_Drive;
-
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -42,17 +40,69 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('components.icons.supplier', 'x-icons.supplier');
         Blade::component('components.icons.manage', 'x-icons.manage');
 
-        // Storage::extend('google', function ($app, $config) {
-        //     $client = new Google_Client();
-        //     $client->setClientId($config['clientId']);
-        //     $client->setClientSecret($config['clientSecret']);
-        //     $client->refreshToken($config['refreshToken']);
+        View::composer('*', function ($view) {
+            $cartCount = 0;
+            
+            if(Auth::check()) {
+                // If user is logged in, get from database - only unprocessed items
+                $user = Auth::user();
+                if ($user->shoppingCart) {
+                    $cartCount = $user->shoppingCart->cartItem()
+                        ->where('processed', false)
+                        ->sum('quantity');
+                }
+            } elseif(session('cart')) {
+                // If guest, get from session
+                $cartCount = array_sum(array_column(session('cart'), 'quantity'));
+            }
+            
+            // Share low stock count
+            $lowStockCount = 0;
+            if(Auth::check()) {
+                try {
+                    $lowStockThreshold = 10;
+                    $components = app(ComponentDetailsController::class)->getAllFormattedComponents();
+                    $lowStockCount = $components->filter(function ($component) use ($lowStockThreshold) {
+                        return $component->stock <= $lowStockThreshold;
+                    })->count();
+                } catch (\Exception $e) {
+                    // Log error or handle gracefully
+                    logger()->error('Low stock count error: ' . $e->getMessage());
+                }
+            }
 
-        //     $service = new Google_Service_Drive($client);
-        //     $adapter = new GoogleDriveAdapter($service, $config['folderId']);
-        //     $flysystem = new \League\Flysystem\Filesystem($adapter);
+            // Order Builds count
+            $pendingPickupCount = OrderedBuild::whereNull('pickup_date')
+            ->where(function ($query) {
+                $query->where('user_id', Auth::id())
+                    ->orWhere(function ($q) {
+                        $q->whereNull('user_id')
+                            ->where('status', 'Pending');
+                    });
+            })
+            ->whereIn('status', ['Pending', 'Approved'])
+            ->count();
+                
+            // Check-out Product count
+            $pendingCheckoutCount = Checkout::where(function ($query) {
+                $query->whereNull('pickup_status')
+                      ->orWhere(function ($q) {
+                          $q->where('pickup_status', 'Pending')
+                            ->whereNull('pickup_date');
+                      });
+            })
+            ->join('cart_items', 'checkouts.cart_item_id', '=', 'cart_items.id')
+            ->distinct('cart_items.shopping_cart_id')
+            ->count('cart_items.shopping_cart_id');
 
-        //     return new FilesystemAdapter($flysystem, $adapter, []);
-        // });
+            // Combine both counts
+            $totalPendingOrders = $pendingPickupCount + $pendingCheckoutCount;
+                
+            $view->with('cartCount', $cartCount)
+                 ->with('lowStockCount', $lowStockCount)
+                 ->with('totalPendingOrders', $totalPendingOrders)
+                 ->with('pendingPickupCount', $pendingPickupCount)
+                 ->with('pendingCheckoutCount', $pendingCheckoutCount);
+        });
     }
 }

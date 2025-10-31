@@ -78,8 +78,8 @@ function displayBuildRemarks(budgetSummary, userBudget, totalPrice, category, cp
         return;
     }
     
-    // Hide remarks if no budget was set
-    if (!userBudget && !budgetSummary) {
+    // Hide remarks if no budget was set (additional safety check)
+    if (!userBudget) {
         remarksContainer.style.display = 'none';
         return;
     }
@@ -362,25 +362,6 @@ graphicsIntensiveBtn.addEventListener('click', function() {
     applyAllFilters();
 });
 
-// POPULATE CHIPSET BUTTON
-document.addEventListener('DOMContentLoaded', function() {
-    const amdBtn = document.getElementById('amdBtn');
-    const intelBtn = document.getElementById('intelBtn');
-    const chipsetName = document.getElementById('chipsetName');
-    
-    if (amdBtn) {
-        amdBtn.addEventListener('click', function() {
-            chipsetName.textContent = 'AMD';
-        });
-    }
-    
-    if (intelBtn) {
-        intelBtn.addEventListener('click', function() {
-            chipsetName.textContent = 'Intel';
-        });
-    }
-});
-
 generateBtn.addEventListener('click', () => {
     const value = parseFloat(budget.value);
 
@@ -458,17 +439,27 @@ generateBtn.addEventListener('click', () => {
 
         summaryTableBody.innerHTML += totalRow;
 
-        // ** NEW: Display remarks if budget_summary exists **
-        displayBuildRemarks(data.budget_summary, currentBudget, totalPrice, currentCategoryFilter, currentBrandFilter);
+        // ** UPDATED: Conditionally show remarks or summary **
+        if (currentBudget) {
+            // Show remarks section if there's a currentBudget
+            displayBuildRemarks(data.budget_summary, currentBudget, totalPrice, currentCategoryFilter, currentBrandFilter);
+            summarySection.classList.add("hidden");
+            remarksSection.classList.remove("hidden");
+            componentsSection.classList.add("hidden");
 
-        // Show summary UI
-        summarySection.classList.add("hidden");
-        remarksSection.classList.remove("hidden");
-        componentsSection.classList.add("hidden");
+            summaryTab.classList.remove('active');
+            componentsTab.classList.remove('active');
+            remarksTab.classList.add('active');
+        } else {
+            // Show summary section if no budget is set
+            summarySection.classList.remove("hidden");
+            remarksSection.classList.add("hidden");
+            componentsSection.classList.add("hidden");
 
-        summaryTab.classList.remove('active');
-        componentsTab.classList.remove('active');
-        remarksTab.classList.add('active');
+            remarksTab.classList.remove('active');
+            componentsTab.classList.remove('active');
+            summaryTab.classList.add('active');
+        }
 
         // Update component mapping
         Object.entries(data).forEach(([key, item]) => {
@@ -889,8 +880,6 @@ export function selectPayment(method, button) {
     document.getElementById('payment_method').value = method;
     console.log('Payment method set to:', document.getElementById('payment_method').value);
 }
-
-
 
 // ADD DATE TODAY ON THE SUMMARY TAB
 window.addEventListener('DOMContentLoaded', () => {

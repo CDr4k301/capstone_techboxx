@@ -49,49 +49,6 @@
             <button class="form-button">Add</button>    
         </form>   
     </section>
-    {{-- unverified users --}}
-    <h2 class="section-header">Unverified Customers</h2>
-        
-        <div class="table-body">
-            <table class="table mb-[3%]">
-                <thead>
-                    <tr class="text-base">
-                        <th class="text-left pl-2">Name</th>
-                        <th class="text-left pl-2">Email</th>
-                        <th>ID Uploaded</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($unverifiedUsers as $unverifieduser)
-                        <tr>
-                            <td>{{ $unverifieduser->first_name}} {{ $unverifieduser->last_name}}</td>
-                            <td>{{ $unverifieduser->email}}</td>
-                            <td class="text-center">
-                                <a href="{{ asset('storage/' . $unverifieduser->id_uploaded) }}" target="_blank" class="hover:underline">
-                                    {{ basename($unverifieduser->id_uploaded)}}
-                                </a>
-                            </td>
-                            <td class="align-middle text-center">
-                                <div class="flex justify-center gap-2">
-                                    <form action="{{ route('admin.users.approved', $unverifieduser->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" ><x-icons.check /></button>
-                                    </form>
-                                    <form action="{{ route('admin.users.decline', $unverifieduser->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" ><x-icons.close /></button>
-                                    </form>
-                                </div>
-                            </td>    
-                        </tr>    
-                    @endforeach
-                </tbody>
-            </table>   
-        </div>
-        {{ $unverifiedUsers->appends(request()->except('page'))->links() }}
-    </section>    
     
     {{-- user acccounts --}}
     <section class="section-style mb-[10%] !h-[100vh] pb-[1%]">

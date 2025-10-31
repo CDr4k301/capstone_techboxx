@@ -63,6 +63,8 @@ class CheckoutController extends Controller
             DB::beginTransaction();
             
             try {
+                $checkoutIds = []; // Store all checkout IDs
+                
                 // Iterate through selected cart items and create Checkout records
                 foreach ($cartItems as $ci) {
                     $product = $ci->product;
@@ -86,11 +88,12 @@ class CheckoutController extends Controller
                         'checkout_date' => now()->toDateTimeString(),
                         'total_cost' => $ci->total_price,
                         'payment_method' => $paymentMethod,
-                        'payment_status' => $paymentMethod === 'Cash' ? 'Pending' : 'Paid',
+                        'payment_status' => 'Pending',
                     ];
 
                     // Create the Checkout record for each cart item
                     $checkout = Checkout::create($data);
+                    $checkoutIds[] = $checkout->id; // Store the checkout ID
 
                     $ci->update(['processed' => true]);
                 }
@@ -100,14 +103,15 @@ class CheckoutController extends Controller
                 // Redirect to PayPal payment page if PayPal is selected
                 if ($paymentMethod === 'PayPal') {
                     return redirect()->route('paypal.create', [
-                        'checkout_id' => $checkout->id,
+                        'checkout_ids' => implode(',', $checkoutIds), // Pass all checkout IDs
                         'amount' => $grandTotal,
+                        'selected' => implode(',', $selectedIds), // Pass selected cart item IDs
                     ]);
                 }
 
                 // If payment is Cash on Pickup, no need to delete the cart items
                 // Just show the success message
-                return redirect()->route('cart.index')->with('success', 'Order placed successfully! Stock has been updated.');
+                return redirect()->route('cart.index')->with('success', 'Order placed successfully!');
 
             } catch (\Exception $e) {
                 DB::rollBack();

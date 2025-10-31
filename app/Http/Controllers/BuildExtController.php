@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Hardware\Storage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BuildExtController extends Controller
 {
@@ -15,6 +16,21 @@ class BuildExtController extends Controller
         //
         $components = app(ComponentDetailsController::class)->getAllFormattedComponents();
         $storages = Storage::get()->map(function ($storage) {
+                $storageSales = DB::table('user_builds')
+                ->select('storage_id', DB::raw('COUNT(*) as sold_count'))
+                ->where('storage_id', $storage->id)
+                ->groupBy('storage_id')
+                ->unionAll(
+                    DB::table('cart_items')
+                        ->select('product_id as storage_id', DB::raw('SUM(quantity) as sold_count'))
+                        ->where('product_type', 'storage')
+                        ->where('processed', 1)
+                        ->where('product_id', $storage->id)
+                        ->groupBy('product_id')
+                )
+                ->get()
+                ->sum('sold_count');
+
                 return (object)[
                     'id'              => $storage->id,
                     'component_type'  => strtolower($storage->storage_type), // 'hdd' or 'sdd'
@@ -29,8 +45,9 @@ class BuildExtController extends Controller
                     'label'           => "{$storage->brand} {$storage->model}",
                     'price'           => $storage->price,
                     'image'           => $storage->image,
+                    'model_3d'        => $storage->model_3d,
                     'buildCategory'   => $storage->buildCategory,
-                    'sold_count'      => $storage->sold_count,
+                    'sold_count'      => $storageSales,
             ];      
         });
 

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('payment_status');
             $table->string('pickup_status')->nullable();
             $table->timestamp('pickup_date')->nullable();
+            $table->softDeletes();
         });
     }
 

@@ -34,9 +34,20 @@ class PsuController extends Controller
         $psus = Psu::withTrashed()->get();
 
         $psuSales = DB::table('user_builds')
-                ->select('psu_id', DB::raw('COUNT(*) as sold_count'))
-                ->groupBy('psu_id')
-                ->pluck('sold_count', 'psu_id');
+            ->select('psu_id', DB::raw('COUNT(*) as sold_count'))
+            ->groupBy('psu_id')
+            ->unionAll(
+                DB::table('cart_items')
+                    ->select('product_id as psu_id', DB::raw('SUM(quantity) as sold_count'))
+                    ->where('product_type', 'psu') // Only count psu type
+                    ->where('processed', 1) // Only count processed cart items
+                    ->groupBy('product_id')
+            )
+            ->get()
+            ->groupBy('psu_id')
+            ->map(function ($group) {
+                return $group->sum('sold_count');
+            });
 
         // FORMATTING THE DATA
         $psus->each(function ($psu) use ($psuSales) {

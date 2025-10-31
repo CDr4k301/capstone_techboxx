@@ -37,33 +37,27 @@ class RegisteredUserController extends Controller
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'id_uploaded' => ['required', 'mimes:jpg,jpeg,png', 'max:2048']
+            'phone_number' => ['required','string','min:11','max:11']
         ]);
 
-        // store the uploaded file in 'public/ids' folder
-        // avoid accidental overrites or security issues
-        $file = $request->file('id_uploaded');
-        $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-        $path =  $file->storeAs('ids', $filename, 'public');
-
-        $user = UserVerification::create([
+        $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'id_uploaded' => $path,
+            'phone_number' => $request->phone_number,
+            'role' => 'Customer',
+            'status' => 'Active',
+            'is_first_login' => false,
         ]);
 
         event(new Registered($user));
 
         // comment this out if: the newly registered user will automatically log in and will not be waiting for admin approval
         // if commented out, change route to dashboard or landing page
-        // Auth::login($user); 
+        Auth::login($user); 
 
-        return redirect()->route('home')->with([
-            'message' => 'Your account has been submitted and is pending review.',
-            'type' => 'success',
-        ]);
+        return redirect()->route('home');
 
         // consider functionality: making the id one-time-view
         // add new column in the user_verifications table

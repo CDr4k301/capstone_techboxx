@@ -269,18 +269,15 @@ class CartController extends Controller
                 'status' => 'Pending',
             ]);
 
-            // dd($request->all());
-
-            // Clear the session storage after successful order
-            // You might want to add this to your JavaScript after successful form submission
-
             // Redirect based on payment method
             if ($paymentMethod === 'PayPal') {
                 return redirect()->route('paypal.create', [
-                    'checkout_id' => $checkout->id,
+                    'ordered_build_id' => $checkout->id, // Pass the ordered build ID
                     'amount' => $validated['total_price'],
                 ]);
             }
+
+            // dd($request->all());
 
             return redirect()->route('customer.orderdetails')->with([
                 'message' => 'Build ordered successfully!',
@@ -319,7 +316,7 @@ class CartController extends Controller
         // Redirect based on payment method
         if ($paymentMethod === 'PayPal') {
             return redirect()->route('paypal.create', [
-                'checkout_id' => $checkout->id,
+                'ordered_build_id' => $checkout->id, // Pass the ordered build ID
                 'amount' => $request->total_price,
             ]);
         }

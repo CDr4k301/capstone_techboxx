@@ -45,6 +45,23 @@ class CatalogueController extends Controller
                 ->selectRaw('COALESCE(AVG(rating), 0) as average_rating, COUNT(*) as reviews_count')
                 ->first();
 
+            // Special handling for 'case' category
+            $buildsColumn = ($category === 'case') ? 'pc_case_id' : "{$category}_id";
+            
+            // Calculate sold_count from user_builds and cart_items
+            $soldCount = DB::table('user_builds')
+                ->select(DB::raw('COUNT(*) as sold_count'))
+                ->where($buildsColumn, $rowArr['id'])
+                ->unionAll(
+                    DB::table('cart_items')
+                        ->select(DB::raw('SUM(quantity) as sold_count'))
+                        ->where('product_type', $category)
+                        ->where('product_id', $rowArr['id'])
+                        ->where('processed', 1)
+                )
+                ->get()
+                ->sum('sold_count');
+
             // Common fields
             $common = [
                 'id'             => (int) ($rowArr['id'] ?? 0),
@@ -57,8 +74,10 @@ class CatalogueController extends Controller
                 'stock'          => (int) ($rowArr['stock'] ?? 0),
                 'image'          => $rowArr['image'] ?? 'images/placeholder.png',
                 'created_at'     => $rowArr['created_at'] ?? now(),
+                'updated_at' => $rowArr['updated_at'] ?? $rowArr['created_at'] ?? null,
                 'rating'         => (int) ($reviewStats->average_rating ?? 0),
                 'reviews_count'  => (int) ($reviewStats->reviews_count ?? 0),
+                'sold_count'     => (int) $soldCount, 
             ];
 
             // ✅ Specs mapping per category
@@ -233,8 +252,10 @@ class CatalogueController extends Controller
 
         // 3) Sorting
         switch ($request->input('sort')) {
-            case 'newest':
-                $filtered = $filtered->sortByDesc('created_at');
+            case 'newest': // PRODUCTS CREATED WITHIN LAST 30 DAYS
+                $filtered = $filtered->filter(function ($component) {
+                    return $component['created_at'] >= now()->subDays(30);
+                })->sortByDesc('created_at');
                 break;
             case 'price_asc':
                 $filtered = $filtered->sortBy('price');
@@ -247,6 +268,23 @@ class CatalogueController extends Controller
                 break;
             case 'name_desc':
                 $filtered = $filtered->sortByDesc('name', SORT_NATURAL | SORT_FLAG_CASE);
+                break;
+            case 'hot': // HIGH RECENT SALES + LOW STOCK
+                $filtered = $filtered->sortByDesc(function ($component) {
+                    // Prioritize items with high sales and low stock
+                    $stockPressure = $component['stock'] == 0 ? 100 : $component['sold_count'] / $component['stock'];
+                    return $component['sold_count'] + ($stockPressure * 10);
+                });
+                break;
+            case 'recent': //RECENTLY UPDATED
+                $filtered = $filtered->filter(function ($component) {
+                    return $component['updated_at'] >= now()->subDays(14);
+                })->sortByDesc('updated_at');
+                break;
+            case 'popular': // HIGH SALES + HIGH RATINGS
+                $filtered = $filtered->sortByDesc(function ($component) {
+                    return $component['sold_count'] * ($component['rating'] / 5);
+                });
                 break;
             default:
                 // default order = newest

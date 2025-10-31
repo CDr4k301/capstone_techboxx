@@ -16,7 +16,14 @@
             @else
                 <a href="{{ route('login') }}">Your Builds</a>
             @endauth
-            <a href="/cart">Cart</a>
+            <a href="/cart" class="hover:text-blue-600 transition-colors {{ $cartCount > 0 ? 'relative pr-7' : '' }}">
+                Cart
+                @if($cartCount > 0)
+                    <span class="absolute -top-2 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center border-2 border-white shadow-sm">
+                        {{ $cartCount }}
+                    </span>
+                @endif
+            </a>
             <a href="{{ route('catalogue') }}">Products</a>
         </div>
         <div class="header-button">

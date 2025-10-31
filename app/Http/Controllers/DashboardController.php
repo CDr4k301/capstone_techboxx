@@ -37,7 +37,7 @@ class DashboardController extends Controller
                 foreach ($models as $modelClass) {
                     if (is_string($modelClass) && class_exists($modelClass)) {
                         try {
-                            $lowStockItems += (int) $modelClass::where('stock', '<', 10)->count();
+                            $lowStockItems += (int) $modelClass::where('stock', '<=', 10)->count();
                         } catch (Exception $exModel) {
                             Log::warning("Dashboard: skipped {$modelClass} when calculating low stock: " . $exModel->getMessage());
                         }

@@ -77,3 +77,9 @@ main {
 .order-tab button:hover {
     background-color: var(--gray);
 }
+
+#orderBuilds.active, #checkOutComponents.active {
+    background-color: var(--gray); /* gray-500 */
+    color: black;
+    border-color: #6b7280;
+}

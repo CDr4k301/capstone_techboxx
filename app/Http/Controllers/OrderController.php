@@ -33,8 +33,11 @@ class OrderController extends Controller
             'userBuild.user',
             ])
             ->where(function ($query) {
-                $query->where('status', 'Pending')
-                    ->orWhere('user_id', Auth::id());
+                $query->where('user_id', Auth::id())
+                    ->orWhere(function ($q) {
+                        $q->whereNull('user_id')
+                            ->where('status', 'Pending');
+                    });
             })
             ->orderByRaw("
                 CASE 

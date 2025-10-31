@@ -32,9 +32,19 @@
                         </li>
                         <li>
                             <a href="{{ route('staff.order') }}" 
-                               class="child {{ request()->routeIs('staff.order') ? 'active' : '' }}">
+                            class="child relative pr-6 {{ request()->routeIs('staff.order') ? 'active' : '' }} flex items-center gap-2">
                                 <x-dynamic-component :component="'x-icons.order'" />
-                                Orders
+                                <span>Orders</span>
+                                @if($totalPendingOrders > 0)
+                                    <span class="group relative">
+                                        <span class="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                            {{ $totalPendingOrders }}
+                                        </span>
+                                        <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                                            {{ $totalPendingOrders }} pending orders
+                                        </span>
+                                    </span>
+                                @endif
                             </a>
                         </li>
                         <li>
@@ -46,9 +56,19 @@
                         </li>
                         <li>
                             <a href="{{ route('staff.inventory') }}" 
-                               class="child {{ request()->routeIs('staff.inventory') ? 'active' : '' }}">
+                            class="child relative {{ request()->routeIs('staff.inventory') ? 'active' : '' }}">
                                 <x-dynamic-component :component="'x-icons.inventory'" />
                                 Inventory
+                                @if($lowStockCount > 0)
+                                    <span class="group relative">
+                                        <span class="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                            {{ $lowStockCount }}
+                                        </span>
+                                        <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                                            {{ $lowStockCount }} low stock items
+                                        </span>
+                                    </span>
+                                @endif
                             </a>
                         </li>
                         <li>
@@ -109,9 +129,19 @@
                     <ul>
                         <li>
                             <a href="{{ route('staff.order') }}" 
-                               class="child {{ request()->routeIs('staff.order') ? 'active' : '' }}">
+                            class="child relative pr-6 {{ request()->routeIs('staff.order') ? 'active' : '' }} flex items-center gap-2">
                                 <x-dynamic-component :component="'x-icons.order'" />
-                                Orders
+                                <span>Orders</span>
+                                @if($totalPendingOrders > 0)
+                                    <span class="group relative">
+                                        <span class="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                            {{ $totalPendingOrders }}
+                                        </span>
+                                        <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                                            {{ $totalPendingOrders }} pending orders
+                                        </span>
+                                    </span>
+                                @endif
                             </a>
                         </li>
                         <li>
@@ -123,9 +153,19 @@
                         </li>
                         <li>
                             <a href="{{ route('staff.inventory') }}" 
-                               class="child {{ request()->routeIs('staff.inventory') ? 'active' : '' }}">
+                            class="child relative {{ request()->routeIs('staff.inventory') ? 'active' : '' }}">
                                 <x-dynamic-component :component="'x-icons.inventory'" />
                                 Inventory
+                                @if($lowStockCount > 0)
+                                    <span class="group relative">
+                                        <span class="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                            {{ $lowStockCount }}
+                                        </span>
+                                        <span class="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                                            {{ $lowStockCount }} low stock items
+                                        </span>
+                                    </span>
+                                @endif
                             </a>
                         </li>
                         <li>

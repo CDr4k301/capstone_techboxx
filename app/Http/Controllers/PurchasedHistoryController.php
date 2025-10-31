@@ -6,6 +6,7 @@ use App\Models\Checkout;
 use App\Models\Order;
 use App\Models\OrderedBuild;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PurchasedHistoryController extends Controller
 {
@@ -30,8 +31,10 @@ class PurchasedHistoryController extends Controller
         ->whereHas('cartItem.shoppingCart', function($query) use ($userId) {
             $query->where('user_id', $userId);
         })
-        ->where('pickup_status', 'Pending')
-        ->orWhereNotNull('pickup_date')
+        ->where(function($query) {
+            $query->where('pickup_status', 'Pending')
+                  ->orWhereNotNull('pickup_date');
+        })
         ->orderBy('checkout_date', 'desc')
         ->get();
 
@@ -40,12 +43,12 @@ class PurchasedHistoryController extends Controller
             return $checkout->cartItem->shopping_cart_id . '|' . $checkout->checkout_date->format('Y-m-d H:i:s');
         });
 
-        // Transform individual component orders
+        // Transform individual component orders - Convert to objects
         $componentOrders = $grouped->map(function ($checkouts) {
             $first = $checkouts->first();
             $cartItems = $checkouts->map->cartItem;
 
-            return [
+            return (object)[
                 'type' => 'component',
                 'id' => 'comp_' . $first->cartItem->shopping_cart_id,
                 'order_id' => $first->cartItem->shopping_cart_id,
@@ -62,7 +65,7 @@ class PurchasedHistoryController extends Controller
             ];
         })->values();
 
-        // Get complete build orders
+        // Get complete build orders - Convert to objects
         $buildOrders = OrderedBuild::with([
             'user', 
             'userBuild.case',
@@ -75,14 +78,16 @@ class PurchasedHistoryController extends Controller
             'userBuild.cooler',  
             'userBuild.user'
         ])
-        ->whereHas('userBuild.user', function($query) use ($user) {
-            $query->where('user_id', $user->id);
+        ->whereHas('userBuild.user', function($query) use ($userId) {
+            $query->where('id', $userId);
         })
-        ->where('pickup_status', 'Pending')
-        ->orWhereNotNull('pickup_date')
+        ->where(function($query) {
+            $query->where('pickup_status', 'Pending')
+                  ->orWhereNotNull('pickup_date');
+        })
         ->get()
         ->map(function ($order) {
-            return [
+            return (object)[
                 'type' => 'build',
                 'id' => 'build_' . $order->id,
                 'order_id' => $order->id,
@@ -101,13 +106,16 @@ class PurchasedHistoryController extends Controller
 
         // Merge both collections and sort by checkout date
         $allOrders = $componentOrders->merge($buildOrders)
-            ->sortByDesc('checkout_date')
+            ->sortByDesc(function($order) {
+                return $order->checkout_date;
+            })
             ->values();
 
         // Manual pagination for the combined collection
         $page = request()->get('page', 1);
         $perPage = 4;
-        $paginatedOrders = new \Illuminate\Pagination\LengthAwarePaginator(
+        
+        $paginatedOrders = new LengthAwarePaginator(
             $allOrders->forPage($page, $perPage),
             $allOrders->count(),
             $perPage,
@@ -118,7 +126,7 @@ class PurchasedHistoryController extends Controller
         return view('customer.purchasedhistory', compact('paginatedOrders'));
     }
 
-    // optional invoice view if you want it
+    // Optional invoice view if you want it
     public function invoice(Order $order)
     {
         if ($order->user_id !== Auth::id()) {

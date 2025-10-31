@@ -32,9 +32,20 @@ class RamController extends Controller
         $rams = Ram::withTrashed()->get();
 
         $ramSales = DB::table('user_builds')
-                ->select('ram_id', DB::raw('COUNT(*) as sold_count'))
-                ->groupBy('ram_id')
-                ->pluck('sold_count', 'ram_id');
+            ->select('ram_id', DB::raw('COUNT(*) as sold_count'))
+            ->groupBy('ram_id')
+            ->unionAll(
+                DB::table('cart_items')
+                    ->select('product_id as ram_id', DB::raw('SUM(quantity) as sold_count'))
+                    ->where('product_type', 'ram') // Only count ram type
+                    ->where('processed', 1) // Only count processed cart items
+                    ->groupBy('product_id')
+            )
+            ->get()
+            ->groupBy('ram_id')
+            ->map(function ($group) {
+                return $group->sum('sold_count');
+            });
 
         $rams->each(function ($ram) use ($ramSales) {
             $ram->ecc_display = ($ram->is_ecc === 'false') ? 'No' : 'Yes';

@@ -214,5 +214,50 @@
             }
         });
     </script>
+    <!-- Add this script to prevent form resubmission -->
+    <script>
+        // Prevent form resubmission when page is refreshed or back button is pressed
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+        // Disable form submission after it's been submitted once
+        let formSubmitted = false;
+        
+        document.getElementById('checkout-form').addEventListener('submit', function(e) {
+            if (!selectedPayment) {
+                e.preventDefault();
+                alert('Please select a payment method before checking out.');
+                return false;
+            }
+            
+            // Prevent multiple submissions
+            if (formSubmitted) {
+                e.preventDefault();
+                alert('Your order is already being processed. Please wait.');
+                return false;
+            }
+            
+            formSubmitted = true;
+            
+            // Disable the submit button
+            const submitBtn = document.getElementById('checkout-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        });
+
+        // Also disable the button if user tries to go back and forward again
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                const submitBtn = document.getElementById('checkout-btn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Order Processed';
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        });
+    </script>
 </body>
 </html>

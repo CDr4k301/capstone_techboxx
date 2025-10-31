@@ -33,9 +33,20 @@ class GpuController extends Controller
         $gpus = Gpu::withTrashed()->get();
 
         $gpuSales = DB::table('user_builds')
-                ->select('gpu_id', DB::raw('COUNT(*) as sold_count'))
-                ->groupBy('gpu_id')
-                ->pluck('sold_count', 'gpu_id');
+            ->select('gpu_id', DB::raw('COUNT(*) as sold_count'))
+            ->groupBy('gpu_id')
+            ->unionAll(
+                DB::table('cart_items')
+                    ->select('product_id as gpu_id', DB::raw('SUM(quantity) as sold_count'))
+                    ->where('product_type', 'gpu') // Only count gpu type
+                    ->where('processed', 1) // Only count processed cart items
+                    ->groupBy('product_id')
+            )
+            ->get()
+            ->groupBy('gpu_id')
+            ->map(function ($group) {
+                return $group->sum('sold_count');
+            });
         
         $gpus->each(function ($gpu) use ($gpuSales) {
             $gpu->price_display = '₱' . number_format($gpu->price, 2);

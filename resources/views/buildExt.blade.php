@@ -11,6 +11,7 @@
         'resources\css\build.css',
         'resources\css\buildext.css',
         'resources\js\app.js',
+        'resources\js\buildextcomponent-viewer.js',
         'resources\js\buildext.js',
         'resources\css\admin-staff\modal.css',
         ])
@@ -24,27 +25,107 @@
           showViewModal: false, 
           selectedComponent: {},
           showModal: false,
-          modalType: 'order', // 'order' or 'save'
+          modalType: 'order',
           buildName: 'YOUR PC',
           currentUser: {
               first_name: '{{ Auth::user()->first_name ?? '' }}',
               last_name: '{{ Auth::user()->last_name ?? '' }}',
               phone: '{{ Auth::user()->phone_number ?? '' }}'
           },
-          // Initialize Alpine reactive state from session immediately
+          // REAL-TIME SYNC: Initialize and watch for changes
           selectedComponents: { ...window.selectedComponents || {} },
           totalPrice: 0,
+          compatibilityResults: null,
           
-          // Open modal for specific type
-          openModal(type) {
-              this.modalType = type;
-              this.populateModal();
+          // Initialize and set up real-time sync
+          init() {
+              // Initial sync
+              this.syncSelectedComponents();
+              
+              // Watch for changes to window.selectedComponents
+              this.$watch('selectedComponents', (value) => {
+                  // Update global reference when Alpine state changes
+                  window.selectedComponents = { ...value };
+              });
           },
           
-          populateModal() {
-              // Copy global selectedComponents to Alpine.js reactive data
+          // Sync from global to Alpine state
+          syncSelectedComponents() {
               this.selectedComponents = { ...window.selectedComponents || {} };
+          },
+          
+          // UPDATED: Open modal with real-time sync
+          async openModal(type) {
+              this.modalType = type;
               
+              // Sync latest components before checking compatibility
+              this.syncSelectedComponents();
+              
+              // Check compatibility before showing modal
+              const isCompatible = await this.checkCompatibility();
+              if (isCompatible) {
+                  this.populateModal();
+                  this.showModal = true;
+              } else {
+                  this.showCompatibilityAlert();
+              }
+          },
+          
+          // UPDATED: Check compatibility with real-time data
+          async checkCompatibility() {
+              // Use the latest Alpine.js state
+              const componentSelections = {};
+              
+              for (const [type, component] of Object.entries(this.selectedComponents)) {
+                  if (component && component.componentId) {
+                      componentSelections[type + '_id'] = component.componentId;
+                  }
+              }
+              
+              // Check if we have enough components to validate
+              if (Object.keys(componentSelections).length === 0) {
+                  alert('⚠️ No components selected.\nPlease choose at least one component before ordering.');
+                  return false;
+              }
+              
+              try {
+                  const response = await fetch('/techboxx/build/validate', {
+                      method: 'POST',
+                      headers: { 
+                          'Content-Type': 'application/json', 
+                          'X-CSRF-TOKEN': document.querySelector(`meta[name='csrf-token']`).content
+                      },
+                      body: JSON.stringify(componentSelections)
+                  });
+                  
+                  const data = await response.json();
+                  this.compatibilityResults = data;
+                  return !data.errors || data.errors.length === 0;
+                  
+              } catch (error) {
+                  console.error('Compatibility check failed:', error);
+                  return true;
+              }
+          },
+          
+          showCompatibilityAlert() {
+              let message = '❌ Compatibility Issues Found:\n\n';
+              
+              if (this.compatibilityResults.errors && this.compatibilityResults.errors.length > 0) {
+                  message += 'Errors:\n' + this.compatibilityResults.errors.join('\n') + '\n\n';
+              }
+              
+              if (this.compatibilityResults.warnings && this.compatibilityResults.warnings.length > 0) {
+                  message += 'Warnings:\n' + this.compatibilityResults.warnings.join('\n') + '\n\n';
+              }
+              
+              message += 'Please fix these issues before proceeding with your order.';
+              alert(message);
+          },
+          
+          // UPDATED: Populate modal with real-time data
+          populateModal() {
+              // Use the already synced selectedComponents
               // Calculate and set total price
               let totalPrice = 0;
               for (const [type, component] of Object.entries(this.selectedComponents)) {
@@ -54,10 +135,7 @@
               }
               this.totalPrice = totalPrice;
               
-              // Update hidden inputs
               this.updateModalHiddenInputs();
-              
-              // Show the modal
               this.showModal = true;
           },
           
@@ -73,29 +151,24 @@
                   }
               });
 
-            // Handle storage components specifically - both HDD and SSD become 'storage'
+            // Handle storage components
             const storageInput = document.getElementById('hidden_storage');
             if (storageInput) {
-                // Clear storage input first
                 storageInput.value = '';
                 
-                // Prioritize SSD over HDD if both are selected
                 if (this.selectedComponents.ssd && this.selectedComponents.ssd.componentId) {
                     storageInput.value = this.selectedComponents.ssd.componentId;
-                    console.log('Storage set to SSD:', this.selectedComponents.ssd.componentId);
                 } else if (this.selectedComponents.hdd && this.selectedComponents.hdd.componentId) {
                     storageInput.value = this.selectedComponents.hdd.componentId;
-                    console.log('Storage set to HDD:', this.selectedComponents.hdd.componentId);
                 }
                 
-                // Clear the individual hdd/ssd hidden inputs since we're using storage now
                 const hddInput = document.getElementById('hidden_hdd');
                 const ssdInput = document.getElementById('hidden_ssd');
                 if (hddInput) hddInput.value = '';
                 if (ssdInput) ssdInput.value = '';
             }
 
-            // Update total price hidden input
+            // Update total price
             const totalPriceInput = document.getElementById('hidden_total_price');
             if (totalPriceInput) {
                 let totalPrice = 0;
@@ -108,7 +181,7 @@
             }
         },
         
-        // Computed properties for dynamic content
+        // Computed properties
         get modalTitle() {
             return this.modalType === 'order' ? 'Order Build' : 'Save Build';
         },
@@ -120,14 +193,16 @@
         get formAction() {
             return this.modalType === 'order' ? '{{ route('build.order') }}' : '{{ route('build.save') }}';
         }
-    }">
+    }"
+    >
+
     @if (session('message'))
         <x-message :type="session('type')">
             {{ session('message') }}
         </x-message>
     @endif
 
-    {{-- SINGLE ADAPTIVE MODAL --}}
+    {{-- UPDATED MODAL WITH COMPATIBILITY DISPLAY --}}
     <div x-show="showModal" x-cloak x-transition class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" @click.away="showModal = false">
             {{-- Header --}}
@@ -138,10 +213,47 @@
                         <x-icons.close class="w-6 h-6 text-gray-500 hover:text-gray-700" />
                     </button>
                 </div>
+                
+                {{-- Compatibility Status Display --}}
+                <div x-show="compatibilityResults" class="mt-3">
+                    <template x-if="compatibilityResults.errors && compatibilityResults.errors.length > 0">
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                            <div class="flex items-center">
+                                <span class="text-red-800 font-semibold">❌ Compatibility Issues Found</span>
+                            </div>
+                            <ul class="text-red-700 text-sm mt-1 list-disc list-inside">
+                                <template x-for="error in compatibilityResults.errors" :key="error">
+                                    <li x-text="error"></li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                    
+                    <template x-if="(!compatibilityResults.errors || compatibilityResults.errors.length === 0) && compatibilityResults.warnings && compatibilityResults.warnings.length > 0">
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                            <div class="flex items-center">
+                                <span class="text-yellow-800 font-semibold">⚠️ Compatibility Warnings</span>
+                            </div>
+                            <ul class="text-yellow-700 text-sm mt-1 list-disc list-inside">
+                                <template x-for="warning in compatibilityResults.warnings" :key="warning">
+                                    <li x-text="warning"></li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                    
+                    <template x-if="(!compatibilityResults.errors || compatibilityResults.errors.length === 0) && (!compatibilityResults.warnings || compatibilityResults.warnings.length === 0)">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                            <div class="flex items-center">
+                                <span class="text-green-800 font-semibold">✅ All Components Compatible</span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
             </div>
 
             {{-- DYNAMIC FORM --}}
-            <form :action="formAction" method="POST" id="cartForm" class="p-6 space-y-6">
+            <form :action="formAction" method="POST" id="cartForm" class="p-6 space-y-6" @submit.prevent="submitForm($event)">
                 @csrf
                 
                 {{-- Hidden inputs for component IDs --}}
@@ -242,13 +354,29 @@
                     </div>
                 </div>
 
-                {{-- Submit Button --}}
-                <div class="flex justify-end pt-4 border-t border-gray-200">
-                    <button 
-                        type="submit" 
-                        class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
-                        x-text="submitButtonText">
-                    </button>
+                {{-- UPDATED: Submit Button with Compatibility Check --}}
+                <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                    <div x-show="compatibilityResults && compatibilityResults.errors && compatibilityResults.errors.length > 0" 
+                         class="text-red-600 text-sm font-medium">
+                        ❌ Fix compatibility issues to proceed
+                    </div>
+                    <div class="flex gap-3 ml-auto">
+                        <button 
+                            type="button" 
+                            @click="showModal = false"
+                            class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200">
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            :class="{
+                                'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700': !(compatibilityResults && compatibilityResults.errors && compatibilityResults.errors.length > 0),
+                                'bg-gray-400 cursor-not-allowed': compatibilityResults && compatibilityResults.errors && compatibilityResults.errors.length > 0
+                            }"
+                            class="text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
+                            x-text="submitButtonText">
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -273,7 +401,6 @@
                 </button>
             @else
                 <form action="{{ route('techboxx.build') }}">
-                    @csrf
                     <button>
                         <x-icons.arrow class="build-arrow"/>
                     </button>

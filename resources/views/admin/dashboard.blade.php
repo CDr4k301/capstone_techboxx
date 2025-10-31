@@ -8,7 +8,7 @@
                 <p class="text-gray-700">Total Orders</p>
             </div>
             <div class="bg-yellow-100 p-6 rounded-2xl shadow">
-                <h2 class="text-3xl font-bold">{{ $pendingOrders }}</h2>
+                <h2 class="text-3xl font-bold">{{ $totalPendingOrders }}</h2>
                 <p class="text-gray-700">Pending Orders</p>
             </div>
             <div class="bg-green-100 p-6 rounded-2xl shadow">

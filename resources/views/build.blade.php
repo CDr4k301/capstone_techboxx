@@ -25,13 +25,75 @@
         last_name: '{{ Auth::user()->last_name ?? '' }}',
         phone: '{{ Auth::user()->phone_number ?? '' }}'
     },
+    selectedPayment: '',
     selectedComponents: {},
     totalPrice: 0,
+    compatibilityResults: null,
     
     // Open modal for specific type
-    openModal(type) {
+    async openModal(type) {
         this.modalType = type;
-        this.populateModal();
+        this.selectedPayment = ''; // Reset payment selection
+        
+        // Check compatibility before showing modal
+        const isCompatible = await this.checkCompatibility();
+        if (isCompatible) {
+            this.populateModal();
+            this.showModal = true;
+        } else {
+            this.showCompatibilityAlert();
+        }
+    },
+    
+    // Check compatibility with selected components
+    async checkCompatibility() {
+        const componentSelections = {};
+        
+        for (const [type, component] of Object.entries(window.selectedComponents || {})) {
+            if (component && component.componentId) {
+                componentSelections[type + '_id'] = component.componentId;
+            }
+        }
+        
+        // Check if we have enough components to validate
+        if (Object.keys(componentSelections).length === 0) {
+            alert('⚠️ No components selected.\nPlease choose at least one component before ordering.');
+            return false;
+        }
+        
+        try {
+            const response = await fetch('/techboxx/build/validate', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-CSRF-TOKEN': document.querySelector(`meta[name='csrf-token']`).content
+                },
+                body: JSON.stringify(componentSelections)
+            });
+            
+            const data = await response.json();
+            this.compatibilityResults = data;
+            return !data.errors || data.errors.length === 0;
+            
+        } catch (error) {
+            console.error('Compatibility check failed:', error);
+            return true;
+        }
+    },
+    
+    showCompatibilityAlert() {
+        let message = '❌ Compatibility Issues Found:\n\n';
+        
+        if (this.compatibilityResults.errors && this.compatibilityResults.errors.length > 0) {
+            message += 'Errors:\n' + this.compatibilityResults.errors.join('\n') + '\n\n';
+        }
+        
+        if (this.compatibilityResults.warnings && this.compatibilityResults.warnings.length > 0) {
+            message += 'Warnings:\n' + this.compatibilityResults.warnings.join('\n') + '\n\n';
+        }
+        
+        message += 'Please fix these issues before proceeding with your order.';
+        alert(message);
     },
     
     populateModal() {
@@ -55,7 +117,7 @@
     },
     
     updateModalHiddenInputs() {
-        const componentTypes = ['gpu', 'motherboard', 'cpu', 'psu', 'ram', 'cooler', 'case'];
+        const componentTypes = ['gpu', 'motherboard', 'cpu', 'hdd', 'ssd', 'psu', 'ram', 'cooler', 'case'];
         
         componentTypes.forEach(type => {
             const component = this.selectedComponents[type];
@@ -99,6 +161,73 @@
             }
             totalPriceInput.value = totalPrice.toFixed(2);
         }
+    },
+    
+    // NEW: Form submission handler
+    submitForm(event) {
+        console.log('=== FORM SUBMISSION STARTED ===');
+        
+        // Prevent default immediately
+        event.preventDefault();
+        
+        // Validate build name
+        const buildNameInput = document.querySelector(`input[name='build_name']`);
+        const buildName = buildNameInput ? buildNameInput.value : '';
+        if (!buildName.trim()) {
+            alert('Please enter a build name.');
+            return false;
+        }
+        
+        // Validate components
+        if (Object.keys(this.selectedComponents).length === 0) {
+            alert('Please select at least one component.');
+            return false;
+        }
+        
+        // Validate all required components are selected
+        const requiredComponents = ['gpu', 'motherboard', 'cpu', 'psu', 'ram', 'cooler', 'case'];
+        const missingComponents = [];
+        
+        requiredComponents.forEach(type => {
+            if (!this.selectedComponents[type] || !this.selectedComponents[type].componentId) {
+                const componentNames = {
+                    'gpu': 'GPU',
+                    'motherboard': 'Motherboard',
+                    'cpu': 'CPU',
+                    'psu': 'Power Supply',
+                    'ram': 'RAM',
+                    'cooler': 'Cooler',
+                    'case': 'Case'
+                };
+                missingComponents.push(componentNames[type]);
+            }
+        });
+        
+        // Check storage
+        if (!this.selectedComponents.ssd?.componentId && !this.selectedComponents.hdd?.componentId) {
+            missingComponents.push('Storage (HDD or SSD)');
+        }
+        
+        if (missingComponents.length > 0) {
+            alert(`Please select the following components:\n\n${missingComponents.join('\n')}`);
+            return false;
+        }
+        
+        // Check compatibility errors
+        if (this.compatibilityResults && this.compatibilityResults.errors && this.compatibilityResults.errors.length > 0) {
+            alert('Please fix compatibility issues before proceeding.');
+            return false;
+        }
+        
+        console.log('=== ALL VALIDATIONS PASSED - SUBMITTING FORM ===');
+        
+        // Update hidden inputs one final time
+        this.updateModalHiddenInputs();
+        
+        // Submit the form programmatically
+        const form = event.target;
+        console.log('Submitting form to:', form.action);
+        form.submit();
     },
     
     // Computed properties for dynamic content
@@ -151,10 +280,47 @@ class="flex">
                         <x-icons.close class="w-6 h-6 text-gray-500 hover:text-gray-700" />
                     </button>
                 </div>
+                
+                {{-- Compatibility Status Display --}}
+                <div x-show="compatibilityResults" class="mt-3">
+                    <template x-if="compatibilityResults.errors && compatibilityResults.errors.length > 0">
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                            <div class="flex items-center">
+                                <span class="text-red-800 font-semibold">❌ Compatibility Issues Found</span>
+                            </div>
+                            <ul class="text-red-700 text-sm mt-1 list-disc list-inside">
+                                <template x-for="error in compatibilityResults.errors" :key="error">
+                                    <li x-text="error"></li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                    
+                    <template x-if="(!compatibilityResults.errors || compatibilityResults.errors.length === 0) && compatibilityResults.warnings && compatibilityResults.warnings.length > 0">
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                            <div class="flex items-center">
+                                <span class="text-yellow-800 font-semibold">⚠️ Compatibility Warnings</span>
+                            </div>
+                            <ul class="text-yellow-700 text-sm mt-1 list-disc list-inside">
+                                <template x-for="warning in compatibilityResults.warnings" :key="warning">
+                                    <li x-text="warning"></li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                    
+                    <template x-if="(!compatibilityResults.errors || compatibilityResults.errors.length === 0) && (!compatibilityResults.warnings || compatibilityResults.warnings.length === 0)">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                            <div class="flex items-center">
+                                <span class="text-green-800 font-semibold">✅ All Components Compatible</span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
             </div>
 
             {{-- DYNAMIC FORM --}}
-            <form :action="formAction" method="POST" id="cartForm" class="p-6 space-y-6">
+            <form :action="formAction" method="POST" id="cartForm" class="p-6 space-y-6" @submit.prevent="submitForm($event)">
                 @csrf
                 
                 {{-- Hidden inputs for component IDs --}}
@@ -254,13 +420,29 @@ class="flex">
                     </div>
                 </div>
 
-                {{-- Submit Button --}}
-                <div class="flex justify-end pt-4 border-t border-gray-200">
-                    <button 
-                        type="submit" 
-                        class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
-                        x-text="submitButtonText">
-                    </button>
+                {{-- UPDATED: Submit Button with Compatibility Check --}}
+                <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                    <div x-show="compatibilityResults && compatibilityResults.errors && compatibilityResults.errors.length > 0" 
+                         class="text-red-600 text-sm font-medium">
+                        ❌ Fix compatibility issues to proceed
+                    </div>
+                    <div class="flex gap-3 ml-auto">
+                        <button 
+                            type="button" 
+                            @click="showModal = false"
+                            class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200">
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            :class="{
+                                'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700': !(compatibilityResults && compatibilityResults.errors && compatibilityResults.errors.length > 0),
+                                'bg-gray-400 cursor-not-allowed': compatibilityResults && compatibilityResults.errors && compatibilityResults.errors.length > 0
+                            }"
+                            class="text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50"
+                            x-text="submitButtonText">
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

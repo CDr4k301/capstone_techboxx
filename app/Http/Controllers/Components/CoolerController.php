@@ -31,9 +31,20 @@ class CoolerController extends Controller
         $coolers = Cooler::withTrashed()->get();
 
         $coolerSales = DB::table('user_builds')
-                ->select('cooler_id', DB::raw('COUNT(*) as sold_count'))
-                ->groupBy('cooler_id')
-                ->pluck('sold_count', 'cooler_id');
+            ->select('cooler_id', DB::raw('COUNT(*) as sold_count'))
+            ->groupBy('cooler_id')
+            ->unionAll(
+                DB::table('cart_items')
+                    ->select('product_id as cooler_id', DB::raw('SUM(quantity) as sold_count'))
+                    ->where('product_type', 'cooler') // Only count cooler type
+                    ->where('processed', 1) // Only count processed cart items
+                    ->groupBy('product_id')
+            )
+            ->get()
+            ->groupBy('cooler_id')
+            ->map(function ($group) {
+                return $group->sum('sold_count');
+            });
 
         $coolers->each(function ($cooler) use ($coolerSales) {
             $cooler->socket_display = implode('<br>', $cooler->socket_compatibility ?? []);

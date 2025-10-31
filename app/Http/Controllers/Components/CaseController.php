@@ -36,9 +36,20 @@ class CaseController extends Controller
         $cases = PcCase::withTrashed()->get();
         
         $caseSales = DB::table('user_builds')
-                ->select('pc_case_id', DB::raw('COUNT(*) as sold_count'))
-                ->groupBy('pc_case_id')
-                ->pluck('sold_count', 'pc_case_id');
+            ->select('pc_case_id', DB::raw('COUNT(*) as sold_count'))
+            ->groupBy('pc_case_id')
+            ->unionAll(
+                DB::table('cart_items')
+                    ->select('product_id as pc_case_id', DB::raw('SUM(quantity) as sold_count'))
+                    ->where('product_type', 'case') // Only count pc_case type
+                    ->where('processed', 1) // Only count processed cart items
+                    ->groupBy('product_id')
+            )
+            ->get()
+            ->groupBy('pc_case_id')
+            ->map(function ($group) {
+                return $group->sum('sold_count');
+            });
         $cases->each(function ($case) use ($caseSales) {
             // RADIATOR SUPPORT
             $case->radiator_display = $case->radiatorSupports->groupBy('location')->map(function ($group, $location) {

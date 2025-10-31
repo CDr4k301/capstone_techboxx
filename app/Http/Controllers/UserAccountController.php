@@ -21,7 +21,6 @@ class UserAccountController extends Controller
     }
 
     public function useraccount(Request $request) {
-        $unverifiedUsers = UserVerification::paginate(9, ['*'], 'page_unverified');
         $search = $request->input('search');
 
         // exclude the authenticated user first
@@ -42,8 +41,7 @@ class UserAccountController extends Controller
                               ->orderByDesc('created_at')
                               ->paginate(9);
 
-        // compact -> takes the string passed into a key-value pair
-        return view('admin.useraccount', compact('unverifiedUsers', 'userAccounts'));
+        return view('admin.useraccount', compact('userAccounts'));
     }
 
     public function store(Request $request) {
@@ -71,65 +69,6 @@ class UserAccountController extends Controller
             'type' => 'success',
         ]);
     }
-
-    public function approve($id) {
-        $unverified = UserVerification::findOrFail($id);
-        $adminUser = Auth::user();
-
-        // check if a user with the same email already exists
-        if (User::where('email', $unverified->email)->exists()) {
-            ActivityLogService::userApprovalFailed($unverified, $adminUser, 'Email already exists');
-            return back()->with([
-                'message' => 'This email is already registered and cannot be approved again.',
-                'type' => 'error',
-            ]);
-        }
-        
-        $user = User::create([
-            'first_name' => $unverified->first_name,
-            'last_name' => $unverified->last_name,
-            'email' => $unverified->email,
-            'password' => $unverified->password,
-            'role' => 'Customer',
-            'status' => 'Active',
-            'is_first_login' => false,
-        ]);
-        
-            ActivityLogService::userApproved($unverified, $user, $adminUser);
-            // optionally sent email or notifiation here
-
-            // delete the unverified record and id
-            $unverified->delete();
-
-            if ($unverified->id_uploaded) {
-                Storage::disk('public')->delete($unverified->id_uploaded);
-            }
-
-            return back()->with([
-                'message' => 'User has been approved and added.',
-                'type' => 'success',    
-            ]);
-    }
-
-    public function decline($id) {
-        $unverified = UserVerification::findOrFail($id);
-        $adminUser = Auth::user();
-
-        // Log the decline action before deletion
-        ActivityLogService::userVerificationDeclined($unverified, $adminUser);
-
-        $unverified->delete();
-        
-        if ($unverified->id_uploaded) {
-            Storage::disk('public')->delete($unverified->id_uploaded);
-        }
-
-        return back()->with([
-            'message' => 'User has been declined and deleted.',
-            'type' => 'error',
-        ]);
-    }
-
 
     public function update(Request $request, $id) {
         $user = User::findOrFail($id);

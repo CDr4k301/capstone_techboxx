@@ -44,9 +44,20 @@ class MoboController extends Controller
         $mobos = Motherboard::withTrashed()->get();
 
         $moboSales = DB::table('user_builds')
-                ->select('motherboard_id', DB::raw('COUNT(*) as sold_count'))
-                ->groupBy('motherboard_id')
-                ->pluck('sold_count', 'motherboard_id');
+            ->select('motherboard_id', DB::raw('COUNT(*) as sold_count'))
+            ->groupBy('motherboard_id')
+            ->unionAll(
+                DB::table('cart_items')
+                    ->select('product_id as motherboard_id', DB::raw('SUM(quantity) as sold_count'))
+                    ->where('product_type', 'motherboard') // Only count motherboard type
+                    ->where('processed', 1) // Only count processed cart items
+                    ->groupBy('product_id')
+            )
+            ->get()
+            ->groupBy('motherboard_id')
+            ->map(function ($group) {
+                return $group->sum('sold_count');
+            });
 
         // FORMATTING THE DATA
         $mobos->each(function ($mobo) use ($moboSales) {

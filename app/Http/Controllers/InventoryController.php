@@ -15,16 +15,24 @@ class InventoryController extends Controller
     public function index() {
         $lowStockThreshold = 10;
 
-        // Get all components (assuming getAllFormattedComponents() returns a collection)
+        // Get all components
         $componentss = app(ComponentDetailsController::class)->getAllFormattedComponents();
 
-        // Add the status based on stock
+        // Count low stock items
+        $lowStockCount = $componentss->filter(function ($component) use ($lowStockThreshold) {
+            return $component->stock <= $lowStockThreshold;
+        })->count();
+
+        // Add status and sort by stock level (lowest first) and then by status
         $componentss->each(function ($component) use ($lowStockThreshold) {
             $component->status = $component->stock <= $lowStockThreshold ? 'Low' : 'Normal';
         });
 
+        // Sort by stock level (ascending) so lowest stock appears first
+        $componentss = $componentss->sortBy('stock');
+
         // Paginate the collection
-        $perPage = 7; // Set the number of items per page
+        $perPage = 7;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $items = $componentss->slice(($currentPage - 1) * $perPage, $perPage)->all();
         $components = new LengthAwarePaginator(
@@ -35,7 +43,7 @@ class InventoryController extends Controller
             ['path' => Paginator::resolveCurrentPath()]
         );
 
-        return view('staff.inventory', compact('components'));
+        return view('staff.inventory', compact('components', 'lowStockCount'));
     }
 
 
@@ -52,8 +60,11 @@ class InventoryController extends Controller
             $component->status = $component->stock <= $lowStockThreshold ? 'Low' : 'Normal';
         });
 
+        // Sort by stock level (ascending) so lowest stock appears first
+        $componentss = $componentss->sortBy('stock');
+
         // Paginate the collection
-        $perPage = 6; // Set the number of items per page
+        $perPage = 7; // Set the number of items per page
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $items = $componentss->slice(($currentPage - 1) * $perPage, $perPage)->all();
         $components = new LengthAwarePaginator(

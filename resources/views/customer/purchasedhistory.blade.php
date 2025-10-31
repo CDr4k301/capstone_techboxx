@@ -18,13 +18,13 @@
                         <tr class="border-b">
                             <td class="px-6 py-4">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                    {{ $order['type'] === 'component' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }}">
-                                    {{ $order['type'] === 'component' ? 'Components' : 'Complete Build' }}
+                                    {{ $order->type === 'component' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }}">
+                                    {{ $order->type === 'component' ? 'Components' : 'Complete Build' }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 font-medium">{{ $order['build_name'] }}</td>
-                            <td class="px-6 py-4">{{ $order['checkout_date']->format('M d, Y') }}</td>
-                            <td class="px-6 py-4 text-right">₱{{ number_format($order['total_cost'], 2) }}</td>
+                            <td class="px-6 py-4 font-medium">{{ $order->build_name }}</td>
+                            <td class="px-6 py-4">{{ $order->checkout_date->format('M d, Y') }}</td>
+                            <td class="px-6 py-4 text-right">₱{{ number_format($order->total_cost, 2) }}</td>
                             <td class="px-6 py-4 text-right">
                                 <button @click="setSelectedOrder({{ $index }})"
                                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">

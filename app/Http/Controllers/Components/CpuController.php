@@ -35,9 +35,20 @@ class CpuController extends Controller
         $cpus = Cpu::withTrashed()->get();
 
         $cpuSales = DB::table('user_builds')
-                ->select('cpu_id', DB::raw('COUNT(*) as sold_count'))
-                ->groupBy('cpu_id')
-                ->pluck('sold_count', 'cpu_id');
+            ->select('cpu_id', DB::raw('COUNT(*) as sold_count'))
+            ->groupBy('cpu_id')
+            ->unionAll(
+                DB::table('cart_items')
+                    ->select('product_id as cpu_id', DB::raw('SUM(quantity) as sold_count'))
+                    ->where('product_type', 'cpu') // Only count cpu type
+                    ->where('processed', 1) // Only count processed cart items
+                    ->groupBy('product_id')
+            )
+            ->get()
+            ->groupBy('cpu_id')
+            ->map(function ($group) {
+                return $group->sum('sold_count');
+            });
 
         $cpus->each(function ($cpu) use ($cpuSales) {
             $cpu->integrated_display = ($cpu->integrated_graphics === 'false') ? 'No' : 'Yes';

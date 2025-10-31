@@ -21,11 +21,6 @@
     <x-landingheader :name="Auth::user()?->first_name" />
 
     <main class="main-content !p-0">
-        {{-- <h1>Landing Page</h1>
-        <a href="{{ route('login') }}" class="hover:text-pink-500">Click here to start testing</a>
-        <br>
-        <a href="{{ route('techboxx.build') }}" class="hover:text-pink-500">Click here to start building</a> --}}
-
         <!-- Hero Section -->
         <section class="text-left bg-gradient-to-b from-blue-800 to-blue-500 py-20 text-white relative overflow-hidden flex items-center justify-between px-10">
             

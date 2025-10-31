@@ -35,7 +35,18 @@ class StorageController extends Controller
         $storageSales = DB::table('user_builds')
             ->select('storage_id', DB::raw('COUNT(*) as sold_count'))
             ->groupBy('storage_id')
-            ->pluck('sold_count', 'storage_id');
+            ->unionAll(
+                DB::table('cart_items')
+                    ->select('product_id as storage_id', DB::raw('SUM(quantity) as sold_count'))
+                    ->where('product_type', 'storage') // Only count storage type
+                    ->where('processed', 1) // Only count processed cart items
+                    ->groupBy('product_id')
+            )
+            ->get()
+            ->groupBy('storage_id')
+            ->map(function ($group) {
+                return $group->sum('sold_count');
+            });
 
         $storages->each(function ($storage) use ($storageSales) {
             $storage->price_display = '₱' . number_format($storage->price, 2);

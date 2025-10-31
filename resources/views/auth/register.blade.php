@@ -45,22 +45,8 @@
             </div>
 
             <div>
-                <label for="id_uploaded" class="upload-label">
-                    Upload a valid ID
-                    <x-icons.info/>
-                </label>    
-                
-                <div class="id-upload">
-                    <input type="file" id="id_uploaded" name="id_uploaded" accept="image/*" class="custom-file" onchange="updateFileName(this)">
-
-                    {{-- upload icon --}}
-                    <label for="id_uploaded">
-                        <x-icons.upload />    
-                    </label>
-
-                    {{-- show the file name --}}
-                    <p id="filename" class="filename"></p>
-                </div>
+                <label for="phone_number">Phone number</label>
+                <input required name="phone_number" id="phone_number" type="tel" pattern="0[0-9]{10}" minlength="11" maxlength="11" oninput="this.value = this.value.slice(0, 11)">
             </div>
         </x-logoheader>
 
