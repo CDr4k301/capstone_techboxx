@@ -70,13 +70,17 @@
 
                             {{-- ORDER STATUS BUTTON --}}
                             <tr class="bg-gray-50 h-16">
-                                <td colspan="4" class="px-6 border-b text-right align-middle">
-                                    <button @click="setSelectedOrder({{ $index }})"
-                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
-                                        Order Status
-                                    </button>
+                                <td colspan="4" class="px-6 border-b align-middle">
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-xs">Disclaimer: Please note that receipts for product purchases are only available upon pick-up.</p>
+                                        <button @click="setSelectedOrder({{ $index }})"
+                                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                                            Order Status
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
+
 
 
                             <tr>

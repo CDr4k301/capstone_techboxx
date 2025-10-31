@@ -20,7 +20,8 @@
                         
                         <tr class="bg-gray-50">
                             <td colspan="2" class="px-6 py-3 border-b text-right">
-                                <div class="font-semibold text-gray-700">
+                                <div class="font-semibold text-gray-700 flex items-center justify-between">
+                                    <p class="text-xs">Disclaimer: Please note that receipts for product purchases are only available upon pick-up.</p>
                                     <button @click="showModal = true; selectedOrder = {{ $order->toJson() }}"
                                         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
                                         Order Status
@@ -28,6 +29,8 @@
                                 </div>
                             </td>
                         </tr>
+
+
                     @empty
                         <tr>
                             <td colspan="8" class="px-6 py-4 text-center text-gray-500">No orders found.</td>
