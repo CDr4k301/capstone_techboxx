@@ -245,6 +245,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- PRE-POPULATE SELECTED COMPONENTS FROM SESSION ---
     if (window.selectedComponents && Object.keys(window.selectedComponents).length > 0) {
+        // ✅ FIX: Convert 'storage' key into 'ssd' or 'hdd' dynamically
+        if (window.selectedComponents.storage) {
+            const storage = window.selectedComponents.storage;
+            if (storage.name && storage.name.toLowerCase().includes('ssd')) {
+                window.selectedComponents.ssd = storage;
+            } else if (storage.name && storage.name.toLowerCase().includes('hdd')) {
+                window.selectedComponents.hdd = storage;
+            }
+        }
+
         catalogItems.forEach(item => {
             const type = item.getAttribute('data-type');
             const id = item.getAttribute('data-id');

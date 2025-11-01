@@ -519,18 +519,18 @@ class="flex">
                 <button id="generateBtn"><p>Generate Build</p></button>
             </div>
 
-            {{-- THIS SECTION WILL SHOW WHEN GENERATE BUILD IS CLICKED --}}
-            <div class="generate-build hidden" id="buildSection">
-                <button data-type="case"><p>Case <span class="selected-name">None</span></p></button>
-                <button data-type="motherboard"><p>Motherboard <span class="selected-name">None</span></p></button>
-                <button data-type="cpu"><p>CPU <span class="selected-name">None</span></p></button>
-                <button data-type="ram"><p>RAM <span class="selected-name">None</span></p></button>
-                <button data-type="ssd"><p>SSD <span class="selected-name">None</span></p></button>
-                <button data-type="hdd"><p>HDD <span class="selected-name">None</span></p></button>
-                <button data-type="cooler"><p>Cooler <span class="selected-name">None</span></p></button>
-                <button data-type="gpu"><p>GPU <span class="selected-name">None</span></p></button>
-                <button data-type="psu"><p>PSU <span class="selected-name">None</span></p></button>
-            </div>
+                {{-- THIS SECTION WILL SHOW WHEN GENERATE BUILD IS CLICKED --}}
+                <div class="generate-build hidden" id="buildSection">
+                    <button data-type="case"><p>Case <span class="selected-name">None</span></p></button>
+                    <button data-type="motherboard"><p>Motherboard <span class="selected-name">None</span></p></button>
+                    <button data-type="cpu"><p>CPU <span class="selected-name">None</span></p></button>
+                    <button data-type="ram"><p>RAM <span class="selected-name">None</span></p></button>
+                    <button data-type="ssd"><p>SSD <span class="selected-name">None</span></p></button>
+                    <button data-type="hdd"><p>HDD <span class="selected-name">None</span></p></button>
+                    <button data-type="cooler"><p>Cooler <span class="selected-name">None</span></p></button>
+                    <button data-type="gpu"><p>GPU <span class="selected-name">None</span></p></button>
+                    <button data-type="psu"><p>PSU <span class="selected-name">None</span></p></button>
+                </div>
 
             
         </section>   

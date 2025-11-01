@@ -102,6 +102,29 @@ class BuildController extends Controller
             ], 500);
         }
 
+
+        // 🟢 Reformat the build array to match session structure
+        $formatted = [];
+        foreach ($build as $type => $data) {
+            // Skip non-component keys like 'budget_summary'
+            if ($type === 'budget_summary') continue;
+
+            // Convert "pc_case" → "case" for consistency
+            $cleanType = str_replace('pc_', '', $type);
+
+            $formatted[$cleanType] = [
+                'componentId' => $data['id'] ?? null,
+                'name'        => $data['name'] ?? '',
+                'price'       => $data['price'] ?? 0,
+                'imageUrl'    => $data['image'] ?? null,
+            ];
+        }
+
+        // 🟢 Store in session
+        session(['selected_components' => $formatted]);
+
+
+        
         return response()->json($build);
     }
 
@@ -257,6 +280,7 @@ class BuildController extends Controller
 
         return response()->json(['message' => 'Component stored successfully']);
     }
+
     public function updateSession(Request $request)
     {
         $selectedComponents = $request->input('selected_components', []);
