@@ -186,7 +186,7 @@ function setupDragAndDrop() {
             mobomarker.rotation.x = 0; // No rotation on the Y axis
             mobomarker.rotation.y = Math.PI / 2;  // 90 degrees        
             mobomarker.rotation.z = 0;          // No rotation on the Z axis
-            mobomarker.position.set(moboSlotPosition.x, moboSlotPosition.y + -1, moboSlotPosition.z + -1.4); // Position the mobomarker
+            mobomarker.position.set(moboSlotPosition.x, moboSlotPosition.y - 0.9, moboSlotPosition.z + -0.61); // Position the mobomarker
             scene.add(mobomarker);
           }
         } 
@@ -206,8 +206,7 @@ function setupDragAndDrop() {
 
             // Optionally, create a visible marker at the slot position
             psumarker = new THREE.Mesh(
-              new THREE.BoxGeometry(1, .8, 2),
-              new THREE.BoxGeometry(1, .8, 2),
+              new THREE.BoxGeometry(2, 1.02, 1.8),
               new THREE.MeshStandardMaterial({
                 color: 0x00ff00,
                 emissive: 0x003300,
@@ -221,8 +220,7 @@ function setupDragAndDrop() {
             psumarker.rotation.x = 0; // No rotation on the Y axis
             psumarker.rotation.y = Math.PI / 2;  // 90 degrees        
             psumarker.rotation.z = 0;          // No rotation on the Z axis
-            psumarker.position.set(psuSlotPosition.x + 1.4, psuSlotPosition.y + .4, psuSlotPosition.z + -1); // Position the psumarker
-            psumarker.position.set(psuSlotPosition.x + 1.4, psuSlotPosition.y + .4, psuSlotPosition.z + -1); // Position the psumarker
+            psumarker.position.set(psuSlotPosition.x + 0.79, psuSlotPosition.y - .4, psuSlotPosition.z - 1); // Position the psumarker
             scene.add(psumarker);
           }
         } 
@@ -242,7 +240,7 @@ function setupDragAndDrop() {
 
             // Optionally, create a visible marker at the slot position
             cpumarker = new THREE.Mesh(
-              new THREE.BoxGeometry(2, 2, 0.1),
+              new THREE.BoxGeometry(0.8, 0.8, 0.1),
               new THREE.MeshStandardMaterial({
                 color: 0x00ff00,
                 emissive: 0x003300,
@@ -256,7 +254,7 @@ function setupDragAndDrop() {
             cpumarker.rotation.x = 0; // No rotation on the Y axis
             cpumarker.rotation.y = Math.PI / 2;  // 90 degrees        
             cpumarker.rotation.z = 0;          // No rotation on the Z axis
-            cpumarker.position.set(cpuSlotPosition.x, cpuSlotPosition.y + -1, cpuSlotPosition.z + -1.4); // Position the cpumarker
+            cpumarker.position.set(cpuSlotPosition.x, cpuSlotPosition.y + .2, cpuSlotPosition.z - 0.07); // Position the cpumarker
             scene.add(cpumarker);
           }
           
@@ -278,7 +276,7 @@ function setupDragAndDrop() {
 
             // Optionally, create a visible marker at the slot position
             coolermarker = new THREE.Mesh(
-              new THREE.BoxGeometry(2, 2, 0.1),
+              new THREE.BoxGeometry(0.8, 0.8, 0.1),
               new THREE.MeshStandardMaterial({
                 color: 0x00ff00,
                 emissive: 0x003300,
@@ -292,7 +290,7 @@ function setupDragAndDrop() {
             coolermarker.rotation.x = 0; // No rotation on the Y axis
             coolermarker.rotation.y = Math.PI / 2;  // 90 degrees        
             coolermarker.rotation.z = 0;          // No rotation on the Z axis
-            coolermarker.position.set(coolerSlotPosition.x, coolerSlotPosition.y + -1, coolerSlotPosition.z + -1.4); // Position the coolermarker
+            coolermarker.position.set(coolerSlotPosition.x, coolerSlotPosition.y, coolerSlotPosition.z - 0.02); // Position the coolermarker
             scene.add(coolermarker);
           }
           
@@ -313,7 +311,7 @@ function setupDragAndDrop() {
 
             // Optionally, create a visible marker at the slot position
             ssdmarker = new THREE.Mesh(
-              new THREE.BoxGeometry(2, 2, 0.1),
+              new THREE.BoxGeometry(0.8, 0.2, 0.1),
               new THREE.MeshStandardMaterial({
                 color: 0x00ff00,
                 emissive: 0x003300,
@@ -327,7 +325,7 @@ function setupDragAndDrop() {
             ssdmarker.rotation.x = 0; // No rotation on the Y axis
             ssdmarker.rotation.y = Math.PI / 2;  // 90 degrees        
             ssdmarker.rotation.z = 0;          // No rotation on the Z axis
-            ssdmarker.position.set(ssdSlotPosition.x, ssdSlotPosition.y + -1, ssdSlotPosition.z + -1.4); // Position the ssdmarker
+            ssdmarker.position.set(ssdSlotPosition.x, ssdSlotPosition.y + 0.11, ssdSlotPosition.z + 0.4); // Position the ssdmarker
             scene.add(ssdmarker);
           }
           
@@ -348,7 +346,7 @@ function setupDragAndDrop() {
 
             // Optionally, create a visible marker at the slot position
             gpumarker = new THREE.Mesh(
-              new THREE.BoxGeometry(2, 2, 0.1),
+              new THREE.BoxGeometry(2, 0.5, 1),
               new THREE.MeshStandardMaterial({
                 color: 0x00ff00,
                 emissive: 0x003300,
@@ -362,7 +360,7 @@ function setupDragAndDrop() {
             gpumarker.rotation.x = 0; // No rotation on the Y axis
             gpumarker.rotation.y = Math.PI / 2;  // 90 degrees        
             gpumarker.rotation.z = 0;          // No rotation on the Z axis
-            gpumarker.position.set(ssdSlotPosition.x, ssdSlotPosition.y + -1, ssdSlotPosition.z + -1.4); // Position the gpumarker
+            gpumarker.position.set(ssdSlotPosition.x + 0.5, ssdSlotPosition.y - 0.3, ssdSlotPosition.z + 0.6); // Position the gpumarker
             scene.add(gpumarker);
           }
           
@@ -388,7 +386,7 @@ function setupDragAndDrop() {
 
             // Optionally, create a visible marker at the slot position
             rammarker = new THREE.Mesh(
-              new THREE.BoxGeometry(2, 2, 0.1),
+              new THREE.BoxGeometry(0.1, 1.6, 0.1),
               new THREE.MeshStandardMaterial({
                 color: 0x00ff00,
                 emissive: 0x003300,
@@ -405,7 +403,7 @@ function setupDragAndDrop() {
             // Use the position of the first RAM slot for the marker
             const ramSlotPosition = new THREE.Vector3();
             firstRamSlot.getWorldPosition(ramSlotPosition);
-            rammarker.position.set(ramSlotPosition.x, ramSlotPosition.y + -1, ramSlotPosition.z + -1.4); // Position the rammarker
+            rammarker.position.set(ramSlotPosition.x, ramSlotPosition.y + 0.04, ramSlotPosition.z - 0.01); // Position the rammarker
             scene.add(rammarker);
           }
         }

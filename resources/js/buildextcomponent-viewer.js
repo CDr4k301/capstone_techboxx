@@ -165,7 +165,7 @@ interact('.component-button').draggable({
                     moboMarker.rotation.x = 0;
                     moboMarker.rotation.y = Math.PI / 2;
                     moboMarker.rotation.z = 0;
-                    moboMarker.position.set(moboSlotPosition.x, moboSlotPosition.y + -1.4, moboSlotPosition.z + -2);
+                    mobomarker.position.set(moboSlotPosition.x, moboSlotPosition.y - 0.9, moboSlotPosition.z - 0.61); // Position the mobomarker
                     scene.add(moboMarker);
                 }
             }

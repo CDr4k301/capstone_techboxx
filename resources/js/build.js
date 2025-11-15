@@ -548,7 +548,7 @@ document.querySelectorAll('.catalog-item').forEach(item => {
         const price = parseFloat(item.getAttribute('data-price'));
         const componentId = item.getAttribute('data-id');
         const imageUrl = item.getAttribute('data-image');
-        const model = item.getAttribute('data-model');
+        const modelUrl = item.getAttribute('data-model');
 
         // Console log all the data
         console.log('Selected Component:', {
@@ -558,10 +558,10 @@ document.querySelectorAll('.catalog-item').forEach(item => {
             price: price,
             id: componentId,
             image: imageUrl,
-            model3d: model
+            model: modelUrl
         });
         // STORE SELECTED COMPONENT
-        window.selectedComponents[type] = { componentId, name, price, imageUrl };
+        window.selectedComponents[type] = { componentId, name, price, imageUrl, modelUrl };
 
         // CALL TOGGLE STORAGE IF SSD OR HDD IS SELECTED
         if (type === 'ssd' || type === 'hdd') {
@@ -580,7 +580,8 @@ document.querySelectorAll('.catalog-item').forEach(item => {
                 name,
                 price,
                 componentId,
-                imageUrl
+                imageUrl,
+                modelUrl
             })
         })
         .then(response => response.json())

@@ -17,6 +17,7 @@
         ])
     
 </head>
+
 <body x-data="{ 
     showModal: false,
     modalType: 'order', // 'order' or 'save'
@@ -637,4 +638,5 @@ class="flex">
         </section>    
     </main>
 </body>
+
 </html>
