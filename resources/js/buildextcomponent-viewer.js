@@ -37,6 +37,103 @@ init();
 setupCatalogClickHandlers();
 animate();
 
+// Add this function to initialize from session data
+async function initializeFromSession() {
+    console.log('Initializing from session data:', window.selectedComponents);
+    
+    if (!window.selectedComponents) return;
+    
+    // Load case if selected
+    if (window.selectedComponents.case && window.selectedComponents.case.modelUrl) {
+        selectedCaseModelUrl = window.selectedComponents.case.modelUrl;
+        console.log('Loading case from session:', selectedCaseModelUrl);
+        await spawnCase(new THREE.Vector3(0, 0, 0), selectedCaseModelUrl);
+    }
+    
+    // Load motherboard if selected (after case)
+    if (window.selectedComponents.motherboard && window.selectedComponents.motherboard.modelUrl && caseModel) {
+        selectedMoboModelUrl = window.selectedComponents.motherboard.modelUrl;
+        console.log('Loading motherboard from session:', selectedMoboModelUrl);
+        await spawnMoboAtSlot();
+    }
+    
+    // Load other components in dependency order
+    if (window.selectedComponents.cpu && window.selectedComponents.cpu.modelUrl && moboModel) {
+        selectedCpuModelUrl = window.selectedComponents.cpu.modelUrl;
+        await spawnCpuAtSlot();
+    }
+    
+    if (window.selectedComponents.psu && window.selectedComponents.psu.modelUrl && caseModel) {
+        selectedPsuModelUrl = window.selectedComponents.psu.modelUrl;
+        await spawnPsuAtSlot();
+    }
+    
+    if (window.selectedComponents.cooler && window.selectedComponents.cooler.modelUrl && moboModel) {
+        selectedCoolerModelUrl = window.selectedComponents.cooler.modelUrl;
+        await spawnCoolerAtSlot();
+    }
+    
+    if (window.selectedComponents.ssd && window.selectedComponents.ssd.modelUrl && moboModel) {
+        selectedSsdModelUrl = window.selectedComponents.ssd.modelUrl;
+        await spawnSsdAtSlot();
+    }
+    
+    if (window.selectedComponents.gpu && window.selectedComponents.gpu.modelUrl && moboModel) {
+        selectedGpuModelUrl = window.selectedComponents.gpu.modelUrl;
+        await spawnGpuAtSlot();
+    }
+    
+    if (window.selectedComponents.ram && window.selectedComponents.ram.modelUrl && moboModel) {
+        selectedRamModelUrl = window.selectedComponents.ram.modelUrl;
+        await spawnRamAtSlot();
+    }
+}
+
+function init() {
+    // Scene
+    scene = new THREE.Scene();
+    scene.background = null; // transparent background
+
+    // Camera
+    const container = document.getElementById('canvas-container');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 1000);
+    camera.position.set(20, 0, 0);
+
+    // Renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    container.appendChild(renderer.domElement);
+
+    // Controls
+    controls = new OrbitControls(camera, renderer.domElement);
+
+    // Lights
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 7.0);
+    dirLight.position.set(2, 10, 5);
+    scene.add(dirLight);
+
+    // Resize listener
+    window.addEventListener('resize', () => {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+    });
+
+    // NEW: Initialize from session data after a short delay to ensure DOM is ready
+    setTimeout(() => {
+        initializeFromSession();
+    }, 500);
+}
+init();
+setupCatalogClickHandlers();
+animate();
+
 function init() {
     // Scene
     scene = new THREE.Scene();
@@ -165,7 +262,7 @@ interact('.component-button').draggable({
                     moboMarker.rotation.x = 0;
                     moboMarker.rotation.y = Math.PI / 2;
                     moboMarker.rotation.z = 0;
-                    mobomarker.position.set(moboSlotPosition.x, moboSlotPosition.y - 0.9, moboSlotPosition.z - 0.61); // Position the mobomarker
+                    moboMarker.position.set(moboSlotPosition.x, moboSlotPosition.y - 0.9, moboSlotPosition.z - 0.61); // Position the mobomarker
                     scene.add(moboMarker);
                 }
             }
@@ -198,7 +295,7 @@ interact('.component-button').draggable({
                 const psuSlot = caseModel.getObjectByName('Slot_Psu');
                 if (psuSlot) {
                     const psumarker = new THREE.Mesh(
-                        new THREE.BoxGeometry(1, 0.8, 2),
+                        new THREE.BoxGeometry(2, 1.02, 1.8),
                         new THREE.MeshStandardMaterial({
                             color: 0x00ff00,
                             emissive: 0x003300,
@@ -212,7 +309,7 @@ interact('.component-button').draggable({
                     
                     const psuSlotPosition = new THREE.Vector3();
                     psuSlot.getWorldPosition(psuSlotPosition);
-                    psumarker.position.set(psuSlotPosition.x + 1.4, psuSlotPosition.y + 0.4, psuSlotPosition.z + -1);
+                    psumarker.position.set(psuSlotPosition.x + 0.79, psuSlotPosition.y - .4, psuSlotPosition.z - 1); // Position the psumarker
                     scene.add(psumarker);
                 }
             }
@@ -221,7 +318,7 @@ interact('.component-button').draggable({
                 const coolerSlot = moboModel.getObjectByName('Slot_Cooler');
                 if (coolerSlot) {
                     const coolermarker = new THREE.Mesh(
-                        new THREE.BoxGeometry(2, 2, 0.1),
+                        new THREE.BoxGeometry(0.8, 0.8, 0.1),
                         new THREE.MeshStandardMaterial({
                             color: 0x00ff00,
                             emissive: 0x003300,
@@ -235,7 +332,7 @@ interact('.component-button').draggable({
                     
                     const coolerSlotPosition = new THREE.Vector3();
                     coolerSlot.getWorldPosition(coolerSlotPosition);
-                    coolermarker.position.set(coolerSlotPosition.x, coolerSlotPosition.y + -1, coolerSlotPosition.z + -1.4);
+                    coolermarker.position.set(coolerSlotPosition.x, coolerSlotPosition.y, coolerSlotPosition.z - 0.02); // Position the coolermarker
                     scene.add(coolermarker);
                 }
             }
@@ -244,7 +341,7 @@ interact('.component-button').draggable({
                 const ssdSlot = moboModel.getObjectByName('Slot_Ssd');
                 if (ssdSlot) {
                     const ssdmarker = new THREE.Mesh(
-                        new THREE.BoxGeometry(2, 2, 0.1),
+                        new THREE.BoxGeometry(0.8, 0.2, 0.1),
                         new THREE.MeshStandardMaterial({
                             color: 0x00ff00,
                             emissive: 0x003300,
@@ -258,7 +355,7 @@ interact('.component-button').draggable({
                     
                     const ssdSlotPosition = new THREE.Vector3();
                     ssdSlot.getWorldPosition(ssdSlotPosition);
-                    ssdmarker.position.set(ssdSlotPosition.x, ssdSlotPosition.y + -1, ssdSlotPosition.z + -1.4);
+                    ssdmarker.position.set(ssdSlotPosition.x, ssdSlotPosition.y + 0.11, ssdSlotPosition.z + 0.4); // Position the ssdmarker
                     scene.add(ssdmarker);
                 }
             }
@@ -267,7 +364,7 @@ interact('.component-button').draggable({
                 const gpuSlot = moboModel.getObjectByName('Slot_Gpu');
                 if (gpuSlot) {
                     const gpumarker = new THREE.Mesh(
-                        new THREE.BoxGeometry(2, 2, 0.1),
+                        new THREE.BoxGeometry(2, 0.5, 1),
                         new THREE.MeshStandardMaterial({
                             color: 0x00ff00,
                             emissive: 0x003300,
@@ -281,7 +378,7 @@ interact('.component-button').draggable({
                     
                     const gpuSlotPosition = new THREE.Vector3();
                     gpuSlot.getWorldPosition(gpuSlotPosition);
-                    gpumarker.position.set(gpuSlotPosition.x, gpuSlotPosition.y + -1, gpuSlotPosition.z + -1.4);
+                    gpumarker.position.set(ssdSlotPosition.x + 0.5, ssdSlotPosition.y - 0.3, ssdSlotPosition.z + 0.6); // Position the gpumarker
                     scene.add(gpumarker);
                 }
             }
@@ -292,7 +389,7 @@ interact('.component-button').draggable({
                 
                 if (ramSlot01 || ramSlot02) {
                     const rammarker = new THREE.Mesh(
-                        new THREE.BoxGeometry(2, 2, 0.1),
+                        new THREE.BoxGeometry(0.1, 1.6, 0.1),
                         new THREE.MeshStandardMaterial({
                             color: 0x00ff00,
                             emissive: 0x003300,
@@ -307,7 +404,7 @@ interact('.component-button').draggable({
                     const firstRamSlot = ramSlot01 || ramSlot02;
                     const ramSlotPosition = new THREE.Vector3();
                     firstRamSlot.getWorldPosition(ramSlotPosition);
-                    rammarker.position.set(ramSlotPosition.x, ramSlotPosition.y + -1, ramSlotPosition.z + -1.4);
+                    rammarker.position.set(ramSlotPosition.x, ramSlotPosition.y + 0.04, ramSlotPosition.z - 0.01); // Position the rammarker
                     scene.add(rammarker);
                 }
             }
